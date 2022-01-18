@@ -2,7 +2,7 @@
   Copyright (c) 2022 Preponderous Software
   MIT License
  */
-package preponderous.environment;
+package preponderous.environmentlib;
 
 /**
  * @author Daniel McCoy Stephenson

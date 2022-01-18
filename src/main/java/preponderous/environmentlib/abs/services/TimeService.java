@@ -2,10 +2,10 @@
   Copyright (c) 2022 Preponderous Software
   MIT License
  */
-package preponderous.environment.abs.services;
+package preponderous.environmentlib.abs.services;
 
-import preponderous.environment.misc.CONFIG;
-import preponderous.environment.utils.Logger;
+import preponderous.environmentlib.misc.CONFIG;
+import preponderous.environmentlib.utils.Logger;
 
 import java.util.concurrent.TimeUnit;
 

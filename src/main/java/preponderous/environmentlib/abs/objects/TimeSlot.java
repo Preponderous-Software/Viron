@@ -2,10 +2,9 @@
   Copyright (c) 2022 Preponderous Software
   MIT License
  */
-package preponderous.environment.abs.objects;
+package preponderous.environmentlib.abs.objects;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * @author Daniel McCoy Stephenson

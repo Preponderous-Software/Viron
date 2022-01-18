@@ -2,9 +2,9 @@
   Copyright (c) 2022 Preponderous Software
   MIT License
  */
-package preponderous.environment.abs.objects;
+package preponderous.environmentlib.abs.objects;
 
-import preponderous.environment.misc.CONFIG;
+import preponderous.environmentlib.misc.CONFIG;
 
 import java.util.ArrayList;
 import java.util.UUID;

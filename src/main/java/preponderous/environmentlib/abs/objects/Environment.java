@@ -60,7 +60,7 @@ public abstract class Environment {
     }
 
     public boolean isEntityPresent(Entity entity) {
-        return entityUUIDs.contains(entity);
+        return entityUUIDs.contains(entity.getUUID());
     }
 
     public int getNumEntities() {

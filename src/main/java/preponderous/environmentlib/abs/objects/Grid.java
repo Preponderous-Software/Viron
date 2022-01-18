@@ -18,16 +18,16 @@ public abstract class Grid {
     private ArrayList<UUID> locationUUIDs = new ArrayList<>();
     private int columns;
     private int rows;
-    private UUID primaryLocationUUID;
     private UUID parentEnvironmentUUID;
 
     public Grid(int columns, int rows, UUID parentEnvironmentUUID) {
         uuid = UUID.randomUUID();
         this.columns = columns;
         this.rows = rows;
-        this.primaryLocationUUID = getFirstLocationUUID();
         this.parentEnvironmentUUID = parentEnvironmentUUID;
     }
+
+    public abstract Location getLocation(int x, int y);
 
     public UUID getUUID() {
         return uuid;
@@ -39,6 +39,14 @@ public abstract class Grid {
 
     public void setLocationUUIDs(ArrayList<UUID> gridLocations) {
         this.locationUUIDs = gridLocations;
+    }
+
+    public void addLocationUUID(UUID uuid) {
+        locationUUIDs.add(uuid);
+    }
+
+    public void removeLocationUUID(UUID uuid) {
+        locationUUIDs.remove(uuid);
     }
 
     public int getColumns() {
@@ -57,14 +65,6 @@ public abstract class Grid {
         this.rows = rows;
     }
 
-    public UUID getPrimaryLocationUUID() {
-        return primaryLocationUUID;
-    }
-
-    public void setPrimaryLocationUUID(UUID primaryLocationUUID) {
-        this.primaryLocationUUID = primaryLocationUUID;
-    }
-
     public UUID getParentEnvironmentUUID() {
         return parentEnvironmentUUID;
     }
@@ -73,7 +73,9 @@ public abstract class Grid {
         this.parentEnvironmentUUID = parentEnvironmentUUID;
     }
 
-    public abstract Location getLocation(int x, int y);
+    public UUID getFirstLocationUUID() {
+        return locationUUIDs.get(0);
+    }
 
     @Override
     public String toString() {
@@ -110,10 +112,6 @@ public abstract class Grid {
             toReturn.append("\n");
         }
         return toReturn.toString();
-    }
-
-    public UUID getFirstLocationUUID() {
-        return locationUUIDs.get(0);
     }
 
     protected void setUUID(UUID uuid) {

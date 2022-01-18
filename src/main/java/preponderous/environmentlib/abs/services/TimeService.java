@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Daniel McCoy Stephenson
- * @since January 8th, 2022
+ * @since January 17th, 2022
  */
 public abstract class TimeService extends Thread {
     private boolean running;

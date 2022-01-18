@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /**
  * @author Daniel McCoy Stephenson
- * @since January 8th, 2022
+ * @since January 17th, 2022
  * @brief This class is intended to represent a finite slot of time.
  */
 public abstract class TimeSlot {

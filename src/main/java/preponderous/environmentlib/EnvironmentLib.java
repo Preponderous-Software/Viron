@@ -6,13 +6,13 @@ package preponderous.environmentlib;
 
 /**
  * @author Daniel McCoy Stephenson
- * @since 10/12/2021
+ * @since January 17th, 2022
  */
 public class EnvironmentLib {
     private boolean debugFlag = false;
 
     public String getVersion() {
-        return "v0.15-alpha-1";
+        return "v0.1";
     }
 
     public boolean isDebugEnabled() {

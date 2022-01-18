@@ -6,7 +6,7 @@ package preponderous.environmentlib.misc;
 
 /**
  * @author Daniel McCoy Stephenson
- * @since January 15th, 2022
+ * @since January 17th, 2022
  */
 public class CONFIG {
     public static boolean DEBUG_FLAG = false;

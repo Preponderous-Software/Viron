@@ -11,10 +11,10 @@ import java.util.UUID;
 
 /**
  * @author Daniel McCoy Stephenson
- * @since January 7th, 2022
+ * @since January 17th, 2022
  */
 public abstract class Grid {
-    private UUID uuid;
+    private final UUID uuid;
     private ArrayList<UUID> locationUUIDs = new ArrayList<>();
     private int columns;
     private int rows;

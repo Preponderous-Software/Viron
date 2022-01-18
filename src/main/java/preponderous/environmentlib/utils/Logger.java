@@ -8,7 +8,7 @@ import preponderous.environmentlib.misc.CONFIG;
 
 /**
  * @author Daniel McCoy Stephenson
- * @since January 7th, 2022
+ * @since January 17th, 2022
  */
 public class Logger {
     private static Logger instance;

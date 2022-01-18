@@ -25,7 +25,6 @@ public abstract class Grid {
         uuid = UUID.randomUUID();
         this.columns = columns;
         this.rows = rows;
-        createGrid();
         this.primaryLocationUUID = getFirstLocationUUID();
         this.parentEnvironmentUUID = parentEnvironmentUUID;
     }
@@ -112,8 +111,6 @@ public abstract class Grid {
         }
         return toReturn.toString();
     }
-
-    public abstract void createGrid();
 
     public UUID getFirstLocationUUID() {
         return locationUUIDs.get(0);

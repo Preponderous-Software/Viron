@@ -24,9 +24,6 @@ public abstract class Entity {
         creationDate = LocalDateTime.now();
     }
 
-    public abstract Environment getEnvironment();
-    public abstract Location getLocation();
-
     public UUID getUUID() {
         return uuid;
     }

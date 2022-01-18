@@ -26,8 +26,6 @@ public abstract class Environment {
         this.gridUUID = gridUUID;
     }
 
-    public abstract Grid getGrid();
-
     public UUID getUUID() {
         return uuid;
     }

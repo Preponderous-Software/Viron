@@ -14,7 +14,7 @@ import java.util.UUID;
  * @since January 17th, 2022
  */
 public abstract class Grid {
-    private final UUID uuid;
+    private UUID uuid;
     private ArrayList<UUID> locationUUIDs = new ArrayList<>();
     private int columns;
     private int rows;
@@ -115,7 +115,11 @@ public abstract class Grid {
 
     public abstract void createGrid();
 
-    private UUID getFirstLocationUUID() {
+    public UUID getFirstLocationUUID() {
         return locationUUIDs.get(0);
+    }
+
+    protected void setUUID(UUID uuid) {
+        this.uuid = uuid;
     }
 }

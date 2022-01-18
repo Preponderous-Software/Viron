@@ -12,7 +12,7 @@ public class EnvironmentLib {
     private boolean debugFlag = false;
 
     public String getVersion() {
-        return "v0.1";
+        return "v0.2";
     }
 
     public boolean isDebugEnabled() {

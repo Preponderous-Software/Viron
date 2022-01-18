@@ -13,11 +13,11 @@ import java.util.UUID;
  * @since January 17th, 2022
  */
 public abstract class Environment {
-    private final UUID uuid;
+    private UUID uuid;
     private String name;
-    private final LocalDateTime creationDate;
-    private final UUID gridUUID;
-    private final HashSet<UUID> entities = new HashSet<>();
+    private LocalDateTime creationDate;
+    private UUID gridUUID;
+    private HashSet<UUID> entityUUIDs = new HashSet<>();
 
     public Environment(String name, UUID gridUUID) {
         uuid = UUID.randomUUID();
@@ -25,8 +25,6 @@ public abstract class Environment {
         creationDate = LocalDateTime.now();
         this.gridUUID = gridUUID;
     }
-
-    public abstract Grid getGrid();
 
     public UUID getUUID() {
         return uuid;
@@ -48,16 +46,40 @@ public abstract class Environment {
         return creationDate;
     }
 
+    public HashSet<UUID> getEntityUUIDs() {
+        return entityUUIDs;
+    }
+
     public void addEntity(Entity entity) {
-        entities.add(entity.getUUID());
+        entityUUIDs.add(entity.getUUID());
         entity.setEnvironmentUUID(getUUID());
     }
 
     public void removeEntity(Entity entity) {
-        entities.remove(entity.getUUID());
+        entityUUIDs.remove(entity.getUUID());
     }
 
     public boolean isEntityPresent(Entity entity) {
-        return entities.contains(entity);
+        return entityUUIDs.contains(entity.getUUID());
+    }
+
+    public int getNumEntities() {
+        return entityUUIDs.size();
+    }
+
+    protected void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    protected void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    protected void setGridUUID(UUID gridUUID) {
+        this.gridUUID = gridUUID;
+    }
+
+    protected void setEntityUUIDs(HashSet<UUID> entityUUIDS) {
+        this.entityUUIDs = entityUUIDS;
     }
 }

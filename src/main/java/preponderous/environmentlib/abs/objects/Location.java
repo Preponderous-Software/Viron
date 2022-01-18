@@ -11,7 +11,7 @@ import java.util.*;
  * @since January 17th, 2022
  */
 public abstract class Location {
-    private final UUID uuid;
+    private UUID uuid;
     private int x;
     private int y;
     private UUID parentGridUUID;
@@ -23,13 +23,6 @@ public abstract class Location {
         this.y = y;
         this.parentGridUUID = gridUUID;
     }
-
-    public abstract Location getRandomAdjacentLocation();
-    public abstract Grid getParentGrid();
-    public abstract Location getUp(Grid grid);
-    public abstract Location getRight(Grid grid);
-    public abstract Location getDown(Grid grid);
-    public abstract Location getLeft(Grid grid);
 
     public UUID getUUID() {
         return uuid;
@@ -83,5 +76,9 @@ public abstract class Location {
     @Override
     public String toString() {
         return "(" + getX() + ", " + getY() + ")";
+    }
+
+    protected void setUUID(UUID uuid) {
+        this.uuid = uuid;
     }
 }

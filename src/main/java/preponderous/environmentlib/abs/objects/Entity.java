@@ -12,9 +12,9 @@ import java.util.UUID;
  * @since January 17th, 2022
  */
 public abstract class Entity {
-    private final UUID uuid;
+    private UUID uuid;
     private String name;
-    private final LocalDateTime creationDate;
+    private LocalDateTime creationDate;
     private UUID environmentUUID;
     private UUID locationUUID;
 
@@ -23,9 +23,6 @@ public abstract class Entity {
         this.name = name;
         creationDate = LocalDateTime.now();
     }
-
-    public abstract Environment getEnvironment();
-    public abstract Location getLocation();
 
     public UUID getUUID() {
         return uuid;
@@ -51,11 +48,19 @@ public abstract class Entity {
         this.environmentUUID = environmentUUID;
     }
 
-    private UUID getLocationUUID() {
+    public UUID getLocationUUID() {
         return locationUUID;
     }
 
     public void setLocationUUID(UUID locationUUD) {
         this.locationUUID = locationUUD;
+    }
+
+    protected void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    protected void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }

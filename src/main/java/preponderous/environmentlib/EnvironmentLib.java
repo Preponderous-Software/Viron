@@ -4,23 +4,24 @@
  */
 package preponderous.environmentlib;
 
+import preponderous.environmentlib.misc.CONFIG;
+
 /**
  * @author Daniel McCoy Stephenson
  * @since January 17th, 2022
  */
 public class EnvironmentLib {
-    private boolean debugFlag = false;
 
     public String getVersion() {
-        return "v0.2";
+        return "v0.3-alpha-1";
     }
 
     public boolean isDebugEnabled() {
-        return debugFlag;
+        return CONFIG.DEBUG_FLAG;
     }
 
     public void setDebugFlag(boolean b) {
-        debugFlag = b;
+        CONFIG.DEBUG_FLAG = b;
     }
 
     /**
@@ -29,7 +30,7 @@ public class EnvironmentLib {
      * @return boolean signifying success
      */
     public boolean log(String message) {
-        if (debugFlag) {
+        if (isDebugEnabled()) {
             System.out.println("[EnvironmentLib] " + message);
             return true;
         }

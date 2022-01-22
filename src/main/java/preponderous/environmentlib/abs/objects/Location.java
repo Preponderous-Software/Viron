@@ -70,7 +70,11 @@ public abstract class Location {
     }
 
     public boolean isEntityPresent(Entity entity) {
-        return entityUUIDs.contains(entity);
+        return entityUUIDs.contains(entity.getUUID());
+    }
+
+    public int getNumEntities() {
+        return entityUUIDs.size();
     }
 
     @Override

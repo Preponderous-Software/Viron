@@ -13,7 +13,7 @@ import preponderous.environmentlib.misc.CONFIG;
 public class EnvironmentLib {
 
     public String getVersion() {
-        return "v0.3-alpha-1";
+        return "v0.3";
     }
 
     public boolean isDebugEnabled() {

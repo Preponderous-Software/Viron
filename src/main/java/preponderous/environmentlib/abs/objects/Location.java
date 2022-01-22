@@ -77,6 +77,11 @@ public abstract class Location {
         return entityUUIDs.size();
     }
 
+    public UUID getRandomEntityUUID() {
+        UUID[] entitiesArray = entityUUIDs.toArray(new UUID[entityUUIDs.size()]);
+        return entitiesArray[new Random().nextInt(entitiesArray.length)];
+    }
+
     @Override
     public String toString() {
         return "(" + getX() + ", " + getY() + ")";

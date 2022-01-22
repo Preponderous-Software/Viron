@@ -78,7 +78,7 @@ public abstract class Location {
     }
 
     public UUID getRandomEntityUUID() {
-        UUID[] entitiesArray = (UUID[]) entityUUIDs.toArray();
+        UUID[] entitiesArray = entityUUIDs.toArray(new UUID[entityUUIDs.size()]);
         return entitiesArray[new Random().nextInt(entitiesArray.length)];
     }
 

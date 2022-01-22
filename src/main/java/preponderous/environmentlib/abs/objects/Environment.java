@@ -38,16 +38,16 @@ public abstract class Environment {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
     public HashSet<UUID> getEntityUUIDs() {
         return entityUUIDs;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void addEntity(Entity entity) {

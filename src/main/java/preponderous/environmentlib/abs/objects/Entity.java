@@ -32,10 +32,6 @@ public abstract class Entity {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
@@ -44,12 +40,16 @@ public abstract class Entity {
         return environmentUUID;
     }
 
-    public void setEnvironmentUUID(UUID environmentUUID) {
-        this.environmentUUID = environmentUUID;
-    }
-
     public UUID getLocationUUID() {
         return locationUUID;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEnvironmentUUID(UUID environmentUUID) {
+        this.environmentUUID = environmentUUID;
     }
 
     public void setLocationUUID(UUID locationUUD) {

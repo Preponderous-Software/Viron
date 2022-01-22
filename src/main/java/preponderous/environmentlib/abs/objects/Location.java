@@ -32,28 +32,28 @@ public abstract class Location {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     public UUID getParentGridUUID() {
         return parentGridUUID;
     }
 
-    public void setParentGridUUID(UUID parentGridUUID) {
-        this.parentGridUUID = parentGridUUID;
-    }
-
     public HashSet<UUID> getEntityUUIDs() {
         return entityUUIDs;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void setParentGridUUID(UUID parentGridUUID) {
+        this.parentGridUUID = parentGridUUID;
     }
 
     public void setEntityUUIDs(HashSet<UUID> entityUUIDs) {

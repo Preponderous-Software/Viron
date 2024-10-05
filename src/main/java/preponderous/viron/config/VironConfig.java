@@ -1,3 +1,6 @@
+// Copyright (c) 2024 Preponderous Software
+// MIT License
+
 package preponderous.viron.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;

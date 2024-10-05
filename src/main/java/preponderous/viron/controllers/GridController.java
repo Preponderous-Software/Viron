@@ -1,3 +1,6 @@
+// Copyright (c) 2024 Preponderous Software
+// MIT License
+
 package preponderous.viron.controllers;
 
 import java.sql.ResultSet;

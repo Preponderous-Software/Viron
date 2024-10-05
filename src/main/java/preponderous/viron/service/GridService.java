@@ -1,4 +1,10 @@
+// Copyright (c) 2024 Preponderous Software
+// MIT License
+
 package preponderous.viron.service;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -8,9 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import preponderous.viron.models.Grid;
-
-import java.util.List;
-import java.util.Arrays;
 
 @Service
 public class GridService {

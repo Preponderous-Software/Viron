@@ -73,4 +73,10 @@ public class EnvironmentController {
         }
         return null;
     }
+
+    // TODO: implement 'create' endpoint
+
+    // TODO: implement 'delete' endpoint
+
+    // TODO: implement 'set name' endpoint
 }

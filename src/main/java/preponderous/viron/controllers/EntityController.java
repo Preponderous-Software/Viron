@@ -108,4 +108,10 @@ public class EntityController {
         }
         return entities;
     }
+
+    // TODO: implement 'create' endpoint
+
+    // TODO: implement 'delete' endpoint
+
+    // TODO: implement 'set name' endpoint
 }

@@ -107,4 +107,8 @@ public class LocationController {
         }
         return null;
     }
+
+    // TODO: implement 'add entity' endpoint
+
+    // TODO: implement 'remove entity' endpoint
 }

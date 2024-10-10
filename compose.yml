@@ -19,7 +19,7 @@ services:
     build: .
     container_name: viron
     ports:
-      - "8000:8000"
+      - "9999:9999"
     environment:
       CONFIG_DB_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
       CONFIG_DB_USERNAME: ${DB_USERNAME}

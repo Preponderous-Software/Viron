@@ -4,10 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class VironApplicationTests {
+class VironApplicationTest {
 
 	@Test
-	void contextLoads() {
+	void testInitialization() {
+		VironApplication vironApplication = new VironApplication();
 	}
 
 }

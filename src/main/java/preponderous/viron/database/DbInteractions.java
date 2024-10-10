@@ -8,6 +8,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +21,9 @@ import preponderous.viron.config.VironConfig;
 @Component
 public class DbInteractions {
     private Connection connection;
-    private VironConfig vironConfig;
+    private final VironConfig vironConfig;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public DbInteractions(VironConfig vironConfig) {
@@ -35,24 +39,26 @@ public class DbInteractions {
         try {
             return connection.createStatement().executeQuery(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error executing query: " + e.getMessage());
         }
         return null;
     }
 
-    public void update(String query) {
+    public boolean update(String query) {
         try {
-            connection.createStatement().executeUpdate(query);
+            int rowCount = connection.createStatement().executeUpdate(query);
+            return rowCount > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error executing update: " + e.getMessage());
         }
+        return false;
     }
 
     public void close() {
         try {
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error closing connection: " + e.getMessage());
         }
     }
 
@@ -64,7 +70,7 @@ public class DbInteractions {
         try {
             connection = DriverManager.getConnection(vironConfig.getDbUrl(), vironConfig.getDbUsername(), vironConfig.getDbPassword());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error connecting to the database: " + e.getMessage());
         }
         return connection;
     }
@@ -93,7 +99,7 @@ public class DbInteractions {
                 System.out.println(rs.getString("table_name"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error listing tables: " + e.getMessage());
         }
     }
 }

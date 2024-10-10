@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,8 @@ import preponderous.viron.models.Location;
 @RequestMapping("/location")
 public class LocationController {
     private final DbInteractions dbInteractions;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public LocationController(DbInteractions dbInteractions) {
@@ -38,7 +42,7 @@ public class LocationController {
                 locations.add(new Location(id, x, y));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting locations: " + e.getMessage());
         }
         return locations;
     }
@@ -53,7 +57,7 @@ public class LocationController {
                 return new Location(id, x, y);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting location by id: " + e.getMessage());
         }
         return null;
     }
@@ -70,7 +74,7 @@ public class LocationController {
                 locations.add(new Location(id, x, y));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting locations in environment: " + e.getMessage());
         }
         return locations;
     }
@@ -87,7 +91,7 @@ public class LocationController {
                 locations.add(new Location(id, x, y));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting locations in grid: " + e.getMessage());
         }
         return locations;
     }
@@ -103,12 +107,23 @@ public class LocationController {
                 return new Location(location_id, x, y);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting location of entity: " + e.getMessage());
         }
         return null;
     }
 
-    // TODO: implement 'add entity' endpoint
+    @RequestMapping("/add-entity-to-location/{entityId}/{locationId}")
+    public boolean addEntityToLocation(@PathVariable int entityId, @PathVariable int locationId) {
+        return dbInteractions.update("INSERT INTO viron.entity_location (entity_id, location_id) VALUES (" + entityId + ", " + locationId + ")");
+    }
 
-    // TODO: implement 'remove entity' endpoint
+    @RequestMapping("/remove-entity-from-location/{entityId}/{locationId}")
+    public boolean removeEntityFromLocation(@PathVariable int entityId, @PathVariable int locationId) {
+        return dbInteractions.update("DELETE FROM viron.entity_location WHERE entity_id = " + entityId + " AND location_id = " + locationId);
+    }
+
+    @RequestMapping("/remove-entity-from-current-location/{entityId}")
+    public boolean removeEntityFromCurrentLocation(@PathVariable int entityId) {
+        return dbInteractions.update("DELETE FROM viron.entity_location WHERE entity_id = " + entityId);
+    }
 }

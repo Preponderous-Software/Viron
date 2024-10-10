@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,8 @@ import preponderous.viron.models.Grid;
 @RequestMapping("/grid")
 public class GridController {
     private final DbInteractions dbInteractions;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public GridController(DbInteractions dbInteractions) {
@@ -38,7 +42,7 @@ public class GridController {
                 grids.add(new Grid(id, rows, columns));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting grids: " + e.getMessage());
         }
         return grids;
     }
@@ -53,7 +57,7 @@ public class GridController {
                 return new Grid(id, rows, columns);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting grid by id: " + e.getMessage());
         }
         return null;
     }
@@ -70,7 +74,7 @@ public class GridController {
                 grids.add(new Grid(id, rows, columns));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting grids for environment: " + e.getMessage());
         }
         return grids;
     }
@@ -86,7 +90,7 @@ public class GridController {
                 return new Grid(id, rows, columns);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error getting grid of entity: " + e.getMessage());
         }
         return null;
     }

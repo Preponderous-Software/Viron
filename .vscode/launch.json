@@ -6,34 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "LocationService",
-            "request": "launch",
-            "mainClass": "preponderous.viron.service.LocationService",
-            "projectName": "viron"
-        },
-        {
-            "type": "java",
-            "name": "GridService",
-            "request": "launch",
-            "mainClass": "preponderous.viron.service.GridService",
-            "projectName": "viron"
-        },
-        {
-            "type": "java",
-            "name": "EnvironmentService",
-            "request": "launch",
-            "mainClass": "preponderous.viron.service.EnvironmentService",
-            "projectName": "viron"
-        },
-        {
-            "type": "java",
-            "name": "EntityService",
-            "request": "launch",
-            "mainClass": "preponderous.viron.service.EntityService",
-            "projectName": "viron"
-        },
-        {
-            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"

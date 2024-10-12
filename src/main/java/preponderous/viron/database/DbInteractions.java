@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import preponderous.viron.config.VironConfig;
+import preponderous.viron.config.DbConfig;
 
 /**
  * Postgres database interactions.
@@ -21,13 +21,13 @@ import preponderous.viron.config.VironConfig;
 @Component
 public class DbInteractions {
     private Connection connection;
-    private final VironConfig vironConfig;
+    private final DbConfig dbConfig;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public DbInteractions(VironConfig vironConfig) {
-        this.vironConfig = vironConfig;
+    public DbInteractions(DbConfig vironConfig) {
+        this.dbConfig = vironConfig;
         this.connection = connect();
     }
 
@@ -68,7 +68,7 @@ public class DbInteractions {
     */
     private Connection connect() {
         try {
-            connection = DriverManager.getConnection(vironConfig.getDbUrl(), vironConfig.getDbUsername(), vironConfig.getDbPassword());
+            connection = DriverManager.getConnection(dbConfig.getDbUrl(), dbConfig.getDbUsername(), dbConfig.getDbPassword());
         } catch (SQLException e) {
             logger.error("Error connecting to the database: " + e.getMessage());
         }
@@ -79,7 +79,7 @@ public class DbInteractions {
         String url = "jdbc:postgresql://localhost:5432/postgres";
         String username = "postgres";
         String password = "postgres";
-        VironConfig vironConfig = new VironConfig();
+        DbConfig vironConfig = new DbConfig();
         vironConfig.setDbUrl(url);
         vironConfig.setDbUsername(username);
         vironConfig.setDbPassword(password);

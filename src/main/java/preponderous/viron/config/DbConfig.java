@@ -8,7 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @ConfigurationProperties("config")
 @PropertySource("classpath:application.properties")
-public class VironConfig {
+public class DbConfig {
     private String dbUrl;
     private String dbUsername;
     private String dbPassword;

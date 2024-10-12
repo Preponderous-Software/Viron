@@ -29,6 +29,10 @@ public class EnvironmentFactory {
         
         // create environment
         int id = getNextEnvironmentId();
+        if (id == -1) {
+            logger.error("Failed to get next environment id");
+            throw new EnvironmentCreationException("Failed to get next environment id");
+        }
         String creationDate = new java.util.Date().toString();
         String query = "INSERT INTO viron.environment (environment_id, name, creation_date) VALUES (" + id + ", '" + name + "', '" + creationDate + "')";
         boolean success = dbInteractions.update(query);
@@ -41,6 +45,10 @@ public class EnvironmentFactory {
         List<Integer> gridIds = new ArrayList<>();
         for (int i = 0; i < numGrids; i++) {
             int nextGridId = getNextGridId();
+            if (nextGridId == -1) {
+                logger.error("Failed to get next grid id");
+                throw new EnvironmentCreationException("Failed to get next grid id");
+            }
             gridIds.add(nextGridId);
 
             query = "INSERT INTO viron.grid (grid_id, rows, columns) VALUES (" + nextGridId + ", " + gridSize + ", " + gridSize + ")";
@@ -63,6 +71,10 @@ public class EnvironmentFactory {
             for (int x = 0; x < gridSize; x++) {
                 for (int y = 0; y < gridSize; y++) {
                     int locationId = getNextLocationId();
+                    if (locationId == -1) {
+                        logger.error("Failed to get next location id");
+                        throw new EnvironmentCreationException("Failed to get next location id");
+                    }
                     query = "INSERT INTO viron.location (location_id, x, y) VALUES (" + locationId + ", " + x + ", " + y + ")";
                     success = dbInteractions.update(query);
                     if (!success) {
@@ -92,6 +104,9 @@ public class EnvironmentFactory {
 
     private int getNextEnvironmentId() {
         ResultSet rs = dbInteractions.query("SELECT nextval('viron.environment_id_seq')");
+        if (rs == null) {
+            return -1;
+        }
         try {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -104,6 +119,9 @@ public class EnvironmentFactory {
 
     private int getNextGridId() {
         ResultSet rs = dbInteractions.query("SELECT nextval('viron.grid_id_seq')");
+        if (rs == null) {
+            return -1;
+        }
         try {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -116,6 +134,9 @@ public class EnvironmentFactory {
 
     private int getNextLocationId() {
         ResultSet rs = dbInteractions.query("SELECT nextval('viron.location_id_seq')");
+        if (rs == null) {
+            return -1;
+        }
         try {
             if (rs.next()) {
                 return rs.getInt(1);

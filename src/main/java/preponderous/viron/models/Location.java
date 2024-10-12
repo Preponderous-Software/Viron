@@ -41,7 +41,7 @@ public class Location {
     @Override
     public String toString() {
         return "Location{" +
-                "location=" + locationId +
+                "locationId=" + locationId +
                 ", x=" + x +
                 ", y=" + y +
                 '}';

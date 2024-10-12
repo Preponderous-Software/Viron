@@ -26,8 +26,8 @@ public class DbInteractions {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public DbInteractions(DbConfig vironConfig) {
-        this.dbConfig = vironConfig;
+    public DbInteractions(DbConfig dbConfig) {
+        this.dbConfig = dbConfig;
         this.connection = connect();
     }
 
@@ -66,7 +66,7 @@ public class DbInteractions {
     * Connect to the database.
     * @return Connection
     */
-    private Connection connect() {
+    public Connection connect() {
         try {
             connection = DriverManager.getConnection(dbConfig.getDbUrl(), dbConfig.getDbUsername(), dbConfig.getDbPassword());
         } catch (SQLException e) {

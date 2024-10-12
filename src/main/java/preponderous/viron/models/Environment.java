@@ -4,22 +4,22 @@
 package preponderous.viron.models;
 
 public class Environment {
-    private int entityId;
+    private int environmentId;
     private String name;
     private String creationDate;
 
-    public Environment(int entityId, String name, String creationDate) {
-        this.entityId = entityId;
+    public Environment(int environmentId, String name, String creationDate) {
+        this.environmentId = environmentId;
         this.name = name;
         this.creationDate = creationDate;
     }
 
-    public int getEntityId() {
-        return entityId;
+    public int getEnvironmentId() {
+        return environmentId;
     }
 
-    public void setEntityId(int entityId) {
-        this.entityId = entityId;
+    public void setEnvironmentId(int entityId) {
+        this.environmentId = entityId;
     }
 
     public String getName() {
@@ -41,7 +41,7 @@ public class Environment {
     @Override
     public String toString() {
         return "Environment{" +
-                "entityId=" + entityId +
+                "environmentId=" + environmentId +
                 ", name='" + name + '\'' +
                 ", creationDate='" + creationDate + '\'' +
                 '}';

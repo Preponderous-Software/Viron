@@ -6,26 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "EnvironmentService",
-            "request": "launch",
-            "mainClass": "preponderous.viron.services.EnvironmentService",
-            "projectName": "viron"
-        },
-        {
-            "type": "java",
-            "name": "EntityService",
-            "request": "launch",
-            "mainClass": "preponderous.viron.service.EntityService",
-            "projectName": "EnvironmentLib"
-        },
-        {
-            "type": "java",
-            "name": "Current File",
-            "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
             "name": "VironApplication",
             "request": "launch",
             "mainClass": "preponderous.viron.VironApplication",

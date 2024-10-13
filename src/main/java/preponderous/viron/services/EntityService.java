@@ -112,15 +112,4 @@ public class EntityService {
         return response.getBody();
     }
 
-    // testing
-    public static void main(String[] args) {
-        ServiceConfig serviceConfig = new ServiceConfig();
-        serviceConfig.setVironHost("http://localhost");
-        serviceConfig.setVironPort(9999);
-        EntityService entityService = new EntityService(new RestTemplateBuilder(), serviceConfig);
-        List<Entity> entities = entityService.getEntitiesInEnvironment(1);
-        for (Entity entity : entities) {
-            System.out.println(entity);
-        }
-    }
 }

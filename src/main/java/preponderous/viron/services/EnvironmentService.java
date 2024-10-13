@@ -84,15 +84,5 @@ public class EnvironmentService {
         }
         return response.getBody();
     }
-    
-    // testing
-    public static void main(String[] args) {
-        ServiceConfig serviceConfig = new ServiceConfig();
-        serviceConfig.setVironHost("http://localhost");
-        serviceConfig.setVironPort(9999);
-        EnvironmentService environmentService = new EnvironmentService(new RestTemplateBuilder(), serviceConfig);
-        // create env
-        Environment env = environmentService.createEnvironment("test", 2, 2);
-        System.out.println(env);
-    }
+
 }

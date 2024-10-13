@@ -74,32 +74,5 @@ public class DbInteractions {
         }
         return connection;
     }
-
-    public static void main(String[] args) {
-        String url = "jdbc:postgresql://localhost:5432/postgres";
-        String username = "postgres";
-        String password = "postgres";
-        DbConfig vironConfig = new DbConfig();
-        vironConfig.setDbUrl(url);
-        vironConfig.setDbUsername(username);
-        vironConfig.setDbPassword(password);
-        DbInteractions dbInteractions = new DbInteractions(vironConfig);
-        Connection connection = dbInteractions.getConnection();
-
-        if (connection != null) {
-            System.out.println("Connected to the database!");
-        } else {
-            System.out.println("Failed to connect to the database.");
-        }
-
-        // list tables
-        ResultSet rs = dbInteractions.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';");
-        try {
-            while (rs.next()) {
-                System.out.println(rs.getString("table_name"));
-            }
-        } catch (SQLException e) {
-            System.out.println("Error listing tables: " + e.getMessage());
-        }
-    }
+    
 }

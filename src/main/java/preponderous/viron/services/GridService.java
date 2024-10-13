@@ -67,15 +67,4 @@ public class GridService {
         return response.getBody();
     }
 
-    // testing
-    public static void main(String[] args) {
-        ServiceConfig serviceConfig = new ServiceConfig();
-        serviceConfig.setVironHost("http://localhost");
-        serviceConfig.setVironPort(8080);
-        GridService gridService = new GridService(new RestTemplateBuilder(), serviceConfig);
-        List<Grid> grids = gridService.getGridsInEnvironment(1);
-        for (Grid grid : grids) {
-            System.out.println(grid);
-        }
-    }
 }

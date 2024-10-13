@@ -103,15 +103,4 @@ public class LocationService {
         return response.getBody();
     }
 
-    // testing
-    public static void main(String[] args) {
-        ServiceConfig serviceConfig = new ServiceConfig();
-        serviceConfig.setVironHost("http://localhost");
-        serviceConfig.setVironPort(8080);
-        LocationService locationService = new LocationService(new RestTemplateBuilder(), serviceConfig);
-        List<Location> locations = locationService.getLocationsInEnvironment(1);
-        for (Location location : locations) {
-            System.out.println(location);
-        }
-    }
 }

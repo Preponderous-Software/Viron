@@ -1,0 +1,31 @@
+# Copyright (c) 2024 Preponderous Software
+# MIT License
+
+services:
+  postgres:
+    image: postgres:12
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-scripts/setup:/docker-entrypoint-initdb.d
+  
+  viron:
+    build: .
+    container_name: viron
+    ports:
+      - "9999:9999"
+    environment:
+      CONFIG_DB_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      CONFIG_DB_USERNAME: ${DB_USERNAME}
+      CONFIG_DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

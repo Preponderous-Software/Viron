@@ -35,7 +35,7 @@ public class EnvironmentController {
     }
 
     @RequestMapping("/get-all-environments")
-    public List<Environment> getEnvironments() { // TODO: change return type to ResponseEntity
+    public ResponseEntity<List<Environment>> getAllEnvironments() {
         List<Environment> environments = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.environment");
         try {
@@ -47,48 +47,49 @@ public class EnvironmentController {
             }
         } catch (SQLException e) {
             logger.error("Error getting environments: " + e.getMessage());
+            return ResponseEntity.badRequest().body(null);
         }
-        return environments;
+        return ResponseEntity.ok(environments);
     }
 
     @RequestMapping("/get-environment-by-id/{id}")
-    public Environment getEnvironmentById(@PathVariable int id) { // TODO: change return type to ResponseEntity
+    public ResponseEntity<Environment> getEnvironmentById(@PathVariable int id) {
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.environment WHERE environment_id = " + id);
         try {
             if (rs.next()) {
                 String name = rs.getString("name");
                 String creationDate = rs.getString("creation_date");
-                return new Environment(id, name, creationDate);
+                return ResponseEntity.ok(new Environment(id, name, creationDate));
             }
         } catch (SQLException e) {
             logger.error("Error getting environment by id: " + e.getMessage());
         }
-        return null;
+        return ResponseEntity.badRequest().body(null);
     }
 
     @RequestMapping("/get-environment-of-entity/{entityId}")
-    public Environment getEnvironmentOfEntity(@PathVariable int entityId) { // TODO: change return type to ResponseEntity
+    public ResponseEntity<Environment> getEnvironmentOfEntity(@PathVariable int entityId) {
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.environment WHERE environment_id = (SELECT environment_id FROM viron.entity WHERE entity_id = " + entityId + ")");
         try {
             if (rs.next()) {
                 int id = rs.getInt("environment_id");
                 String name = rs.getString("name");
                 String creationDate = rs.getString("creation_date");
-                return new Environment(id, name, creationDate);
+                return ResponseEntity.ok(new Environment(id, name, creationDate));
             }
         } catch (SQLException e) {
             logger.error("Error getting environment of entity: " + e.getMessage());
         }
-        return null;
+        return ResponseEntity.badRequest().body(null);
     }
 
     @RequestMapping("/create-environment/{name}/{numGrids}/{gridSize}")
-    public Environment createEnvironment(@PathVariable String name, @PathVariable int numGrids, @PathVariable int gridSize) { // TODO: change return type to ResponseEntity
+    public ResponseEntity<Boolean> createEnvironment(@PathVariable String name, @PathVariable int numGrids, @PathVariable int gridSize) {
         try {
-            return environmentFactory.createEnvironment(name, numGrids, gridSize);
+            return ResponseEntity.ok(environmentFactory.createEnvironment(name, numGrids, gridSize) != null);
         } catch (EnvironmentFactory.EnvironmentCreationException e) {
             logger.error("Error creating environment: " + e.getMessage());
-            return null;
+            return ResponseEntity.badRequest().body(false);
         }
     }
 

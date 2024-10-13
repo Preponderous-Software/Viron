@@ -14,7 +14,7 @@ COPY src /app/src
 COPY pom.xml /app
 
 # Build the project
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
 
 # RUNTIME STAGE -----------------

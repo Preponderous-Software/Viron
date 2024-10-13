@@ -6,8 +6,12 @@ This is a tool for creating and managing virtual environments and entities withi
     - [What is a virtual environment?](#what-is-a-virtual-environment)
 - [Testing](#testing)
     - [Running the unit tests](#running-the-unit-tests)
+    - [Postman](#postman)
 - [Contributing](#contributing)
     - [Using the dev container](#using-the-dev-container)
+- [Deployment](#deployment)
+    - [Starting the application](#starting-the-application)
+    - [Stopping the application](#stopping-the-application)
 
 ## Definitions
 ### What is a virtual environment?
@@ -31,4 +35,24 @@ To run the unit tests, reopen the project in the dev container and run the follo
 
 ```bash
 mvn test
+```
+
+### Postman
+To test the API, you can use the Postman collection provided in the `postman` directory. This collection contains a number of requests that you can use to interact with the API. See the [README](postman/README.md) in the `postman` directory for more information.
+
+## Deployment
+### Starting the application
+To start the application, run the following command:
+
+```bash
+docker compose up --build -d
+```
+
+The application will be available at `http://localhost:8080`.
+
+### Stopping the application
+To stop the application, run the following command:
+
+```bash
+docker compose down
 ```

@@ -301,6 +301,27 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "debug",
+			"item": [
+				{
+					"name": "/health-check",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/create-sample-data",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"variable": [

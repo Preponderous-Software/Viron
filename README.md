@@ -1,6 +1,8 @@
 # Viron
 This is a tool for creating and managing virtual environments and entities within those environments. This intended to be used for game development, but can be used for other purposes as well.
 
+![class-usage-diagram](./docs/diagrams/class-usage-diagram.drawio.png)
+
 ## Table of Contents
 - [Definitions](#definitions)
     - [What is a virtual environment?](#what-is-a-virtual-environment)

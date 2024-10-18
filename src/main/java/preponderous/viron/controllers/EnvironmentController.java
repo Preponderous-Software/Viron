@@ -67,6 +67,21 @@ public class EnvironmentController {
         return ResponseEntity.badRequest().body(null);
     }
 
+    @RequestMapping("/get-environment-by-name/{name}")
+    public ResponseEntity<Environment> getEnvironmentByName(@PathVariable String name) {
+        ResultSet rs = dbInteractions.query("SELECT * FROM viron.environment WHERE name = '" + name + "'");
+        try {
+            if (rs.next()) {
+                int id = rs.getInt("environment_id");
+                String creationDate = rs.getString("creation_date");
+                return ResponseEntity.ok(new Environment(id, name, creationDate));
+            }
+        } catch (SQLException e) {
+            logger.error("Error getting environment by name: " + e.getMessage());
+        }
+        return ResponseEntity.badRequest().body(null);
+    }
+
     @RequestMapping("/get-environment-of-entity/{entityId}")
     public ResponseEntity<Environment> getEnvironmentOfEntity(@PathVariable int entityId) {
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.environment WHERE environment_id = (SELECT environment_id FROM viron.entity WHERE entity_id = " + entityId + ")");
@@ -84,12 +99,12 @@ public class EnvironmentController {
     }
 
     @RequestMapping("/create-environment/{name}/{numGrids}/{gridSize}")
-    public ResponseEntity<Boolean> createEnvironment(@PathVariable String name, @PathVariable int numGrids, @PathVariable int gridSize) {
+    public ResponseEntity<Environment> createEnvironment(@PathVariable String name, @PathVariable int numGrids, @PathVariable int gridSize) {
         try {
-            return ResponseEntity.ok(environmentFactory.createEnvironment(name, numGrids, gridSize) != null);
+            return ResponseEntity.ok(environmentFactory.createEnvironment(name, numGrids, gridSize));
         } catch (EnvironmentFactory.EnvironmentCreationException e) {
             logger.error("Error creating environment: " + e.getMessage());
-            return ResponseEntity.badRequest().body(false);
+            return ResponseEntity.badRequest().body(null);
         }
     }
 

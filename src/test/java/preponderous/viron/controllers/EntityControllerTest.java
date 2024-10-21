@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import preponderous.viron.database.DbInteractions;
@@ -59,7 +60,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         verify(dbInteractions).query("SELECT * FROM viron.entity");
@@ -75,7 +76,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity");
     }
@@ -92,7 +93,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity");
     }
@@ -112,7 +113,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().getEntityId());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id = 1");
@@ -128,7 +129,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id = 1");
     }
@@ -145,7 +146,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id = 1");
     }
@@ -161,7 +162,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Test Entity", response.getBody().getName());
         verify(entityFactory).createEntity("Test Entity");
@@ -177,7 +178,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(entityFactory).createEntity("Test Entity");
     }
@@ -192,7 +193,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody());
         verify(dbInteractions).update("DELETE FROM viron.entity WHERE entity_id = 1");
     }
@@ -207,7 +208,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertFalse(response.getBody());
         verify(dbInteractions).update("DELETE FROM viron.entity WHERE entity_id = 1");
     }
@@ -222,7 +223,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody());
         verify(dbInteractions).update("UPDATE viron.entity SET name = 'New Name' WHERE entity_id = 1");
     }
@@ -237,7 +238,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertFalse(response.getBody());
         verify(dbInteractions).update("UPDATE viron.entity SET name = 'New Name' WHERE entity_id = 1");
     }
@@ -257,7 +258,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))");
@@ -273,7 +274,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))");
     }
@@ -290,7 +291,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))");
     }
@@ -310,7 +311,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))");
@@ -326,7 +327,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))");
     }
@@ -343,7 +344,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))");
     }
@@ -363,7 +364,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)");
@@ -379,7 +380,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)");
     }
@@ -396,7 +397,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)");
     }
@@ -416,7 +417,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
@@ -432,7 +433,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
     }
@@ -449,7 +450,7 @@ public class EntityControllerTest {
 
         // verify
         assertNotNull(response);
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
     }

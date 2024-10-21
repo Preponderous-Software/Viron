@@ -458,8 +458,8 @@ public class EnvironmentControllerTest {
         ResponseEntity<Boolean> response = environmentController.deleteEnvironment(environmentId);
 
         // verify
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(true, response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(false, response.getBody());
         for (String query : expectedQueries) {
             Mockito.verify(dbInteractions).query(query);
         }

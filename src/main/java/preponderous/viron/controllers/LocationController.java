@@ -45,12 +45,13 @@ public class LocationController {
                 int x = rs.getInt("x");
                 int y = rs.getInt("y");
                 locations.add(new Location(id, x, y));
+                return ResponseEntity.ok(locations);
             }
         } catch (SQLException e) {
             logger.error("Error getting locations: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
-        return ResponseEntity.ok(locations);
+        return ResponseEntity.badRequest().body(null);
     }
 
     @RequestMapping("/get-location-by-id/{id}")
@@ -78,11 +79,12 @@ public class LocationController {
                 int x = rs.getInt("x");
                 int y = rs.getInt("y");
                 locations.add(new Location(id, x, y));
+                return ResponseEntity.ok(locations);
             }
         } catch (SQLException e) {
             logger.error("Error getting locations in environment: " + e.getMessage());
         }
-        return ResponseEntity.ok(locations);
+        return ResponseEntity.badRequest().body(null);
     }
 
     @RequestMapping("/get-locations-in-grid/{gridId}")
@@ -95,11 +97,12 @@ public class LocationController {
                 int x = rs.getInt("x");
                 int y = rs.getInt("y");
                 locations.add(new Location(id, x, y));
+                return ResponseEntity.ok(locations);
             }
         } catch (SQLException e) {
             logger.error("Error getting locations in grid: " + e.getMessage());
         }
-        return ResponseEntity.ok(locations);
+        return ResponseEntity.badRequest().body(null);
     }
 
     @RequestMapping("/get-location-of-entity/{entityId}")

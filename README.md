@@ -39,6 +39,14 @@ To run the unit tests, reopen the project in the dev container and run the follo
 mvn test
 ```
 
+To generate a code coverage report, run the following command:
+
+```bash
+mvn jacoco:report
+```
+
+The code coverage report will be generated in the `target/site/jacoco` directory. Open the `index.html` file in a web browser to view the report.
+
 ### Postman
 To test the API, you can use the Postman collection provided in the `postman` directory. This collection contains a number of requests that you can use to interact with the API. See the [README](postman/README.md) in the `postman` directory for more information.
 

@@ -160,7 +160,7 @@ public class EnvironmentController {
         // delete associations
         boolean success;
         for (int entityId : entityIds) {
-            String query = "DELETE FRWOM viron.entity_location WHERE entity_id = " + entityId;
+            String query = "DELETE FROM viron.entity_location WHERE entity_id = " + entityId;
             success = dbInteractions.update(query);
             if (!success) {
                 logger.error("Error deleting entity_location with entity id " + entityId);

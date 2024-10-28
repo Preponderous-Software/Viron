@@ -1,3 +1,5 @@
+# Copyright (c) 2024 Preponderous Software
+# MIT License
 
 class Grid:
     def __init__(self, grid_id: int, rows: int, columns: int):

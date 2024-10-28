@@ -33,6 +33,7 @@ This project includes a dev container that you can use to develop and test the c
 
 ## Testing
 ### Running the unit tests
+#### Java
 To run the unit tests, reopen the project in the dev container and run the following command:
 
 ```bash
@@ -46,6 +47,28 @@ mvn jacoco:report
 ```
 
 The code coverage report will be generated in the `target/site/jacoco` directory. Open the `index.html` file in a web browser to view the report.
+
+#### Python
+To install the required dependencies, run the following command:
+
+```bash
+pip install -r requirements.txt
+```
+
+To run the unit tests, run the following command:
+
+```bash
+python3 -m pytest
+```
+
+To generate a code coverage report, run the following commands:
+
+```bash
+coverage run -m pytest
+coverage report
+```
+
+The code coverage report will be generated in the terminal.
 
 ### Postman
 To test the API, you can use the Postman collection provided in the `postman` directory. This collection contains a number of requests that you can use to interact with the API. See the [README](postman/README.md) in the `postman` directory for more information.

@@ -49,10 +49,16 @@ mvn jacoco:report
 The code coverage report will be generated in the `target/site/jacoco` directory. Open the `index.html` file in a web browser to view the report.
 
 #### Python
+To install the required dependencies, run the following command:
+
+```bash
+pip install -r requirements.txt
+```
+
 To run the unit tests, run the following command:
 
 ```bash
-python -m pytest
+python3 -m pytest
 ```
 
 To generate a code coverage report, run the following commands:

@@ -1,0 +1,333 @@
+{
+	"info": {
+		"_postman_id": "b0516e70-f219-42dd-86f6-67e3e16821f7",
+		"name": "Viron",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38826376"
+	},
+	"item": [
+		{
+			"name": "entity",
+			"item": [
+				{
+					"name": "/get-all-entities",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-entity-by-id/{id}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-entities-in-environment/{environmentId}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:9999/entity/get-entities-in-environment/1",
+							"host": [
+								"localhost"
+							],
+							"port": "9999",
+							"path": [
+								"entity",
+								"get-entities-in-environment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/get-entities-in-grid/{gridId}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:9999/entity/get-entities-in-grid/1",
+							"host": [
+								"localhost"
+							],
+							"port": "9999",
+							"path": [
+								"entity",
+								"get-entities-in-grid",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/get-entities-in-location/{locationId}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:9999/entity/get-entities-in-location/1",
+							"host": [
+								"localhost"
+							],
+							"port": "9999",
+							"path": [
+								"entity",
+								"get-entities-in-location",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/get-entities-not-in-any-location",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/create-entity/{name}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/delete-entity/{id}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/set-entity-name/{id}/{name}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "environment",
+			"item": [
+				{
+					"name": "/get-all-environments",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-environment-by-id/{id}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:9999/environment/get-environment-by-id/1",
+							"host": [
+								"localhost"
+							],
+							"port": "9999",
+							"path": [
+								"environment",
+								"get-environment-by-id",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/get-environment-of-entity/{entityId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/create-environment/{name}/{numGrids}/{gridSize}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/delete-environment/{id}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:9999/environment/delete-environment/1",
+							"host": [
+								"localhost"
+							],
+							"port": "9999",
+							"path": [
+								"environment",
+								"delete-environment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/set-environment-name/{id}/{name}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "grid",
+			"item": [
+				{
+					"name": "/get-all-grids",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-grid-by-id/{id}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-grids-in-environment/{environmentId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-grid-of-entity/{entityId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "location",
+			"item": [
+				{
+					"name": "/get-all-locations",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-location-by-id/{id}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-locations-in-environment/{environmentId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-locations-in-grid/{gridId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/get-location-of-entity/{entityId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/add-entity-to-location/{entityId}/{locationId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/remove-entity-from-location/{entityId}/{locationId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/remove-entity-from-current-location/{entityId}",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "debug",
+			"item": [
+				{
+					"name": "/health-check",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/create-sample-data",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "entityId",
+			"value": "1"
+		}
+	]
+}

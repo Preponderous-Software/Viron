@@ -4,7 +4,7 @@ This project, **Viron**, is developed and maintained as part of **Preponderous S
 
 ## Copyright Holder
 
-**Copyright © 2024 Daniel McCoy Stephenson. All rights reserved.**
+**Copyright © 2022-2025 Daniel McCoy Stephenson. All rights reserved.**
 
 ## Licensing
 

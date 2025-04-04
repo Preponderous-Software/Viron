@@ -3,3 +3,4 @@ target
 *.bkp
 *.pyc
 .coverage
+.idea

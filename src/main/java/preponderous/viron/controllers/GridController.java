@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,9 @@ import preponderous.viron.models.Grid;
 
 @RestController
 @RequestMapping("/grid")
+@Slf4j
 public class GridController {
     private final DbInteractions dbInteractions;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public GridController(DbInteractions dbInteractions) {
@@ -36,7 +36,7 @@ public class GridController {
         List<Grid> grids = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.grid");
         if (rs == null) {
-            logger.error("Error getting grids: ResultSet is null");
+            log.error("Error getting grids: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -47,7 +47,7 @@ public class GridController {
                 grids.add(new Grid(id, rows, columns));
             }
         } catch (SQLException e) {
-            logger.error("Error getting grids: " + e.getMessage());
+            log.error("Error getting grids: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(grids);
@@ -63,7 +63,7 @@ public class GridController {
                 return ResponseEntity.ok(new Grid(id, rows, columns));
             }
         } catch (SQLException e) {
-            logger.error("Error getting grid by id: " + e.getMessage());
+            log.error("Error getting grid by id: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -73,7 +73,7 @@ public class GridController {
         List<Grid> grids = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = " + environmentId + ")");
         if (rs == null) {
-            logger.error("Error getting grids for environment: ResultSet is null");
+            log.error("Error getting grids for environment: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -84,7 +84,7 @@ public class GridController {
                 grids.add(new Grid(id, rows, columns));
             }
         } catch (SQLException e) {
-            logger.error("Error getting grids for environment: " + e.getMessage());
+            log.error("Error getting grids for environment: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(grids);
@@ -101,7 +101,7 @@ public class GridController {
                 return ResponseEntity.ok(new Grid(id, rows, columns));
             }
         } catch (SQLException e) {
-            logger.error("Error getting grid of entity: " + e.getMessage());
+            log.error("Error getting grid of entity: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }

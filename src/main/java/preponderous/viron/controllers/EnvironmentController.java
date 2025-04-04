@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,10 @@ import preponderous.viron.models.Environment;
 
 @RestController
 @RequestMapping("/environment")
+@Slf4j
 public class EnvironmentController {
     private final DbInteractions dbInteractions;
     private final EnvironmentFactory environmentFactory;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public EnvironmentController(DbInteractions dbInteractions, EnvironmentFactory environmentFactory) {
@@ -46,7 +46,7 @@ public class EnvironmentController {
                 environments.add(new Environment(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting environments: " + e.getMessage());
+            log.error("Error getting environments: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(environments);
@@ -62,7 +62,7 @@ public class EnvironmentController {
                 return ResponseEntity.ok(new Environment(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting environment by id: " + e.getMessage());
+            log.error("Error getting environment by id: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -77,7 +77,7 @@ public class EnvironmentController {
                 return ResponseEntity.ok(new Environment(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting environment by name: " + e.getMessage());
+            log.error("Error getting environment by name: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -93,7 +93,7 @@ public class EnvironmentController {
                 return ResponseEntity.ok(new Environment(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting environment of entity: " + e.getMessage());
+            log.error("Error getting environment of entity: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -103,7 +103,7 @@ public class EnvironmentController {
         try {
             return ResponseEntity.ok(environmentFactory.createEnvironment(name, numGrids, gridSize));
         } catch (EnvironmentFactory.EnvironmentCreationException e) {
-            logger.error("Error creating environment: " + e.getMessage());
+            log.error("Error creating environment: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -118,11 +118,11 @@ public class EnvironmentController {
                 return ResponseEntity.ok(false);
             }
         } catch (SQLException e) {
-            logger.error("Error checking if environment exists: " + e.getMessage());
+            log.error("Error checking if environment exists: " + e.getMessage());
             return ResponseEntity.badRequest().body(false);
         }
 
-        logger.info("Attempting to delete environment with id " + id);
+        log.info("Attempting to delete environment with id " + id);
 
         List<Integer> entityIds = new ArrayList<>();
         rs = dbInteractions.query("SELECT entity_id FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = " + id + ")))");
@@ -131,7 +131,7 @@ public class EnvironmentController {
                 entityIds.add(rs.getInt("entity_id"));
             }
         } catch (SQLException e) {
-            logger.error("Error getting entity ids: " + e.getMessage());
+            log.error("Error getting entity ids: " + e.getMessage());
             return ResponseEntity.badRequest().body(false);
         }
 
@@ -142,7 +142,7 @@ public class EnvironmentController {
                 locationIds.add(rs.getInt("location_id"));
             }
         } catch (SQLException e) {
-            logger.error("Error getting location ids: " + e.getMessage());
+            log.error("Error getting location ids: " + e.getMessage());
             return ResponseEntity.badRequest().body(false);
         }
 
@@ -153,7 +153,7 @@ public class EnvironmentController {
                 gridIds.add(rs.getInt("grid_id"));
             }
         } catch (SQLException e) {
-            logger.error("Error getting grid ids: " + e.getMessage());
+            log.error("Error getting grid ids: " + e.getMessage());
             return ResponseEntity.badRequest().body(false);
         }
 
@@ -163,7 +163,7 @@ public class EnvironmentController {
             String query = "DELETE FROM viron.entity_location WHERE entity_id = " + entityId;
             success = dbInteractions.update(query);
             if (!success) {
-                logger.error("Error deleting entity_location with entity id " + entityId);
+                log.error("Error deleting entity_location with entity id " + entityId);
                 return ResponseEntity.badRequest().body(false);
             }
         }
@@ -172,7 +172,7 @@ public class EnvironmentController {
             String query = "DELETE FROM viron.location_grid WHERE location_id = " + locationId;
             success = dbInteractions.update(query);
             if (!success) {
-                logger.error("Error deleting location_grid with location id " + locationId);
+                log.error("Error deleting location_grid with location id " + locationId);
                 return ResponseEntity.badRequest().body(false);
             }
         }
@@ -181,7 +181,7 @@ public class EnvironmentController {
             String query = "DELETE FROM viron.grid_environment WHERE grid_id = " + gridId;
             success = dbInteractions.update(query);
             if (!success) {
-                logger.error("Error deleting grid_environment with grid id " + gridId);
+                log.error("Error deleting grid_environment with grid id " + gridId);
                 return ResponseEntity.badRequest().body(false);
             }
         }
@@ -191,12 +191,12 @@ public class EnvironmentController {
             String query = "DELETE FROM viron.entity WHERE entity_id = " + entityId;
             success = dbInteractions.update(query);
             if (!success) {
-                logger.error("Error deleting entity with id " + entityId);
+                log.error("Error deleting entity with id " + entityId);
                 return ResponseEntity.badRequest().body(false);
             }
         }
         if (!entityIds.isEmpty()) {
-            logger.info("Entities deleted: " + entityIds);
+            log.info("Entities deleted: " + entityIds);
         }
 
         // delete locations
@@ -204,12 +204,12 @@ public class EnvironmentController {
             String query = "DELETE FROM viron.location WHERE location_id = " + locationId;
             success = dbInteractions.update(query);
             if (!success) {
-                logger.error("Error deleting location with id " + locationId);
+                log.error("Error deleting location with id " + locationId);
                 return ResponseEntity.badRequest().body(false);
             }
         }
         if (!locationIds.isEmpty()) {
-            logger.info("Locations deleted: " + locationIds);
+            log.info("Locations deleted: " + locationIds);
         }
 
         // delete grids
@@ -217,22 +217,22 @@ public class EnvironmentController {
             String query = "DELETE FROM viron.grid WHERE grid_id = " + gridId;
             success = dbInteractions.update(query);
             if (!success) {
-                logger.error("Error deleting grid with id " + gridId);
+                log.error("Error deleting grid with id " + gridId);
                 return ResponseEntity.badRequest().body(false);
             }
         }
         if (!gridIds.isEmpty()) {
-            logger.info("Grids deleted: " + gridIds);
+            log.info("Grids deleted: " + gridIds);
         }
 
         // delete environment       
         String query = "DELETE FROM viron.environment WHERE environment_id = " + id;
         success = dbInteractions.update(query);
         if (!success) {
-            logger.error("Error deleting environment with id " + id);
+            log.error("Error deleting environment with id " + id);
             return ResponseEntity.badRequest().body(false);
         }
-        logger.info("Environment with id " + id + " deleted");
+        log.info("Environment with id " + id + " deleted");
         return ResponseEntity.ok(true);
     }
 

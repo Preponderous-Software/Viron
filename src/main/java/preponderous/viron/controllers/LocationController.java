@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,9 @@ import preponderous.viron.models.Location;
 
 @RestController
 @RequestMapping("/location")
+@Slf4j
 public class LocationController {
     private final DbInteractions dbInteractions;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public LocationController(DbInteractions dbInteractions) {
@@ -36,7 +36,7 @@ public class LocationController {
         List<Location> locations = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.location");
         if (rs == null) {
-            logger.error("Error getting locations: ResultSet is null");
+            log.error("Error getting locations: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -48,7 +48,7 @@ public class LocationController {
                 return ResponseEntity.ok(locations);
             }
         } catch (SQLException e) {
-            logger.error("Error getting locations: " + e.getMessage());
+            log.error("Error getting locations: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.badRequest().body(null);
@@ -64,7 +64,7 @@ public class LocationController {
                 return ResponseEntity.ok(new Location(id, x, y));
             }
         } catch (SQLException e) {
-            logger.error("Error getting location by id: " + e.getMessage());
+            log.error("Error getting location by id: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -82,7 +82,7 @@ public class LocationController {
                 return ResponseEntity.ok(locations);
             }
         } catch (SQLException e) {
-            logger.error("Error getting locations in environment: " + e.getMessage());
+            log.error("Error getting locations in environment: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -100,7 +100,7 @@ public class LocationController {
                 return ResponseEntity.ok(locations);
             }
         } catch (SQLException e) {
-            logger.error("Error getting locations in grid: " + e.getMessage());
+            log.error("Error getting locations in grid: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -116,7 +116,7 @@ public class LocationController {
                 return ResponseEntity.ok(new Location(location_id, x, y));
             }
         } catch (SQLException e) {
-            logger.error("Error getting location of entity: " + e.getMessage());
+            log.error("Error getting location of entity: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }

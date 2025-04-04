@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,10 @@ import preponderous.viron.models.Entity;
 
 @RestController
 @RequestMapping("/entity")
+@Slf4j
 public class EntityController {
     private final DbInteractions dbInteractions;
     private final EntityFactory entityFactory;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public EntityController(DbInteractions dbInteractions, EntityFactory entityFactory) {
@@ -39,7 +39,7 @@ public class EntityController {
         List<Entity> entities = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity");
         if (rs == null) {
-            logger.error("Error getting entities: ResultSet is null");
+            log.error("Error getting entities: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -50,7 +50,7 @@ public class EntityController {
                 entities.add(new Entity(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting entities: " + e.getMessage());
+            log.error("Error getting entities: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(entities);
@@ -60,7 +60,7 @@ public class EntityController {
     public ResponseEntity<Entity> getEntityById(@PathVariable int id) {
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id = " + id);
         if (rs == null) {
-            logger.error("Error getting entity by id: ResultSet is null");
+            log.error("Error getting entity by id: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -70,7 +70,7 @@ public class EntityController {
                 return ResponseEntity.ok(new Entity(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting entity by id: " + e.getMessage());
+            log.error("Error getting entity by id: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(null);
     }
@@ -80,7 +80,7 @@ public class EntityController {
         List<Entity> entities = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = " + environmentId + ")))");
         if (rs == null) {
-            logger.error("Error getting entities in environment: ResultSet is null");
+            log.error("Error getting entities in environment: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -91,7 +91,7 @@ public class EntityController {
                 entities.add(new Entity(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting entities in environment: " + e.getMessage());
+            log.error("Error getting entities in environment: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(entities);
@@ -102,7 +102,7 @@ public class EntityController {
         List<Entity> entities = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = " + gridId + "))");
         if (rs == null) {
-            logger.error("Error getting entities in grid: ResultSet is null");
+            log.error("Error getting entities in grid: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -113,7 +113,7 @@ public class EntityController {
                 entities.add(new Entity(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting entities in grid: " + e.getMessage());
+            log.error("Error getting entities in grid: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(entities);
@@ -124,7 +124,7 @@ public class EntityController {
         List<Entity> entities = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = " + locationId + ")");
         if (rs == null) {
-            logger.error("Error getting entities in location: ResultSet is null");
+            log.error("Error getting entities in location: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -135,7 +135,7 @@ public class EntityController {
                 entities.add(new Entity(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting entities in location: " + e.getMessage());
+            log.error("Error getting entities in location: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(entities);
@@ -146,7 +146,7 @@ public class EntityController {
         List<Entity> entities = new ArrayList<>();
         ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
         if (rs == null) {
-            logger.error("Error getting entities not in any location: ResultSet is null");
+            log.error("Error getting entities not in any location: ResultSet is null");
             return ResponseEntity.badRequest().body(null);
         }
         try {
@@ -157,7 +157,7 @@ public class EntityController {
                 entities.add(new Entity(id, name, creationDate));
             }
         } catch (SQLException e) {
-            logger.error("Error getting entities not in any location: " + e.getMessage());
+            log.error("Error getting entities not in any location: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok(entities);
@@ -168,7 +168,7 @@ public class EntityController {
         try {
             return ResponseEntity.ok(entityFactory.createEntity(name));
         } catch (EntityFactory.EntityCreationException e) {
-            logger.error("Error creating entity: " + e.getMessage());
+            log.error("Error creating entity: " + e.getMessage());
             return ResponseEntity.badRequest().body(null);
         }
     }

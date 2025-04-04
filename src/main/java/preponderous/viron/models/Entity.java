@@ -3,6 +3,9 @@
 
 package preponderous.viron.models;
 
+import lombok.Data;
+
+@Data
 public class Entity {
     private int entityId;
     private String name;
@@ -11,30 +14,6 @@ public class Entity {
     public Entity(int entityId, String name, String creationDate) {
         this.entityId = entityId;
         this.name = name;
-        this.creationDate = creationDate;
-    }
-
-    public int getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(int entityId) {
-        this.entityId = entityId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(String creationDate) {
         this.creationDate = creationDate;
     }
 

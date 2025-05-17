@@ -1,187 +1,120 @@
-// Copyright (c) 2024 Preponderous Software
-// MIT License
-
 package preponderous.viron.controllers;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import preponderous.viron.database.DbInteractions;
+import org.springframework.web.bind.annotation.*;
 import preponderous.viron.factories.EntityFactory;
 import preponderous.viron.models.Entity;
+import preponderous.viron.repositories.EntityRepository;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/entity")
+@RequestMapping("/api/v1/entities")
 @Slf4j
+@RequiredArgsConstructor
 public class EntityController {
-    private final DbInteractions dbInteractions;
+    private final EntityRepository entityRepository;
     private final EntityFactory entityFactory;
 
-    @Autowired
-    public EntityController(DbInteractions dbInteractions, EntityFactory entityFactory) {
-        this.dbInteractions = dbInteractions;
-        this.entityFactory = entityFactory;
-    }
-
-    @RequestMapping("/get-all-entities")
+    @GetMapping
     public ResponseEntity<List<Entity>> getAllEntities() {
-        List<Entity> entities = new ArrayList<>();
-        ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity");
-        if (rs == null) {
-            log.error("Error getting entities: ResultSet is null");
-            return ResponseEntity.badRequest().body(null);
-        }
         try {
-            while (rs.next()) {
-                int id = rs.getInt("entity_id");
-                String name = rs.getString("name");
-                String creationDate = rs.getString("creation_date");
-                entities.add(new Entity(id, name, creationDate));
-            }
-        } catch (SQLException e) {
-            log.error("Error getting entities: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(entityRepository.findAll());
+        } catch (Exception e) {
+            log.error("Error fetching all entities: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(entities);
     }
 
-    @RequestMapping("/get-entity-by-id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Entity> getEntityById(@PathVariable int id) {
-        ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id = " + id);
-        if (rs == null) {
-            log.error("Error getting entity by id: ResultSet is null");
-            return ResponseEntity.badRequest().body(null);
-        }
         try {
-            if (rs.next()) {
-                String name = rs.getString("name");
-                String creationDate = rs.getString("creation_date");
-                return ResponseEntity.ok(new Entity(id, name, creationDate));
-            }
-        } catch (SQLException e) {
-            log.error("Error getting entity by id: " + e.getMessage());
+            return entityRepository.findById(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("Error fetching entity by id {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.badRequest().body(null);
     }
 
-    @RequestMapping("/get-entities-in-environment/{environmentId}")
+    @GetMapping("/environment/{environmentId}")
     public ResponseEntity<List<Entity>> getEntitiesInEnvironment(@PathVariable int environmentId) {
-        List<Entity> entities = new ArrayList<>();
-        ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = " + environmentId + ")))");
-        if (rs == null) {
-            log.error("Error getting entities in environment: ResultSet is null");
-            return ResponseEntity.badRequest().body(null);
-        }
         try {
-            while (rs.next()) {
-                int id = rs.getInt("entity_id");
-                String name = rs.getString("name");
-                String creationDate = rs.getString("creation_date");
-                entities.add(new Entity(id, name, creationDate));
-            }
-        } catch (SQLException e) {
-            log.error("Error getting entities in environment: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(entityRepository.findByEnvironmentId(environmentId));
+        } catch (Exception e) {
+            log.error("Error fetching entities in environment {}: {}", environmentId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(entities);
     }
 
-    @RequestMapping("/get-entities-in-grid/{gridId}")
+    @GetMapping("/grid/{gridId}")
     public ResponseEntity<List<Entity>> getEntitiesInGrid(@PathVariable int gridId) {
-        List<Entity> entities = new ArrayList<>();
-        ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = " + gridId + "))");
-        if (rs == null) {
-            log.error("Error getting entities in grid: ResultSet is null");
-            return ResponseEntity.badRequest().body(null);
-        }
         try {
-            while (rs.next()) {
-                int id = rs.getInt("entity_id");
-                String name = rs.getString("name");
-                String creationDate = rs.getString("creation_date");
-                entities.add(new Entity(id, name, creationDate));
-            }
-        } catch (SQLException e) {
-            log.error("Error getting entities in grid: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(entityRepository.findByGridId(gridId));
+        } catch (Exception e) {
+            log.error("Error fetching entities in grid {}: {}", gridId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(entities);
     }
-    
-    @RequestMapping("/get-entities-in-location/{locationId}")
+
+    @GetMapping("/location/{locationId}")
     public ResponseEntity<List<Entity>> getEntitiesInLocation(@PathVariable int locationId) {
-        List<Entity> entities = new ArrayList<>();
-        ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = " + locationId + ")");
-        if (rs == null) {
-            log.error("Error getting entities in location: ResultSet is null");
-            return ResponseEntity.badRequest().body(null);
-        }
         try {
-            while (rs.next()) {
-                int id = rs.getInt("entity_id");
-                String name = rs.getString("name");
-                String creationDate = rs.getString("creation_date");
-                entities.add(new Entity(id, name, creationDate));
-            }
-        } catch (SQLException e) {
-            log.error("Error getting entities in location: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(entityRepository.findByLocationId(locationId));
+        } catch (Exception e) {
+            log.error("Error fetching entities in location {}: {}", locationId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(entities);
     }
 
-    @RequestMapping("/get-entities-not-in-any-location")
+    @GetMapping("/unassigned")
     public ResponseEntity<List<Entity>> getEntitiesNotInAnyLocation() {
-        List<Entity> entities = new ArrayList<>();
-        ResultSet rs = dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
-        if (rs == null) {
-            log.error("Error getting entities not in any location: ResultSet is null");
-            return ResponseEntity.badRequest().body(null);
-        }
         try {
-            while (rs.next()) {
-                int id = rs.getInt("entity_id");
-                String name = rs.getString("name");
-                String creationDate = rs.getString("creation_date");
-                entities.add(new Entity(id, name, creationDate));
-            }
-        } catch (SQLException e) {
-            log.error("Error getting entities not in any location: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(entityRepository.findEntitiesNotInAnyLocation());
+        } catch (Exception e) {
+            log.error("Error fetching unassigned entities: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(entities);
     }
 
-    @RequestMapping("/create-entity/{name}")
+    @PostMapping("/{name}")
     public ResponseEntity<Entity> createEntity(@PathVariable String name) {
         try {
-            return ResponseEntity.ok(entityFactory.createEntity(name));
+            Entity newEntity = entityFactory.createEntity(name);
+            return ResponseEntity.ok(newEntity);
         } catch (EntityFactory.EntityCreationException e) {
-            log.error("Error creating entity: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            log.error("Error creating entity with name {}: {}", name, e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            log.error("Unexpected error creating entity: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/delete-entity/{id}")
-    public ResponseEntity<Boolean> deleteEntity(@PathVariable int id) {
-        String query = "DELETE FROM viron.entity WHERE entity_id = " + id;
-        return ResponseEntity.ok(dbInteractions.update(query));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEntity(@PathVariable int id) {
+        try {
+            return entityRepository.deleteById(id)
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Error deleting entity {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-    @RequestMapping("/set-entity-name/{id}/{name}")
-    public ResponseEntity<Boolean> setEntityName(@PathVariable int id, @PathVariable String name) {
-        String query = "UPDATE viron.entity SET name = '" + name + "' WHERE entity_id = " + id;
-        return ResponseEntity.ok(dbInteractions.update(query));
+    @PatchMapping("/{id}/name/{name}")
+    public ResponseEntity<Void> updateEntityName(@PathVariable int id, @PathVariable String name) {
+        try {
+            return entityRepository.updateName(id, name)
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Error updating name for entity {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

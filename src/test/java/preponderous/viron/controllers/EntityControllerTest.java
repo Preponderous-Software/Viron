@@ -1,458 +1,235 @@
 package preponderous.viron.controllers;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import preponderous.viron.database.DbInteractions;
 import preponderous.viron.factories.EntityFactory;
 import preponderous.viron.models.Entity;
+import preponderous.viron.repositories.EntityRepository;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class EntityControllerTest {
-    private DbInteractions dbInteractions;
+class EntityControllerTest {
+    private EntityRepository entityRepository;
     private EntityFactory entityFactory;
     private EntityController entityController;
 
     @BeforeEach
-    @SuppressWarnings("unused")
     void setUp() {
-        dbInteractions = Mockito.mock(DbInteractions.class);
+        entityRepository = Mockito.mock(EntityRepository.class);
         entityFactory = Mockito.mock(EntityFactory.class);
-        entityController = new EntityController(dbInteractions, entityFactory);
-    }
-    
-    @Test
-    void testInitialization() {
-        // execute
-        EntityController entityController = new EntityController(dbInteractions, entityFactory);
-
-        // verify
-        assertNotNull(entityController);
+        entityController = new EntityController(entityRepository, entityFactory);
     }
 
     @Test
-    void testGetAllEntities_SUCCESS() throws SQLException {
+    void getAllEntities_Success() {
         // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity")).thenReturn(rs);
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getInt("entity_id")).thenReturn(1);
-        when(rs.getString("name")).thenReturn("Test Entity");
-        when(rs.getString("creation_date")).thenReturn("2024-01-01");
+        List<Entity> entities = List.of(
+                new Entity(1, "Entity1", "2024-01-01"),
+                new Entity(2, "Entity2", "2024-01-01")
+        );
+        when(entityRepository.findAll()).thenReturn(entities);
 
         // execute
         ResponseEntity<List<Entity>> response = entityController.getAllEntities();
 
         // verify
-        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(dbInteractions).query("SELECT * FROM viron.entity");
+        assertEquals(entities, response.getBody());
+        verify(entityRepository).findAll();
     }
 
     @Test
-    void testGetAllEntities_DBInteractionsReturnsNull() {
+    void getAllEntities_Exception() {
         // prepare
-        when(dbInteractions.query("SELECT * FROM viron.entity")).thenReturn(null);
+        when(entityRepository.findAll()).thenThrow(new RuntimeException("Database error"));
 
         // execute
         ResponseEntity<List<Entity>> response = entityController.getAllEntities();
 
         // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity");
     }
 
     @Test
-    void testGetAllEntities_SQLException() throws SQLException {
+    void getEntityById_Success() {
         // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity")).thenReturn(rs);
-        when(rs.next()).thenThrow(new SQLException("Test SQL Exception"));
+        Entity entity = new Entity(1, "Entity1", "2024-01-01");
+        when(entityRepository.findById(1)).thenReturn(Optional.of(entity));
+
+        // execute
+        ResponseEntity<Entity> response = entityController.getEntityById(1);
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(entity, response.getBody());
+    }
+
+    @Test
+    void getEntityById_NotFound() {
+        // prepare
+        when(entityRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        // execute
+        ResponseEntity<Entity> response = entityController.getEntityById(1);
+
+        // verify
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void getEntitiesInEnvironment_Success() {
+        // prepare
+        List<Entity> entities = new ArrayList<>();
+        when(entityRepository.findByEnvironmentId(anyInt())).thenReturn(entities);
+
+        // execute
+        ResponseEntity<List<Entity>> response = entityController.getEntitiesInEnvironment(1);
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(entities, response.getBody());
+    }
+
+    @Test
+    void getEntitiesInGrid_Success() {
+        // prepare
+        List<Entity> entities = new ArrayList<>();
+        when(entityRepository.findByGridId(anyInt())).thenReturn(entities);
+
+        // execute
+        ResponseEntity<List<Entity>> response = entityController.getEntitiesInGrid(1);
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(entities, response.getBody());
+    }
+
+    @Test
+    void getEntitiesInLocation_Success() {
+        // prepare
+        List<Entity> entities = new ArrayList<>();
+        when(entityRepository.findByLocationId(anyInt())).thenReturn(entities);
+
+        // execute
+        ResponseEntity<List<Entity>> response = entityController.getEntitiesInLocation(1);
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(entities, response.getBody());
+    }
+
+    @Test
+    void getEntitiesNotInAnyLocation_Success() {
+        // prepare
+        List<Entity> entities = new ArrayList<>();
+        when(entityRepository.findEntitiesNotInAnyLocation()).thenReturn(entities);
+
+        // execute
+        ResponseEntity<List<Entity>> response = entityController.getEntitiesNotInAnyLocation();
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(entities, response.getBody());
+    }
+
+    @Test
+    void createEntity_Success() throws EntityFactory.EntityCreationException {
+        // prepare
+        Entity entity = new Entity(1, "New Entity", "2024-01-01");
+        when(entityFactory.createEntity(anyString())).thenReturn(entity);
+
+        // execute
+        ResponseEntity<Entity> response = entityController.createEntity("New Entity");
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(entity, response.getBody());
+    }
+
+    @Test
+    void createEntity_EntityCreationException() throws EntityFactory.EntityCreationException {
+        // prepare
+        when(entityFactory.createEntity(anyString()))
+                .thenThrow(new EntityFactory.EntityCreationException("Creation failed"));
+
+        // execute
+        ResponseEntity<Entity> response = entityController.createEntity("New Entity");
+
+        // verify
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void deleteEntity_Success() {
+        // prepare
+        when(entityRepository.deleteById(anyInt())).thenReturn(true);
+
+        // execute
+        ResponseEntity<Void> response = entityController.deleteEntity(1);
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void deleteEntity_NotFound() {
+        // prepare
+        when(entityRepository.deleteById(anyInt())).thenReturn(false);
+
+        // execute
+        ResponseEntity<Void> response = entityController.deleteEntity(1);
+
+        // verify
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void updateEntityName_Success() {
+        // prepare
+        when(entityRepository.updateName(anyInt(), anyString())).thenReturn(true);
+
+        // execute
+        ResponseEntity<Void> response = entityController.updateEntityName(1, "New Name");
+
+        // verify
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void updateEntityName_NotFound() {
+        // prepare
+        when(entityRepository.updateName(anyInt(), anyString())).thenReturn(false);
+
+        // execute
+        ResponseEntity<Void> response = entityController.updateEntityName(1, "New Name");
+
+        // verify
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void testExceptionHandling_InternalServerError() {
+        // prepare
+        when(entityRepository.findAll()).thenThrow(new RuntimeException("Unexpected error"));
 
         // execute
         ResponseEntity<List<Entity>> response = entityController.getAllEntities();
 
         // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity");
     }
-
-    @Test
-    void testGetEntityById_SUCCESS() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id = 1")).thenReturn(rs);
-        when(rs.next()).thenReturn(true);
-        when(rs.getInt("entity_id")).thenReturn(1);
-        when(rs.getString("name")).thenReturn("Test Entity");
-        when(rs.getString("creation_date")).thenReturn("2024-01-01");
-
-        // execute
-        ResponseEntity<Entity> response = entityController.getEntityById(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getEntityId());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id = 1");
-    }
-
-    @Test
-    void testGetEntityById_DBInteractionsReturnsNull() {
-        // prepare
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id = 1")).thenReturn(null);
-
-        // execute
-        ResponseEntity<Entity> response = entityController.getEntityById(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id = 1");
-    }
-
-    @Test
-    void testGetEntityById_SQLException() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id = 1")).thenReturn(rs);
-        when(rs.next()).thenThrow(new SQLException("Test SQL Exception"));
-
-        // execute
-        ResponseEntity<Entity> response = entityController.getEntityById(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id = 1");
-    }
-
-    @Test
-    void testCreateEntity_SUCCESS() throws EntityFactory.EntityCreationException {
-        // prepare
-        Entity entity = new Entity(1, "Test Entity", "2024-01-01");
-        when(entityFactory.createEntity("Test Entity")).thenReturn(entity);
-
-        // execute
-        ResponseEntity<Entity> response = entityController.createEntity("Test Entity");
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Test Entity", response.getBody().getName());
-        verify(entityFactory).createEntity("Test Entity");
-    }
-
-    @Test
-    void testCreateEntity_EntityCreationException() throws EntityFactory.EntityCreationException {
-        // prepare
-        when(entityFactory.createEntity("Test Entity")).thenThrow(EntityFactory.EntityCreationException.class);
-
-        // execute
-        ResponseEntity<Entity> response = entityController.createEntity("Test Entity");
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(entityFactory).createEntity("Test Entity");
-    }
-
-    @Test
-    void testDeleteEntity_SUCCESS() {
-        // prepare
-        when(dbInteractions.update("DELETE FROM viron.entity WHERE entity_id = 1")).thenReturn(true);
-
-        // execute
-        ResponseEntity<Boolean> response = entityController.deleteEntity(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody());
-        verify(dbInteractions).update("DELETE FROM viron.entity WHERE entity_id = 1");
-    }
-
-    @Test
-    void testDeleteEntity_FAILURE() {
-        // prepare
-        when(dbInteractions.update("DELETE FROM viron.entity WHERE entity_id = 1")).thenReturn(false);
-
-        // execute
-        ResponseEntity<Boolean> response = entityController.deleteEntity(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertFalse(response.getBody());
-        verify(dbInteractions).update("DELETE FROM viron.entity WHERE entity_id = 1");
-    }
-
-    @Test
-    void testSetEntityName_SUCCESS() {
-        // prepare
-        when(dbInteractions.update("UPDATE viron.entity SET name = 'New Name' WHERE entity_id = 1")).thenReturn(true);
-
-        // execute
-        ResponseEntity<Boolean> response = entityController.setEntityName(1, "New Name");
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody());
-        verify(dbInteractions).update("UPDATE viron.entity SET name = 'New Name' WHERE entity_id = 1");
-    }
-
-    @Test
-    void testSetEntityName_FAILURE() {
-        // prepare
-        when(dbInteractions.update("UPDATE viron.entity SET name = 'New Name' WHERE entity_id = 1")).thenReturn(false);
-
-        // execute
-        ResponseEntity<Boolean> response = entityController.setEntityName(1, "New Name");
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertFalse(response.getBody());
-        verify(dbInteractions).update("UPDATE viron.entity SET name = 'New Name' WHERE entity_id = 1");
-    }
-
-    @Test
-    void testGetEntitiesInEnvironment_SUCCESS() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))")).thenReturn(rs);
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getInt("entity_id")).thenReturn(1);
-        when(rs.getString("name")).thenReturn("Test Entity");
-        when(rs.getString("creation_date")).thenReturn("2024-01-01");
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInEnvironment(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))");
-    }
-
-    @Test
-    void testGetEntitiesInEnvironment_DBInteractionsReturnsNull() {
-        // prepare
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))")).thenReturn(null);
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInEnvironment(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))");
-    }
-
-    @Test
-    void testGetEntitiesInEnvironment_SQLException() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))")).thenReturn(rs);
-        when(rs.next()).thenThrow(new SQLException("Test SQL Exception"));
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInEnvironment(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1)))");
-    }
-
-    @Test
-    void testGetEntitiesInGrid_SUCCESS() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))")).thenReturn(rs);
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getInt("entity_id")).thenReturn(1);
-        when(rs.getString("name")).thenReturn("Test Entity");
-        when(rs.getString("creation_date")).thenReturn("2024-01-01");
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInGrid(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))");
-    }
-
-    @Test
-    void testGetEntitiesInGrid_DBInteractionsReturnsNull() {
-        // prepare
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))")).thenReturn(null);
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInGrid(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))");
-    }
-
-    @Test
-    void testGetEntitiesInGrid_SQLException() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))")).thenReturn(rs);
-        when(rs.next()).thenThrow(new SQLException("Test SQL Exception"));
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInGrid(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1))");
-    }
-
-    @Test
-    void testGetEntitiesInLocation_SUCCESS() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)")).thenReturn(rs);
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getInt("entity_id")).thenReturn(1);
-        when(rs.getString("name")).thenReturn("Test Entity");
-        when(rs.getString("creation_date")).thenReturn("2024-01-01");
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInLocation(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)");
-    }
-
-    @Test
-    void testGetEntitiesInLocation_DBInteractionsReturnsNull() {
-        // prepare
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)")).thenReturn(null);
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInLocation(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)");
-    }
-
-    @Test
-    void testGetEntitiesInLocation_SQLException() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)")).thenReturn(rs);
-        when(rs.next()).thenThrow(new SQLException("Test SQL Exception"));
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesInLocation(1);
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id in (SELECT entity_id FROM viron.entity_location WHERE location_id = 1)");
-    }
-
-    @Test
-    void testGetEntitiesNotInAnyLocation_SUCCESS() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)")).thenReturn(rs);
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getInt("entity_id")).thenReturn(1);
-        when(rs.getString("name")).thenReturn("Test Entity");
-        when(rs.getString("creation_date")).thenReturn("2024-01-01");
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesNotInAnyLocation();
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
-    }
-
-    @Test
-    void testGetEntitiesNotInAnyLocation_DBInteractionsReturnsNull() {
-        // prepare
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)")).thenReturn(null);
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesNotInAnyLocation();
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
-    }
-
-    @Test
-    void testGetEntitiesNotInAnyLocation_SQLException() throws SQLException {
-        // prepare
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(dbInteractions.query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)")).thenReturn(rs);
-        when(rs.next()).thenThrow(new SQLException("Test SQL Exception"));
-
-        // execute
-        ResponseEntity<List<Entity>> response = entityController.getEntitiesNotInAnyLocation();
-
-        // verify
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(dbInteractions).query("SELECT * FROM viron.entity WHERE entity_id not in (SELECT entity_id FROM viron.entity_location)");
-    }
-
 }

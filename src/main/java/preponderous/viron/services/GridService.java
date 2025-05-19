@@ -1,70 +1,85 @@
-// Copyright (c) 2024 Preponderous Software
-// MIT License
-
 package preponderous.viron.services;
 
-import java.util.Arrays;
-import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
 import preponderous.viron.config.ServiceConfig;
 import preponderous.viron.models.Grid;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 @Service
+@Slf4j
 public class GridService {
     private final RestTemplateBuilder restTemplateBuilder;
-    private final ServiceConfig serviceConfig;
-
     private final String baseUrl;
-    
+
     @Autowired
     public GridService(RestTemplateBuilder restTemplateBuilder, ServiceConfig serviceConfig) {
         this.restTemplateBuilder = restTemplateBuilder;
-        this.serviceConfig = serviceConfig;
-
-        this.baseUrl = this.serviceConfig.getVironHost() + ":" + serviceConfig.getVironPort() + "/grid";
+        this.baseUrl = serviceConfig.getVironHost() + ":" + serviceConfig.getVironPort() + "/api/v1/grids";
     }
 
     public List<Grid> getAllGrids() {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Grid[]> response = restTemplate.exchange(baseUrl + "/get-all-grids", HttpMethod.GET, null, Grid[].class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting grids");
+        try {
+            RestTemplate restTemplate = restTemplateBuilder.build();
+            ResponseEntity<Grid[]> response = restTemplate.getForEntity(baseUrl, Grid[].class);
+            return Arrays.asList(response.getBody());
+        } catch (Exception e) {
+            log.error("Error getting all grids: {}", e.getMessage());
+            throw new RuntimeException("Failed to fetch all grids", e);
         }
-        return Arrays.asList(response.getBody());
     }
 
-    public Grid getGridById(int id) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Grid> response = restTemplate.exchange(baseUrl + "/get-grid-by-id/" + id, HttpMethod.GET, null, Grid.class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting grid by id");
+    public Optional<Grid> getGridById(int id) {
+        try {
+            RestTemplate restTemplate = restTemplateBuilder.build();
+            ResponseEntity<Grid> response = restTemplate.getForEntity(baseUrl + "/{id}", Grid.class, id);
+            return Optional.ofNullable(response.getBody());
+        } catch (HttpClientErrorException.NotFound e) {
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Error getting grid by id {}: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to fetch grid by id: " + id, e);
         }
-        return response.getBody();
     }
 
     public List<Grid> getGridsInEnvironment(int environmentId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Grid[]> response = restTemplate.exchange(baseUrl + "/get-grids-in-environment/" + environmentId, HttpMethod.GET, null, Grid[].class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting grids in environment");
+        try {
+            RestTemplate restTemplate = restTemplateBuilder.build();
+            ResponseEntity<Grid[]> response = restTemplate.getForEntity(
+                    baseUrl + "/environment/{environmentId}",
+                    Grid[].class,
+                    environmentId
+            );
+            return Arrays.asList(response.getBody());
+        } catch (Exception e) {
+            log.error("Error getting grids in environment {}: {}", environmentId, e.getMessage());
+            throw new RuntimeException("Failed to fetch grids in environment: " + environmentId, e);
         }
-        return Arrays.asList(response.getBody());
     }
 
-    public Grid getGridOfEntity(int entityId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Grid> response = restTemplate.exchange(baseUrl + "/get-grid-of-entity/" + entityId, HttpMethod.GET, null, Grid.class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting grid of entity");
+    public Optional<Grid> getGridOfEntity(int entityId) {
+        try {
+            RestTemplate restTemplate = restTemplateBuilder.build();
+            ResponseEntity<Grid> response = restTemplate.getForEntity(
+                    baseUrl + "/entity/{entityId}",
+                    Grid.class,
+                    entityId
+            );
+            return Optional.ofNullable(response.getBody());
+        } catch (HttpClientErrorException.NotFound e) {
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Error getting grid for entity {}: {}", entityId, e.getMessage());
+            throw new RuntimeException("Failed to fetch grid for entity: " + entityId, e);
         }
-        return response.getBody();
     }
-
 }

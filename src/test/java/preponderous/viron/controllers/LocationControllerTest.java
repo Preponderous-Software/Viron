@@ -1,54 +1,44 @@
 package preponderous.viron.controllers;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import preponderous.viron.database.DbInteractions;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import preponderous.viron.models.Location;
+import preponderous.viron.repositories.LocationRepository;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class LocationControllerTest {
-    private DbInteractions dbInteractions;
+    private LocationRepository locationRepository;
     private LocationController locationController;
 
     @BeforeEach
-    @SuppressWarnings("unused")
     void setUp() {
-        dbInteractions = Mockito.mock(DbInteractions.class);
-        locationController = new LocationController(dbInteractions);
+        locationRepository = Mockito.mock(LocationRepository.class);
+        locationController = new LocationController(locationRepository);
     }
-    
+
     @Test
     void testInitialization() {
-        // execute
-        locationController = new LocationController(dbInteractions);
-
-        // verify
         assertNotNull(locationController);
     }
 
     @Test
-    void testGetAllLocations() throws SQLException {
+    void testGetAllLocations() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenReturn(true).thenReturn(false);
-        when(rs.getInt("location_id")).thenReturn(1);
-        when(rs.getInt("x")).thenReturn(10);
-        when(rs.getInt("y")).thenReturn(20);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        List<Location> locations = Arrays.asList(
+                new Location(1, 10, 20)
+        );
+        when(locationRepository.findAll()).thenReturn(locations);
 
         // execute
         ResponseEntity<List<Location>> response = locationController.getAllLocations();
@@ -58,16 +48,13 @@ public class LocationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
         assertEquals(1, response.getBody().get(0).getLocationId());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        verify(locationRepository).findAll();
     }
-    
+
     @Test
-    void testGetAllLocationsSQLException() throws SQLException {
+    void testGetAllLocationsException() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenThrow(new SQLException());
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        when(locationRepository.findAll()).thenThrow(new RuntimeException());
 
         // execute
         ResponseEntity<List<Location>> response = locationController.getAllLocations();
@@ -75,20 +62,15 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        assertNull(response.getBody());
+        verify(locationRepository).findAll();
     }
 
     @Test
-    void testGetLocationById() throws SQLException {
+    void testGetLocationById() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id = 1";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenReturn(true);
-        when(rs.getInt("location_id")).thenReturn(1);
-        when(rs.getInt("x")).thenReturn(10);
-        when(rs.getInt("y")).thenReturn(20);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        Location location = new Location(1, 10, 20);
+        when(locationRepository.findById(1)).thenReturn(Optional.of(location));
 
         // execute
         ResponseEntity<Location> response = locationController.getLocationById(1);
@@ -97,17 +79,13 @@ public class LocationControllerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().getLocationId());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        verify(locationRepository).findById(1);
     }
 
     @Test
-    void testGetLocationByIdSQLException() throws SQLException {
+    void testGetLocationByIdNotFound() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id = 1";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenThrow(new SQLException());
-        when(dbInteractions.query(anyString())).thenReturn(rs);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        when(locationRepository.findById(1)).thenReturn(Optional.empty());
 
         // execute
         ResponseEntity<Location> response = locationController.getLocationById(1);
@@ -115,20 +93,17 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        assertNull(response.getBody());
+        verify(locationRepository).findById(1);
     }
 
     @Test
-    void testGetLocationsInEnvironment() throws SQLException {
+    void testGetLocationsInEnvironment() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1))";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenReturn(true).thenReturn(false);
-        when(rs.getInt("location_id")).thenReturn(1);
-        when(rs.getInt("x")).thenReturn(10);
-        when(rs.getInt("y")).thenReturn(20);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        List<Location> locations = Arrays.asList(
+                new Location(1, 10, 20)
+        );
+        when(locationRepository.findByEnvironmentId(1)).thenReturn(locations);
 
         // execute
         ResponseEntity<List<Location>> response = locationController.getLocationsInEnvironment(1);
@@ -138,17 +113,13 @@ public class LocationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
         assertEquals(1, response.getBody().get(0).getLocationId());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        verify(locationRepository).findByEnvironmentId(1);
     }
 
     @Test
-    void testGetLocationsInEnvironmentSQLException() throws SQLException {
+    void testGetLocationsInEnvironmentException() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id in (SELECT grid_id FROM viron.grid_environment WHERE environment_id = 1))";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenThrow(new SQLException());
-        when(dbInteractions.query(anyString())).thenReturn(rs);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        when(locationRepository.findByEnvironmentId(1)).thenThrow(new RuntimeException());
 
         // execute
         ResponseEntity<List<Location>> response = locationController.getLocationsInEnvironment(1);
@@ -156,20 +127,17 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        assertNull(response.getBody());
+        verify(locationRepository).findByEnvironmentId(1);
     }
 
     @Test
-    void testGetLocationsInGrid() throws SQLException {
+    void testGetLocationsInGrid() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1)"; 
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenReturn(true).thenReturn(false);
-        when(rs.getInt("location_id")).thenReturn(1);
-        when(rs.getInt("x")).thenReturn(10);
-        when(rs.getInt("y")).thenReturn(20);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        List<Location> locations = Arrays.asList(
+                new Location(1, 10, 20)
+        );
+        when(locationRepository.findByGridId(1)).thenReturn(locations);
 
         // execute
         ResponseEntity<List<Location>> response = locationController.getLocationsInGrid(1);
@@ -179,17 +147,13 @@ public class LocationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
         assertEquals(1, response.getBody().get(0).getLocationId());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        verify(locationRepository).findByGridId(1);
     }
 
     @Test
-    void testGetLocationsInGridSQLException() throws SQLException {
+    void testGetLocationsInGridException() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id in (SELECT location_id FROM viron.location_grid WHERE grid_id = 1)";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenThrow(new SQLException());
-        when(dbInteractions.query(anyString())).thenReturn(rs);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        when(locationRepository.findByGridId(1)).thenThrow(new RuntimeException());
 
         // execute
         ResponseEntity<List<Location>> response = locationController.getLocationsInGrid(1);
@@ -197,20 +161,15 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        assertNull(response.getBody());
+        verify(locationRepository).findByGridId(1);
     }
 
     @Test
-    void testGetLocationOfEntity() throws SQLException {
+    void testGetLocationOfEntity() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id in (SELECT location_id FROM viron.entity_location WHERE entity_id = 1)";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenReturn(true);
-        when(rs.getInt("location_id")).thenReturn(1);
-        when(rs.getInt("x")).thenReturn(10);
-        when(rs.getInt("y")).thenReturn(20);
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        Location location = new Location(1, 10, 20);
+        when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(location));
 
         // execute
         ResponseEntity<Location> response = locationController.getLocationOfEntity(1);
@@ -219,16 +178,13 @@ public class LocationControllerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().getLocationId());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        verify(locationRepository).findByEntityId(1);
     }
 
     @Test
-    void testGetLocationOfEntitySQLException() throws SQLException {
+    void testGetLocationOfEntityNotFound() {
         // setup
-        String expectedQuery = "SELECT * FROM viron.location WHERE location_id in (SELECT location_id FROM viron.entity_location WHERE entity_id = 1)";
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        when(rs.next()).thenThrow(new SQLException());
-        when(dbInteractions.query(expectedQuery)).thenReturn(rs);
+        when(locationRepository.findByEntityId(1)).thenReturn(Optional.empty());
 
         // execute
         ResponseEntity<Location> response = locationController.getLocationOfEntity(1);
@@ -236,15 +192,14 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
-        Mockito.verify(dbInteractions).query(expectedQuery);
+        assertNull(response.getBody());
+        verify(locationRepository).findByEntityId(1);
     }
 
     @Test
     void testAddEntityToLocation() {
         // setup
-        String expectedQuery = "INSERT INTO viron.entity_location (entity_id, location_id) VALUES (1, 1)";
-        when(dbInteractions.update(expectedQuery)).thenReturn(true);
+        when(locationRepository.addEntityToLocation(1, 1)).thenReturn(true);
 
         // execute
         ResponseEntity<Boolean> response = locationController.addEntityToLocation(1, 1);
@@ -252,15 +207,29 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(true, response.getBody());
-        Mockito.verify(dbInteractions).update(expectedQuery);
+        assertTrue(response.getBody());
+        verify(locationRepository).addEntityToLocation(1, 1);
+    }
+
+    @Test
+    void testAddEntityToLocationException() {
+        // setup
+        when(locationRepository.addEntityToLocation(1, 1)).thenThrow(new RuntimeException());
+
+        // execute
+        ResponseEntity<Boolean> response = locationController.addEntityToLocation(1, 1);
+
+        // verify
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(locationRepository).addEntityToLocation(1, 1);
     }
 
     @Test
     void testRemoveEntityFromLocation() {
         // setup
-        String expectedQuery = "DELETE FROM viron.entity_location WHERE entity_id = 1 AND location_id = 1";
-        when(dbInteractions.update(expectedQuery)).thenReturn(true);
+        when(locationRepository.removeEntityFromLocation(1, 1)).thenReturn(true);
 
         // execute
         ResponseEntity<Boolean> response = locationController.removeEntityFromLocation(1, 1);
@@ -268,15 +237,29 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(true, response.getBody());
-        Mockito.verify(dbInteractions).update(expectedQuery);
+        assertTrue(response.getBody());
+        verify(locationRepository).removeEntityFromLocation(1, 1);
+    }
+
+    @Test
+    void testRemoveEntityFromLocationException() {
+        // setup
+        when(locationRepository.removeEntityFromLocation(1, 1)).thenThrow(new RuntimeException());
+
+        // execute
+        ResponseEntity<Boolean> response = locationController.removeEntityFromLocation(1, 1);
+
+        // verify
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(locationRepository).removeEntityFromLocation(1, 1);
     }
 
     @Test
     void testRemoveEntityFromCurrentLocation() {
         // setup
-        String expectedQuery = "DELETE FROM viron.entity_location WHERE entity_id = 1";
-        when(dbInteractions.update(expectedQuery)).thenReturn(true);
+        when(locationRepository.removeEntityFromCurrentLocation(1)).thenReturn(true);
 
         // execute
         ResponseEntity<Boolean> response = locationController.removeEntityFromCurrentLocation(1);
@@ -284,7 +267,22 @@ public class LocationControllerTest {
         // verify
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(true, response.getBody());
-        Mockito.verify(dbInteractions).update(expectedQuery);
+        assertTrue(response.getBody());
+        verify(locationRepository).removeEntityFromCurrentLocation(1);
+    }
+
+    @Test
+    void testRemoveEntityFromCurrentLocationException() {
+        // setup
+        when(locationRepository.removeEntityFromCurrentLocation(1)).thenThrow(new RuntimeException());
+
+        // execute
+        ResponseEntity<Boolean> response = locationController.removeEntityFromCurrentLocation(1);
+
+        // verify
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(locationRepository).removeEntityFromCurrentLocation(1);
     }
 }

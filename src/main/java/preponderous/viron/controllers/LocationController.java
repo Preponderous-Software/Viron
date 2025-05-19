@@ -10,93 +10,99 @@ import preponderous.viron.repositories.LocationRepository;
 import java.util.List;
 
 @RestController
-@RequestMapping("/location")
+@RequestMapping("/api/v1/locations")
 @Slf4j
 @RequiredArgsConstructor
 public class LocationController {
     private final LocationRepository locationRepository;
 
-    @RequestMapping("/get-all-locations")
+    @GetMapping
     public ResponseEntity<List<Location>> getAllLocations() {
         try {
             return ResponseEntity.ok(locationRepository.findAll());
         } catch (Exception e) {
-            log.error("Error getting locations: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            log.error("Error fetching all locations: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/get-location-by-id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Location> getLocationById(@PathVariable int id) {
         try {
             return locationRepository.findById(id)
                     .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.badRequest().build());
+                    .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            log.error("Error getting location by id: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Error fetching location by id {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/get-locations-in-environment/{environmentId}")
+    @GetMapping("/environment/{environmentId}")
     public ResponseEntity<List<Location>> getLocationsInEnvironment(@PathVariable int environmentId) {
         try {
             return ResponseEntity.ok(locationRepository.findByEnvironmentId(environmentId));
         } catch (Exception e) {
-            log.error("Error getting locations in environment: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Error fetching locations in environment {}: {}", environmentId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/get-locations-in-grid/{gridId}")
+    @GetMapping("/grid/{gridId}")
     public ResponseEntity<List<Location>> getLocationsInGrid(@PathVariable int gridId) {
         try {
             return ResponseEntity.ok(locationRepository.findByGridId(gridId));
         } catch (Exception e) {
-            log.error("Error getting locations in grid: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Error fetching locations in grid {}: {}", gridId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/get-location-of-entity/{entityId}")
+    @GetMapping("/entity/{entityId}")
     public ResponseEntity<Location> getLocationOfEntity(@PathVariable int entityId) {
         try {
             return locationRepository.findByEntityId(entityId)
                     .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.badRequest().build());
+                    .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            log.error("Error getting location of entity: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Error fetching location of entity {}: {}", entityId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/add-entity-to-location/{entityId}/{locationId}")
-    public ResponseEntity<Boolean> addEntityToLocation(@PathVariable int entityId, @PathVariable int locationId) {
+    @PutMapping("/{locationId}/entity/{entityId}")
+    public ResponseEntity<Void> addEntityToLocation(@PathVariable int entityId, @PathVariable int locationId) {
         try {
-            return ResponseEntity.ok(locationRepository.addEntityToLocation(entityId, locationId));
+            return locationRepository.addEntityToLocation(entityId, locationId)
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.notFound().build();
         } catch (Exception e) {
-            log.error("Error adding entity to location: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Error adding entity {} to location {}: {}", entityId, locationId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/remove-entity-from-location/{entityId}/{locationId}")
-    public ResponseEntity<Boolean> removeEntityFromLocation(@PathVariable int entityId, @PathVariable int locationId) {
+    @DeleteMapping("/{locationId}/entity/{entityId}")
+    public ResponseEntity<Void> removeEntityFromLocation(@PathVariable int entityId, @PathVariable int locationId) {
         try {
-            return ResponseEntity.ok(locationRepository.removeEntityFromLocation(entityId, locationId));
+            return locationRepository.removeEntityFromLocation(entityId, locationId)
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.notFound().build();
         } catch (Exception e) {
-            log.error("Error removing entity from location: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Error removing entity {} from location {}: {}", entityId, locationId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @RequestMapping("/remove-entity-from-current-location/{entityId}")
-    public ResponseEntity<Boolean> removeEntityFromCurrentLocation(@PathVariable int entityId) {
+    @DeleteMapping("/entity/{entityId}")
+    public ResponseEntity<Void> removeEntityFromCurrentLocation(@PathVariable int entityId) {
         try {
-            return ResponseEntity.ok(locationRepository.removeEntityFromCurrentLocation(entityId));
+            return locationRepository.removeEntityFromCurrentLocation(entityId)
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.notFound().build();
         } catch (Exception e) {
-            log.error("Error removing entity from current location: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Error removing entity {} from current location: {}", entityId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

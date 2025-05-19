@@ -151,9 +151,7 @@ public class EntityRepositoryImpl implements EntityRepository {
 
     @Override
     public Entity save(Entity entity) {
-        // Assuming this is used for both create and update
         if (entity.getEntityId() == 0) {
-            // New entity
             String query = String.format("INSERT INTO viron.entity (name, creation_date) VALUES ('%s', NOW())",
                     entity.getName());
             if (dbInteractions.update(query)) {

@@ -1,106 +1,181 @@
-// Copyright (c) 2024 Preponderous Software
-// MIT License
-
 package preponderous.viron.services;
 
-import java.util.Arrays;
-import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
 import preponderous.viron.config.ServiceConfig;
+import preponderous.viron.exceptions.NotFoundException;
+import preponderous.viron.exceptions.ServiceException;
 import preponderous.viron.models.Location;
 
-@Service
-public class LocationService {
-    private final RestTemplateBuilder restTemplateBuilder;
-    private final ServiceConfig serviceConfig;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+@Service
+@Slf4j
+public class LocationService {
+    private final RestTemplate restTemplate;
     private final String baseUrl;
-    
+
     @Autowired
     public LocationService(RestTemplateBuilder restTemplateBuilder, ServiceConfig serviceConfig) {
-        this.restTemplateBuilder = restTemplateBuilder;
-        this.serviceConfig = serviceConfig;
-
-        this.baseUrl = this.serviceConfig.getVironHost() + ":" + serviceConfig.getVironPort() + "/location";
+        this.restTemplate = restTemplateBuilder.build();
+        this.baseUrl = serviceConfig.getVironHost() + ":" + serviceConfig.getVironPort() + "/api/v1/locations";
     }
 
     public List<Location> getAllLocations() {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Location[]> response = restTemplate.exchange(baseUrl + "/get-all-locations", HttpMethod.GET, null, Location[].class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting locations");
+        try {
+            ResponseEntity<Location[]> response = restTemplate.getForEntity(baseUrl, Location[].class);
+            return response.getStatusCode() == HttpStatus.OK && response.getBody() != null
+                    ? Arrays.asList(response.getBody())
+                    : Collections.emptyList();
+        } catch (Exception e) {
+            log.error("Error getting locations: {}", e.getMessage());
+            throw new ServiceException("Error getting locations", e);
         }
-        return Arrays.asList(response.getBody());
     }
 
     public Location getLocationById(int id) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Location> response = restTemplate.exchange(baseUrl + "/get-location-by-id/" + id, HttpMethod.GET, null, Location.class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting location by id");
+        try {
+            ResponseEntity<Location> response = restTemplate.getForEntity(baseUrl + "/{id}", Location.class, id);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return response.getBody();
+            }
+            throw new NotFoundException("Location not found with id: " + id);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Location not found with id: " + id);
+        } catch (Exception e) {
+            log.error("Error getting location by id {}: {}", id, e.getMessage());
+            throw new ServiceException("Error getting location by id: " + id, e);
         }
-        return response.getBody();
     }
 
     public List<Location> getLocationsInEnvironment(int environmentId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Location[]> response = restTemplate.exchange(baseUrl + "/get-locations-in-environment/" + environmentId, HttpMethod.GET, null, Location[].class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting locations in environment");
+        try {
+            ResponseEntity<Location[]> response = restTemplate.getForEntity(
+                    baseUrl + "/environment/{environmentId}",
+                    Location[].class,
+                    environmentId
+            );
+            return response.getStatusCode() == HttpStatus.OK && response.getBody() != null
+                    ? Arrays.asList(response.getBody())
+                    : Collections.emptyList();
+        } catch (Exception e) {
+            log.error("Error getting locations in environment {}: {}", environmentId, e.getMessage());
+            throw new ServiceException("Error getting locations in environment: " + environmentId, e);
         }
-        return Arrays.asList(response.getBody());
     }
 
     public List<Location> getLocationsInGrid(int gridId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Location[]> response = restTemplate.exchange(baseUrl + "/get-locations-in-grid/" + gridId, HttpMethod.GET, null, Location[].class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting locations in grid");
+        try {
+            ResponseEntity<Location[]> response = restTemplate.getForEntity(
+                    baseUrl + "/grid/{gridId}",
+                    Location[].class,
+                    gridId
+            );
+            return response.getStatusCode() == HttpStatus.OK && response.getBody() != null
+                    ? Arrays.asList(response.getBody())
+                    : Collections.emptyList();
+        } catch (Exception e) {
+            log.error("Error getting locations in grid {}: {}", gridId, e.getMessage());
+            throw new ServiceException("Error getting locations in grid: " + gridId, e);
         }
-        return Arrays.asList(response.getBody());
     }
 
     public Location getLocationOfEntity(int entityId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Location> response = restTemplate.exchange(baseUrl + "/get-location-of-entity/" + entityId, HttpMethod.GET, null, Location.class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting location of entity");
+        try {
+            ResponseEntity<Location> response = restTemplate.getForEntity(
+                    baseUrl + "/entity/{entityId}",
+                    Location.class,
+                    entityId
+            );
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return response.getBody();
+            }
+            throw new NotFoundException("Location not found for entity: " + entityId);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Location not found for entity: " + entityId);
+        } catch (Exception e) {
+            log.error("Error getting location of entity {}: {}", entityId, e.getMessage());
+            throw new ServiceException("Error getting location of entity: " + entityId, e);
         }
-        return response.getBody();
     }
 
-    public boolean addEntityToLocation(int entityId, int locationId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Boolean> response = restTemplate.exchange(baseUrl + "/add-entity-to-location/" + entityId + "/" + locationId, HttpMethod.POST, null, Boolean.class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error adding entity to location");
+    public void addEntityToLocation(int entityId, int locationId) {
+        try {
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    baseUrl + "/{locationId}/entity/{entityId}",
+                    HttpMethod.PUT,
+                    null,
+                    Void.class,
+                    locationId,
+                    entityId
+            );
+            if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new NotFoundException("Location or entity not found");
+            }
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ServiceException("Failed to add entity to location");
+            }
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Location or entity not found");
+        } catch (Exception e) {
+            log.error("Error adding entity {} to location {}: {}", entityId, locationId, e.getMessage());
+            throw new ServiceException("Error adding entity to location", e);
         }
-        return response.getBody();
     }
 
-    public boolean removeEntityFromLocation(int entityId, int locationId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Boolean> response = restTemplate.exchange(baseUrl + "/remove-entity-from-location/" + entityId + "/" + locationId, HttpMethod.POST, null, Boolean.class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error removing entity from location");
+    public void removeEntityFromLocation(int entityId, int locationId) {
+        try {
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    baseUrl + "/{locationId}/entity/{entityId}",
+                    HttpMethod.DELETE,
+                    null,
+                    Void.class,
+                    locationId,
+                    entityId
+            );
+            if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new NotFoundException("Location or entity not found");
+            }
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ServiceException("Failed to remove entity from location");
+            }
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Location or entity not found");
+        } catch (Exception e) {
+            log.error("Error removing entity {} from location {}: {}", entityId, locationId, e.getMessage());
+            throw new ServiceException("Error removing entity from location", e);
         }
-        return response.getBody();
     }
 
-    public boolean removeEntityFromCurrentLocation(int entityId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Boolean> response = restTemplate.exchange(baseUrl + "/remove-entity-from-current-location/" + entityId, HttpMethod.POST, null, Boolean.class);
-        if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error removing entity from current location");
+    public void removeEntityFromCurrentLocation(int entityId) {
+        try {
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    baseUrl + "/entity/{entityId}",
+                    HttpMethod.DELETE,
+                    null,
+                    Void.class,
+                    entityId
+            );
+            if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new NotFoundException("Entity not found");
+            }
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ServiceException("Failed to remove entity from current location");
+            }
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Entity not found");
+        } catch (Exception e) {
+            log.error("Error removing entity {} from current location: {}", entityId, e.getMessage());
+            throw new ServiceException("Error removing entity from current location", e);
         }
-        return response.getBody();
     }
-
 }

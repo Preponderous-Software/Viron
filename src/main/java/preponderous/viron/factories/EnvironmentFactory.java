@@ -25,7 +25,7 @@ public class EnvironmentFactory {
     }
 
     public Environment createEnvironment(String name, int numGrids, int gridSize) throws EnvironmentCreationException {
-        log.info("Attempting to create environment: '" + name + "' with " + numGrids + " grids of size " + gridSize);
+        log.info("Attempting to create environment: '{}' with {} grids of size {}", name, numGrids, gridSize);
         
         // create environment
         int id = getNextEnvironmentId();
@@ -92,12 +92,12 @@ public class EnvironmentFactory {
                     locationIds.add(locationId);
                 }
             }
-            log.info("Locations created: " + locationIds);      
+            log.info("Locations created: {}", locationIds);
         }
-        log.info("Grids created: " + gridIds);
+        log.info("Grids created: {}", gridIds);
 
         Environment environment = new Environment(id, name, creationDate);
-        log.info("Successfully created environment: '" + name + "' with id: " + id + " and creation date: " + creationDate);
+        log.info("Successfully created environment: '{}' with id: {} and creation date: {}", name, id, creationDate);
         
         return environment;
     }
@@ -112,7 +112,7 @@ public class EnvironmentFactory {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error getting next environment id", e);
         }
         return -1;
     }
@@ -127,7 +127,7 @@ public class EnvironmentFactory {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error getting next grid id", e);
         }
         return -1;
     }
@@ -142,7 +142,7 @@ public class EnvironmentFactory {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error getting next location id", e);
         }
         return -1;
     }

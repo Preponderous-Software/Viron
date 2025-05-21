@@ -40,7 +40,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                 entities.add(mapResultSetToEntity(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting entities: " + e.getMessage());
+            log.error("Error getting entities: {}", e.getMessage());
         }
         return entities;
     }
@@ -57,7 +57,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                 return Optional.of(mapResultSetToEntity(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting entity by id: " + e.getMessage());
+            log.error("Error getting entity by id: {}", e.getMessage());
         }
         return Optional.empty();
     }
@@ -80,7 +80,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                 entities.add(mapResultSetToEntity(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting entities in environment: " + e.getMessage());
+            log.error("Error getting entities in environment: {}", e.getMessage());
         }
         return entities;
     }
@@ -102,7 +102,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                 entities.add(mapResultSetToEntity(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting entities in grid: " + e.getMessage());
+            log.error("Error getting entities in grid: {}", e.getMessage());
         }
         return entities;
     }
@@ -123,7 +123,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                 entities.add(mapResultSetToEntity(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting entities in location: " + e.getMessage());
+            log.error("Error getting entities in location: {}", e.getMessage());
         }
         return entities;
     }
@@ -144,7 +144,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                 entities.add(mapResultSetToEntity(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting entities not in any location: " + e.getMessage());
+            log.error("Error getting entities not in any location: {}", e.getMessage());
         }
         return entities;
     }
@@ -162,7 +162,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                         return findById(rs.getInt(1)).orElse(null);
                     }
                 } catch (SQLException e) {
-                    log.error("Error getting last inserted id: " + e.getMessage());
+                    log.error("Error getting last inserted id: {}", e.getMessage());
                 }
             }
         }

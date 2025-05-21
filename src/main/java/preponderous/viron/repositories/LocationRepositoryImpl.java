@@ -40,7 +40,7 @@ public class LocationRepositoryImpl implements LocationRepository {
                 locations.add(mapResultSetToLocation(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting locations: " + e.getMessage());
+            log.error("Error getting locations: {}", e.getMessage());
         }
         return locations;
     }
@@ -53,7 +53,7 @@ public class LocationRepositoryImpl implements LocationRepository {
                 return Optional.of(mapResultSetToLocation(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting location by id: " + e.getMessage());
+            log.error("Error getting location by id: {}", e.getMessage());
         }
         return Optional.empty();
     }
@@ -70,7 +70,7 @@ public class LocationRepositoryImpl implements LocationRepository {
                 locations.add(mapResultSetToLocation(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting locations in environment: " + e.getMessage());
+            log.error("Error getting locations in environment: {}", e.getMessage());
         }
         return locations;
     }
@@ -86,7 +86,7 @@ public class LocationRepositoryImpl implements LocationRepository {
                 locations.add(mapResultSetToLocation(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting locations in grid: " + e.getMessage());
+            log.error("Error getting locations in grid: {}", e.getMessage());
         }
         return locations;
     }
@@ -101,7 +101,7 @@ public class LocationRepositoryImpl implements LocationRepository {
                 return Optional.of(mapResultSetToLocation(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting location of entity: " + e.getMessage());
+            log.error("Error getting location of entity: {}", e.getMessage());
         }
         return Optional.empty();
     }

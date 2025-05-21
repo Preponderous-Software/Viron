@@ -31,7 +31,7 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
                 environments.add(mapResultSetToEnvironment(rs));
             }
         } catch (SQLException e) {
-            log.error("Error finding all environments: " + e.getMessage());
+            log.error("Error finding all environments: {}", e.getMessage());
         }
         return environments;
     }
@@ -44,7 +44,7 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
                 return Optional.of(mapResultSetToEnvironment(rs));
             }
         } catch (SQLException e) {
-            log.error("Error finding environment by id: " + e.getMessage());
+            log.error("Error finding environment by id: {}", e.getMessage());
         }
         return Optional.empty();
     }
@@ -57,7 +57,7 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
                 return Optional.of(mapResultSetToEnvironment(rs));
             }
         } catch (SQLException e) {
-            log.error("Error finding environment by name: " + e.getMessage());
+            log.error("Error finding environment by name: {}", e.getMessage());
         }
         return Optional.empty();
     }
@@ -70,14 +70,13 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
                 return Optional.of(mapResultSetToEnvironment(rs));
             }
         } catch (SQLException e) {
-            log.error("Error finding environment by entity id: " + e.getMessage());
+            log.error("Error finding environment by entity id: {}", e.getMessage());
         }
         return Optional.empty();
     }
 
     @Override
     public Environment save(Environment environment) {
-        // Note: This method would be used by the EnvironmentFactory
         return environment;
     }
 
@@ -102,7 +101,7 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
                 entityIds.add(rs.getInt("entity_id"));
             }
         } catch (SQLException e) {
-            log.error("Error finding entity ids: " + e.getMessage());
+            log.error("Error finding entity ids: {}", e.getMessage());
         }
         return entityIds;
     }
@@ -116,7 +115,7 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
                 locationIds.add(rs.getInt("location_id"));
             }
         } catch (SQLException e) {
-            log.error("Error finding location ids: " + e.getMessage());
+            log.error("Error finding location ids: {}", e.getMessage());
         }
         return locationIds;
     }
@@ -130,7 +129,7 @@ public class EnvironmentRepositoryImpl implements EnvironmentRepository {
                 gridIds.add(rs.getInt("grid_id"));
             }
         } catch (SQLException e) {
-            log.error("Error finding grid ids: " + e.getMessage());
+            log.error("Error finding grid ids: {}", e.getMessage());
         }
         return gridIds;
     }

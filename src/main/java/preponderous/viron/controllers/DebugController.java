@@ -42,6 +42,12 @@ public class DebugController {
         return "OK";
     }
 
+    /**
+     * Creates a sample environment with a single 10x10 grid and places ten entities in random, valid locations within the grid.
+     * It ensures the entities are properly created and assigned to valid locations in the grid.
+     *
+     * @return a ResponseEntity containing a Boolean value, true if the sample data was created successfully, false otherwise.
+     */
     @PostMapping("/create-sample-data")
     public ResponseEntity<Boolean> createSampleData() {
         // create an environment with one 10x10 grid
@@ -73,6 +79,14 @@ public class DebugController {
         return ResponseEntity.ok(true);
     }
 
+    /**
+     * Creates an environment with a single grid of fixed size, generates a random entity,
+     * and places the entity at a random valid location within the grid.
+     *
+     * @param environmentName the name of the environment to be created
+     * @return a ResponseEntity containing a Boolean value, true if the entity was successfully created
+     *         and placed in a location, false if the operation failed
+     */
     @PostMapping("/create-world-and-place-entity/{environmentName}")
     public ResponseEntity<Boolean> createWorldAndPlaceEntity(@PathVariable String environmentName) {
         // create an environment

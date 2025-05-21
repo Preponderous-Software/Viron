@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import preponderous.viron.exceptions.EnvironmentCreationException;
 import preponderous.viron.factories.EnvironmentFactory;
 import preponderous.viron.models.Environment;
 import preponderous.viron.repositories.EnvironmentRepository;
@@ -168,7 +169,7 @@ class EnvironmentControllerTest {
     }
 
     @Test
-    void createEnvironment_Success() throws EnvironmentFactory.EnvironmentCreationException {
+    void createEnvironment_Success() throws EnvironmentCreationException {
         // setup
         Environment environment = new Environment(1, "NewEnv", "2023-01-01");
         when(environmentFactory.createEnvironment("NewEnv", 5, 10)).thenReturn(environment);
@@ -184,10 +185,10 @@ class EnvironmentControllerTest {
     }
 
     @Test
-    void createEnvironment_CreationException() throws EnvironmentFactory.EnvironmentCreationException {
+    void createEnvironment_CreationException() throws EnvironmentCreationException {
         // setup
         when(environmentFactory.createEnvironment("NewEnv", 5, 10))
-                .thenThrow(new EnvironmentFactory.EnvironmentCreationException("Creation failed"));
+                .thenThrow(new EnvironmentCreationException("Creation failed"));
 
         // execute
         ResponseEntity<Environment> response = environmentController.createEnvironment("NewEnv", 5, 10);

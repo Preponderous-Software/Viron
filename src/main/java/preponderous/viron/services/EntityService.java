@@ -2,13 +2,11 @@ package preponderous.viron.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import preponderous.viron.config.ServiceConfig;
+import preponderous.viron.exceptions.EntityServiceException;
 import preponderous.viron.models.Entity;
 
 import java.util.Arrays;
@@ -177,16 +175,6 @@ public class EntityService {
         } catch (Exception e) {
             log.error("Failed to update name for entity {}: {}", id, e.getMessage());
             throw new EntityServiceException("Error updating entity name", e);
-        }
-    }
-
-    public static class EntityServiceException extends RuntimeException {
-        public EntityServiceException(String message) {
-            super(message);
-        }
-
-        public EntityServiceException(String message, Throwable cause) {
-            super(message, cause);
         }
     }
 }

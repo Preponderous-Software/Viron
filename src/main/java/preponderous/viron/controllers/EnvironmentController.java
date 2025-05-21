@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import preponderous.viron.exceptions.EnvironmentCreationException;
 import preponderous.viron.factories.EnvironmentFactory;
 import preponderous.viron.models.Environment;
 import preponderous.viron.repositories.EnvironmentRepository;
@@ -76,7 +77,7 @@ public class EnvironmentController {
         try {
             Environment newEnvironment = environmentFactory.createEnvironment(name, numGrids, gridSize);
             return ResponseEntity.ok(newEnvironment);
-        } catch (EnvironmentFactory.EnvironmentCreationException e) {
+        } catch (EnvironmentCreationException e) {
             log.error("Error creating environment with name {}: {}", name, e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {

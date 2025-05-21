@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import preponderous.viron.exceptions.EntityCreationException;
 import preponderous.viron.factories.EntityFactory;
 import preponderous.viron.models.Entity;
 import preponderous.viron.repositories.EntityRepository;
@@ -85,7 +86,7 @@ public class EntityController {
         try {
             Entity newEntity = entityFactory.createEntity(name);
             return ResponseEntity.ok(newEntity);
-        } catch (EntityFactory.EntityCreationException e) {
+        } catch (EntityCreationException e) {
             log.error("Error creating entity with name {}: {}", name, e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {

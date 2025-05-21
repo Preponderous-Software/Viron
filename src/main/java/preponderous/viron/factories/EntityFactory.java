@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import preponderous.viron.database.DbInteractions;
+import preponderous.viron.exceptions.EntityCreationException;
 import preponderous.viron.models.Entity;
 
 @Component
@@ -45,12 +46,5 @@ public class EntityFactory {
             log.error("Error getting next entity id: {}", e.getMessage());
         }
         return -1;
-    }
-
-    // exception
-    public static class EntityCreationException extends RuntimeException {
-        public EntityCreationException(String message) {
-            super(message);
-        }
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import preponderous.viron.database.DbInteractions;
+import preponderous.viron.exceptions.EnvironmentCreationException;
 import preponderous.viron.models.Environment;
 
 @Component
@@ -145,11 +146,5 @@ public class EnvironmentFactory {
             log.error("Error getting next location id", e);
         }
         return -1;
-    }
-
-    public static class EnvironmentCreationException extends RuntimeException {
-        public EnvironmentCreationException(String message) {
-            super(message);
-        }
     }
 }

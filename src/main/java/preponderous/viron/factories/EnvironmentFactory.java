@@ -147,7 +147,7 @@ public class EnvironmentFactory {
         return -1;
     }
 
-    public class EnvironmentCreationException extends RuntimeException {
+    public static class EnvironmentCreationException extends RuntimeException {
         public EnvironmentCreationException(String message) {
             super(message);
         }

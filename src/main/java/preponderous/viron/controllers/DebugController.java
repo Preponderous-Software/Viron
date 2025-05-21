@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +21,7 @@ import preponderous.viron.services.GridService;
 import preponderous.viron.services.LocationService;
 
 @RestController
-@RequestMapping("/debug")
+@RequestMapping("/api/v1/debug")
 public class DebugController {
     private final EntityService entityService;
     private final EnvironmentService environmentService;
@@ -35,24 +37,23 @@ public class DebugController {
         this.locationService = locationService;
     }
 
-    @RequestMapping("/health-check")
+    @GetMapping("/health-check")
     public String healthCheck() {
         return "OK";
     }
 
-    // create sample data
-    @RequestMapping("/create-sample-data")
+    @PostMapping("/create-sample-data")
     public ResponseEntity<Boolean> createSampleData() {
         // create an environment with one 10x10 grid
         Environment environment = environmentService.createEnvironment("Sample Environment", 1, 10);
         List<Grid> grids = gridService.getGridsInEnvironment(environment.getEnvironmentId());
-        Grid grid = grids.get(0);
+        Grid grid = grids.getFirst();
         List<Location> locations = locationService.getLocationsInGrid(grid.getGridId());
 
         // create ten entities and place them in the environment
         for (int i = 0; i < 10; i++) {
             Entity entity = entityService.createEntity(entityNamePool.get(i));
-            
+
             // get random location in the grid
             int x = (int) (Math.random() * grid.getRows());
             int y = (int) (Math.random() * grid.getColumns());
@@ -72,8 +73,7 @@ public class DebugController {
         return ResponseEntity.ok(true);
     }
 
-    // create world and place an entity in a random location
-    @RequestMapping("/create-world-and-place-entity/{environmentName}")
+    @PostMapping("/create-world-and-place-entity/{environmentName}")
     public ResponseEntity<Boolean> createWorldAndPlaceEntity(@PathVariable String environmentName) {
         // create an environment
         int numGrids = 1;

@@ -40,7 +40,7 @@ public class GridRepositoryImpl implements GridRepository {
                 grids.add(mapResultSetToGrid(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting grids: " + e.getMessage());
+            log.error("Error getting grids: {}", e.getMessage());
         }
         return grids;
     }
@@ -57,7 +57,7 @@ public class GridRepositoryImpl implements GridRepository {
                 return Optional.of(mapResultSetToGrid(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting grid by id: " + e.getMessage());
+            log.error("Error getting grid by id: {}", e.getMessage());
         }
         return Optional.empty();
     }
@@ -77,7 +77,7 @@ public class GridRepositoryImpl implements GridRepository {
                 grids.add(mapResultSetToGrid(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting grids for environment: " + e.getMessage());
+            log.error("Error getting grids for environment: {}", e.getMessage());
         }
         return grids;
     }
@@ -97,7 +97,7 @@ public class GridRepositoryImpl implements GridRepository {
                 return Optional.of(mapResultSetToGrid(rs));
             }
         } catch (SQLException e) {
-            log.error("Error getting grid of entity: " + e.getMessage());
+            log.error("Error getting grid of entity: {}", e.getMessage());
         }
         return Optional.empty();
     }

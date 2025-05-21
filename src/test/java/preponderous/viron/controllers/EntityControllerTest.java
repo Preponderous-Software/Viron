@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import preponderous.viron.exceptions.EntityCreationException;
 import preponderous.viron.factories.EntityFactory;
 import preponderous.viron.models.Entity;
 import preponderous.viron.repositories.EntityRepository;
@@ -146,7 +147,7 @@ class EntityControllerTest {
     }
 
     @Test
-    void createEntity_Success() throws EntityFactory.EntityCreationException {
+    void createEntity_Success() throws EntityCreationException {
         // prepare
         Entity entity = new Entity(1, "New Entity", "2024-01-01");
         when(entityFactory.createEntity(anyString())).thenReturn(entity);
@@ -160,10 +161,10 @@ class EntityControllerTest {
     }
 
     @Test
-    void createEntity_EntityCreationException() throws EntityFactory.EntityCreationException {
+    void createEntity_EntityCreationException() throws EntityCreationException {
         // prepare
         when(entityFactory.createEntity(anyString()))
-                .thenThrow(new EntityFactory.EntityCreationException("Creation failed"));
+                .thenThrow(new EntityCreationException("Creation failed"));
 
         // execute
         ResponseEntity<Entity> response = entityController.createEntity("New Entity");

@@ -9,8 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,15 +29,11 @@ public class DbInteractions {
         this.connection = connect();
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
-
     public ResultSet query(String query) {
         try {
             return connection.createStatement().executeQuery(query);
         } catch (SQLException e) {
-            log.error("Error executing query: " + e.getMessage());
+            log.error("Error executing query: {}", e.getMessage());
         }
         return null;
     }
@@ -49,7 +43,7 @@ public class DbInteractions {
             int rowCount = connection.createStatement().executeUpdate(query);
             return rowCount > 0;
         } catch (SQLException e) {
-            log.error("Error executing update: " + e.getMessage());
+            log.error("Error executing update: {}", e.getMessage());
         }
         return false;
     }
@@ -58,7 +52,7 @@ public class DbInteractions {
         try {
             connection.close();
         } catch (SQLException e) {
-            log.error("Error closing connection: " + e.getMessage());
+            log.error("Error closing connection: {}", e.getMessage());
         }
     }
 
@@ -70,7 +64,7 @@ public class DbInteractions {
         try {
             connection = DriverManager.getConnection(dbConfig.getDbUrl(), dbConfig.getDbUsername(), dbConfig.getDbPassword());
         } catch (SQLException e) {
-            log.error("Error connecting to the database: " + e.getMessage());
+            log.error("Error connecting to the database: {}", e.getMessage());
         }
         return connection;
     }

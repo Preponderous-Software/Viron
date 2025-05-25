@@ -21,9 +21,11 @@ services:
     ports:
       - "9999:9999"
     environment:
-      CONFIG_DB_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      CONFIG_DB_USERNAME: ${DB_USERNAME}
-      CONFIG_DB_PASSWORD: ${DB_PASSWORD}
+      DATABASE_DB_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      DATABASE_DB_USERNAME: ${DB_USERNAME}
+      DATABASE_DB_PASSWORD: ${DB_PASSWORD}
+      SERVICE_VIRON_HOST: ${SERVICE_VIRON_HOST}
+      SERVICE_VIRON_PORT: ${SERVICE_VIRON_PORT}
     depends_on:
       - postgres
 

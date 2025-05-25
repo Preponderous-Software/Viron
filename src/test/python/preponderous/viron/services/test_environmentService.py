@@ -25,7 +25,7 @@ def test_get_all_environments(mock_get):
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     environments = service.get_all_environments()
 
     assert len(environments) == 2
@@ -45,7 +45,7 @@ def test_get_environment_by_id(mock_get):
     }
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     environment = service.get_environment_by_id(1)
 
     assert isinstance(environment, Environment)
@@ -63,7 +63,7 @@ def test_get_environment_by_name(mock_get):
     }
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     environment = service.get_environment_by_name("Environment1")
 
     assert isinstance(environment, Environment)
@@ -80,7 +80,7 @@ def test_get_environment_of_entity(mock_get):
     }
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     environment = service.get_environment_of_entity(1)
 
     assert isinstance(environment, Environment)
@@ -97,7 +97,7 @@ def test_create_environment(mock_post):
     }
     mock_response.raise_for_status = Mock()
     mock_post.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     environment = service.create_environment('TestEnv', 10, 10)
 
     assert isinstance(environment, Environment)
@@ -110,7 +110,7 @@ def test_delete_environment(mock_delete):
     mock_response.status_code = 200
     mock_response.raise_for_status = Mock()
     mock_delete.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     result = service.delete_environment(1)
 
     assert result is True
@@ -122,7 +122,7 @@ def test_update_environment_name(mock_patch):
     mock_response.status_code = 200
     mock_response.raise_for_status = Mock()
     mock_patch.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     result = service.update_environment_name(1, 'NewName')
 
     assert result is True
@@ -134,7 +134,7 @@ def test_get_all_environments_empty(mock_get):
     mock_response.json.return_value = []
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     environments = service.get_all_environments()
 
     assert len(environments) == 0
@@ -145,7 +145,7 @@ def test_http_error_handling(mock_get):
     mock_response = Mock()
     mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError()
     mock_get.return_value = mock_response
-    EnvironmentService("http://localhost", "9999")
+
     with pytest.raises(requests.exceptions.HTTPError):
         service.get_all_environments()
 

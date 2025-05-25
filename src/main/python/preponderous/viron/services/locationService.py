@@ -2,11 +2,7 @@ from typing import List, Optional
 import logging
 import requests
 from dataclasses import dataclass
-
-@dataclass
-class Location:
-    id: int
-    # Add other fields as needed
+from src.main.python.preponderous.viron.models.location import Location
 
 @dataclass
 class ServiceConfig:

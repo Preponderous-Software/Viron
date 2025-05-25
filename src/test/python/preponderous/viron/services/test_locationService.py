@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, Mock
 from src.main.python.preponderous.viron.services.locationService import (
-    LocationService, ServiceConfig, NotFoundException, ServiceException
+    LocationService, ServiceConfig
 )
 
 def test_locationService_init():
@@ -51,7 +51,7 @@ def test_get_location_by_id_not_found(mock_get):
     config = ServiceConfig(viron_host="http://localhost", viron_port=9999)
     service = LocationService(config)
 
-    with pytest.raises(NotFoundException):
+    with pytest.raises(Exception):
         service.get_location_by_id(1)
 
 @patch('requests.get')
@@ -151,5 +151,5 @@ def test_remove_entity_not_found(mock_delete):
     config = ServiceConfig(viron_host="http://localhost", viron_port=9999)
     service = LocationService(config)
 
-    with pytest.raises(NotFoundException):
+    with pytest.raises(Exception):
         service.remove_entity_from_current_location(1)

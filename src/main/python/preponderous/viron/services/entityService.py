@@ -6,7 +6,6 @@ from src.main.python.preponderous.viron.models.entity import Entity
 
 logger = logging.getLogger(__name__)
 
-
 class EntityService:
     def __init__(self, viron_host: str, viron_port: int):
         """Initialize EntityService with host and port"""

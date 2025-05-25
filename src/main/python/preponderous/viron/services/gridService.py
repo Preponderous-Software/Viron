@@ -14,31 +14,19 @@ class GridService:
         self.base_url = f"{base_url}/api/v1/grids"
 
     def get_all_grids(self) -> List[Grid]:
-        try:
-            response = requests.get(self.base_url)
-            response.raise_for_status()
-            return [Grid(**grid) for grid in response.json()]
-        except Exception as e:
-            logger.error(f"Error getting all grids: {str(e)}")
-            raise Exception("Failed to fetch all grids") from e
+        response = requests.get(self.base_url)
+        response.raise_for_status()
+        return [Grid(**grid) for grid in response.json()]
 
     def get_grid_by_id(self, grid_id: int) -> Optional[Grid]:
-        try:
-            response = requests.get(f"{self.base_url}/{grid_id}")
-            response.raise_for_status()
-            return Grid(**response.json())
-        except Exception as e:
-            logger.error(f"Error getting grid by id {grid_id}: {str(e)}")
-            raise Exception(f"Failed to fetch grid by id: {grid_id}") from e
+        response = requests.get(f"{self.base_url}/{grid_id}")
+        response.raise_for_status()
+        return Grid(**response.json())
 
     def get_grids_in_environment(self, environment_id: int) -> List[Grid]:
-        try:
-            response = requests.get(f"{self.base_url}/environment/{environment_id}")
-            response.raise_for_status()
-            return [Grid(**grid) for grid in response.json()]
-        except Exception as e:
-            logger.error(f"Error getting grids in environment {environment_id}: {str(e)}")
-            raise Exception(f"Failed to fetch grids in environment: {environment_id}") from e
+        response = requests.get(f"{self.base_url}/environment/{environment_id}")
+        response.raise_for_status()
+        return [Grid(**grid) for grid in response.json()]
 
     def get_grid_of_entity(self, entity_id: int) -> Optional[Grid]:
         response = requests.get(f"{self.base_url}/entity/{entity_id}")

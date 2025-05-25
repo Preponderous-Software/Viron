@@ -15,23 +15,21 @@ MOCK_ENTITIES_DATA = [
     {'entityId': 2, 'name': 'Entity2', 'creationDate': '2024-01-01'}
 ]
 
-@pytest.fixture
-def service():
-    return EntityService("http://localhost", 8080)
+service = EntityService("http://localhost", 9999)
 
 
-def test_init(service):
+def test_init():
     assert service.viron_host == "http://localhost"
-    assert service.viron_port == 8080
+    assert service.viron_port == 9999
 
 
-def test_get_base_url(service):
-    expected = "http://localhost:8080/api/v1/entities"
+def test_get_base_url():
+    expected = "http://localhost:9999/api/v1/entities"
     assert service.get_base_url() == expected
 
 
 @patch('requests.get')
-def test_get_all_entities_success(mock_get, service):
+def test_get_all_entities_success(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = MOCK_ENTITIES_DATA
     mock_get.return_value = mock_response
@@ -43,7 +41,7 @@ def test_get_all_entities_success(mock_get, service):
 
 
 @patch('requests.get')
-def test_get_all_entities_empty(mock_get, service):
+def test_get_all_entities_empty(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = []
     mock_get.return_value = mock_response
@@ -53,7 +51,7 @@ def test_get_all_entities_empty(mock_get, service):
 
 
 @patch('requests.get')
-def test_get_entity_by_id_success(mock_get, service):
+def test_get_entity_by_id_success(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = MOCK_ENTITY_DATA
     mock_get.return_value = mock_response
@@ -65,7 +63,7 @@ def test_get_entity_by_id_success(mock_get, service):
 
 
 @patch('requests.get')
-def test_get_entities_in_environment_success(mock_get, service):
+def test_get_entities_in_environment_success(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = MOCK_ENTITIES_DATA
     mock_get.return_value = mock_response
@@ -76,7 +74,7 @@ def test_get_entities_in_environment_success(mock_get, service):
 
 
 @patch('requests.get')
-def test_get_entities_in_grid_success(mock_get, service):
+def test_get_entities_in_grid_success(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = MOCK_ENTITIES_DATA
     mock_get.return_value = mock_response
@@ -87,7 +85,7 @@ def test_get_entities_in_grid_success(mock_get, service):
 
 
 @patch('requests.get')
-def test_get_entities_in_location_success(mock_get, service):
+def test_get_entities_in_location_success(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = MOCK_ENTITIES_DATA
     mock_get.return_value = mock_response
@@ -98,7 +96,7 @@ def test_get_entities_in_location_success(mock_get, service):
 
 
 @patch('requests.get')
-def test_get_entities_not_in_any_location_success(mock_get, service):
+def test_get_entities_not_in_any_location_success(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = MOCK_ENTITIES_DATA
     mock_get.return_value = mock_response
@@ -109,7 +107,7 @@ def test_get_entities_not_in_any_location_success(mock_get, service):
 
 
 @patch('requests.post')
-def test_create_entity_success(mock_post, service):
+def test_create_entity_success(mock_post):
     mock_response = Mock()
     mock_response.json.return_value = MOCK_ENTITY_DATA
     mock_post.return_value = mock_response
@@ -121,7 +119,7 @@ def test_create_entity_success(mock_post, service):
 
 
 @patch('requests.delete')
-def test_delete_entity_success(mock_delete, service):
+def test_delete_entity_success(mock_delete):
     mock_response = Mock()
     mock_delete.return_value = mock_response
 
@@ -131,7 +129,7 @@ def test_delete_entity_success(mock_delete, service):
 
 
 @patch('requests.patch')
-def test_update_entity_name_success(mock_patch, service):
+def test_update_entity_name_success(mock_patch):
     mock_response = Mock()
     mock_patch.return_value = mock_response
 
@@ -142,7 +140,7 @@ def test_update_entity_name_success(mock_patch, service):
 
 # Error cases
 @patch('requests.get')
-def test_get_all_entities_error(mock_get, service):
+def test_get_all_entities_error(mock_get):
     mock_get.side_effect = Exception("Network error")
 
     with pytest.raises(Exception) as exc_info:
@@ -151,7 +149,7 @@ def test_get_all_entities_error(mock_get, service):
 
 
 @patch('requests.post')
-def test_create_entity_null_response(mock_post, service):
+def test_create_entity_null_response(mock_post):
     mock_response = Mock()
     mock_response.json.return_value = None
     mock_post.return_value = mock_response

@@ -4,10 +4,17 @@ from unittest.mock import patch, Mock
 from src.main.python.preponderous.viron.services.environmentService import EnvironmentService
 from src.main.python.preponderous.viron.models.environment import Environment
 
-def test_environmentService_init():
-    base_url = "http://localhost:9999"
-    service = EnvironmentService(base_url)
-    assert service.base_url == f"{base_url}/api/v1/environments"
+service = EnvironmentService("http://localhost", 9999)
+
+
+def test_init():
+    assert service.viron_host == "http://localhost"
+    assert service.viron_port == 9999
+
+
+def test_get_base_url():
+    expected = "http://localhost:9999/api/v1/environments"
+    assert service.get_base_url() == expected
 
 @patch('requests.get')
 def test_get_all_environments(mock_get):
@@ -19,7 +26,6 @@ def test_get_all_environments(mock_get):
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     environments = service.get_all_environments()
 
     assert len(environments) == 2
@@ -40,7 +46,6 @@ def test_get_environment_by_id(mock_get):
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     environment = service.get_environment_by_id(1)
 
     assert isinstance(environment, Environment)
@@ -59,7 +64,6 @@ def test_get_environment_by_name(mock_get):
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     environment = service.get_environment_by_name("Environment1")
 
     assert isinstance(environment, Environment)
@@ -77,7 +81,6 @@ def test_get_environment_of_entity(mock_get):
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     environment = service.get_environment_of_entity(1)
 
     assert isinstance(environment, Environment)
@@ -95,7 +98,6 @@ def test_create_environment(mock_post):
     mock_response.raise_for_status = Mock()
     mock_post.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     environment = service.create_environment('TestEnv', 10, 10)
 
     assert isinstance(environment, Environment)
@@ -109,7 +111,6 @@ def test_delete_environment(mock_delete):
     mock_response.raise_for_status = Mock()
     mock_delete.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     result = service.delete_environment(1)
 
     assert result is True
@@ -122,7 +123,6 @@ def test_update_environment_name(mock_patch):
     mock_response.raise_for_status = Mock()
     mock_patch.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     result = service.update_environment_name(1, 'NewName')
 
     assert result is True
@@ -135,7 +135,6 @@ def test_get_all_environments_empty(mock_get):
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     environments = service.get_all_environments()
 
     assert len(environments) == 0
@@ -147,7 +146,6 @@ def test_http_error_handling(mock_get):
     mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError()
     mock_get.return_value = mock_response
 
-    service = EnvironmentService("http://localhost:9999")
     with pytest.raises(requests.exceptions.HTTPError):
         service.get_all_environments()
 

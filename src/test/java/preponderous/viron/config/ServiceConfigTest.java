@@ -24,7 +24,7 @@ public class ServiceConfigTest {
     @Test
     void testGetVironPort() {
         ServiceConfig serviceConfig = new ServiceConfig();
-        serviceConfig.setVironPort(8080);
-        assert(serviceConfig.getVironPort() == 8080);
+        serviceConfig.setVironPort(9999);
+        assert(serviceConfig.getVironPort() == 9999);
     }
 }

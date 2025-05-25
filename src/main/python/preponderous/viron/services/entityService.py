@@ -8,12 +8,10 @@ logger = logging.getLogger(__name__)
 
 class EntityService:
     def __init__(self, viron_host: str, viron_port: int):
-        """Initialize EntityService with host and port"""
         self.viron_host = viron_host
         self.viron_port = viron_port
 
     def get_base_url(self) -> str:
-        """Get the base URL for the API"""
         return f"{self.viron_host}:{self.viron_port}/api/v1/entities"
 
     def get_all_entities(self) -> List[Entity]:

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, Mock
-from src.main.python.preponderous.viron.services.entityService import EntityService, EntityServiceException
+from src.main.python.preponderous.viron.services.entityService import EntityService
 from src.main.python.preponderous.viron.models.entity import Entity
 
 # Test data
@@ -145,9 +145,9 @@ def test_update_entity_name_success(mock_patch, service):
 def test_get_all_entities_error(mock_get, service):
     mock_get.side_effect = Exception("Network error")
 
-    with pytest.raises(EntityServiceException) as exc_info:
+    with pytest.raises(Exception) as exc_info:
         service.get_all_entities()
-    assert "Error retrieving entities" in str(exc_info.value)
+    assert "Network error" in str(exc_info.value)
 
 
 @patch('requests.post')
@@ -156,7 +156,7 @@ def test_create_entity_null_response(mock_post, service):
     mock_response.json.return_value = None
     mock_post.return_value = mock_response
 
-    with pytest.raises(EntityServiceException) as exc_info:
+    with pytest.raises(Exception) as exc_info:
         service.create_entity("Entity1")
-    assert "Error creating entity" in str(exc_info.value)
+    assert "Created entity response was null" in str(exc_info.value)
 

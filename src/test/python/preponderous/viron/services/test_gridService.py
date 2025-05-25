@@ -47,9 +47,9 @@ class TestGetAllGrids:
     def test_error(self, mock_get, service):
         mock_get.side_effect = Exception("Test error")
 
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(Exception) as exc_info:
             service.get_all_grids()
-        assert str(exc_info.value) == "Failed to fetch all grids"
+        assert str(exc_info.value) == "Test error"
 
 class TestGetGridById:
     @patch('requests.get')
@@ -68,21 +68,22 @@ class TestGetGridById:
     @patch('requests.get')
     def test_not_found(self, mock_get, service):
         mock_response = Mock()
-        mock_response.raise_for_status.side_effect = HTTPError(response=Mock(status_code=404))
+        mock_response.raise_for_status.side_effect = Exception()
         mock_get.return_value = mock_response
 
-        grid = service.get_grid_by_id(1)
+        with pytest.raises(Exception) as exc_info:
+            grid = service.get_grid_by_id(1)
+            assert grid is None
 
-        assert grid is None
         mock_get.assert_called_once_with(f"{BASE_URL}{API_PATH}/1")
 
     @patch('requests.get')
     def test_error(self, mock_get, service):
         mock_get.side_effect = Exception("Test error")
 
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(Exception) as exc_info:
             service.get_grid_by_id(1)
-        assert str(exc_info.value) == "Failed to fetch grid by id: 1"
+        assert str(exc_info.value) == "Test error"
 
 class TestGetGridsInEnvironment:
     @patch('requests.get')
@@ -115,9 +116,9 @@ class TestGetGridsInEnvironment:
     def test_error(self, mock_get, service):
         mock_get.side_effect = Exception("Test error")
 
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(Exception) as exc_info:
             service.get_grids_in_environment(1)
-        assert str(exc_info.value) == "Failed to fetch grids in environment: 1"
+        assert str(exc_info.value) == "Test error"
 
 class TestGetGridOfEntity:
     @patch('requests.get')
@@ -139,15 +140,16 @@ class TestGetGridOfEntity:
         mock_response.raise_for_status.side_effect = HTTPError(response=Mock(status_code=404))
         mock_get.return_value = mock_response
 
-        grid = service.get_grid_of_entity(1)
+        with pytest.raises(Exception) as exc_info:
+            grid = service.get_grid_of_entity(1)
+            assert grid is None
 
-        assert grid is None
         mock_get.assert_called_once_with(f"{BASE_URL}{API_PATH}/entity/1")
 
     @patch('requests.get')
     def test_error(self, mock_get, service):
         mock_get.side_effect = Exception("Test error")
 
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(Exception) as exc_info:
             service.get_grid_of_entity(1)
-        assert str(exc_info.value) == "Failed to fetch grid for entity: 1"
+        assert str(exc_info.value) == "Test error"

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import preponderous.viron.config.ServiceConfig;
+import preponderous.viron.exceptions.ServiceException;
 import preponderous.viron.models.Grid;
 
 import java.util.Arrays;
@@ -34,7 +35,7 @@ public class GridService {
             return Arrays.asList(response.getBody());
         } catch (Exception e) {
             log.error("Error getting all grids: {}", e.getMessage());
-            throw new RuntimeException("Failed to fetch all grids", e);
+            throw new ServiceException("Failed to fetch all grids", e);
         }
     }
 
@@ -47,7 +48,7 @@ public class GridService {
             return Optional.empty();
         } catch (Exception e) {
             log.error("Error getting grid by id {}: {}", id, e.getMessage());
-            throw new RuntimeException("Failed to fetch grid by id: " + id, e);
+            throw new ServiceException("Failed to fetch grid by id: " + id, e);
         }
     }
 
@@ -62,7 +63,7 @@ public class GridService {
             return Arrays.asList(response.getBody());
         } catch (Exception e) {
             log.error("Error getting grids in environment {}: {}", environmentId, e.getMessage());
-            throw new RuntimeException("Failed to fetch grids in environment: " + environmentId, e);
+            throw new ServiceException("Failed to fetch grids in environment: " + environmentId, e);
         }
     }
 
@@ -79,7 +80,7 @@ public class GridService {
             return Optional.empty();
         } catch (Exception e) {
             log.error("Error getting grid for entity {}: {}", entityId, e.getMessage());
-            throw new RuntimeException("Failed to fetch grid for entity: " + entityId, e);
+            throw new ServiceException("Failed to fetch grid for entity: " + entityId, e);
         }
     }
 }

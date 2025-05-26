@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Setter
 @Getter
-@ConfigurationProperties("config")
+@ConfigurationProperties("database")
 @PropertySource("classpath:application.properties")
 public class DbConfig {
     private String dbUrl;

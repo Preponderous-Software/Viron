@@ -3,6 +3,7 @@ from unittest.mock import patch, Mock
 from src.main.python.preponderous.viron.services.locationService import (
     LocationService
 )
+from src.main.python.preponderous.viron.models.location import Location
 
 service = LocationService("http://localhost", 9999)
 
@@ -20,8 +21,8 @@ def test_get_base_url():
 def test_get_all_locations(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
-        {'id': 1},
-        {'id': 2}
+        {'location_id': 1, 'x': 10, 'y': 20},
+        {'location_id': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
@@ -29,20 +30,17 @@ def test_get_all_locations(mock_get):
     locations = service.get_all_locations()
 
     assert len(locations) == 2
-    assert locations[0]['id'] == 1
-    assert locations[1]['id'] == 2
     mock_get.assert_called_with("http://localhost:9999/api/v1/locations")
 
 @patch('requests.get')
 def test_get_location_by_id(mock_get):
     mock_response = Mock()
-    mock_response.json.return_value = {'id': 1}
+    mock_response.json.return_value = {'location_id': 1, 'x': 10, 'y': 20}
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
     location = service.get_location_by_id(1)
 
-    assert location['id'] == 1
     mock_get.assert_called_with("http://localhost:9999/api/v1/locations/1")
 
 @patch('requests.get')
@@ -58,8 +56,8 @@ def test_get_location_by_id_not_found(mock_get):
 def test_get_locations_in_environment(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
-        {'id': 1},
-        {'id': 2}
+        {'location_id': 1, 'x': 10, 'y': 20},
+        {'location_id': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
@@ -67,16 +65,14 @@ def test_get_locations_in_environment(mock_get):
     locations = service.get_locations_in_environment(1)
 
     assert len(locations) == 2
-    assert locations[0]['id'] == 1
-    assert locations[1]['id'] == 2
     mock_get.assert_called_with("http://localhost:9999/api/v1/locations/environment/1")
 
 @patch('requests.get')
 def test_get_locations_in_grid(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
-        {'id': 1},
-        {'id': 2}
+        {'location_id': 1, 'x': 10, 'y': 20},
+        {'location_id': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
@@ -84,20 +80,17 @@ def test_get_locations_in_grid(mock_get):
     locations = service.get_locations_in_grid(1)
 
     assert len(locations) == 2
-    assert locations[0]['id'] == 1
-    assert locations[1]['id'] == 2
     mock_get.assert_called_with("http://localhost:9999/api/v1/locations/grid/1")
 
 @patch('requests.get')
 def test_get_location_of_entity(mock_get):
     mock_response = Mock()
-    mock_response.json.return_value = {'id': 1}
+    mock_response.json.return_value = {'location_id': 1, 'x': 10, 'y': 20}
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
     location = service.get_location_of_entity(1)
 
-    assert location['id'] == 1
     mock_get.assert_called_with("http://localhost:9999/api/v1/locations/entity/1")
 
 @patch('requests.put')

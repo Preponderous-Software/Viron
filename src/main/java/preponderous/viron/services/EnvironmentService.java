@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import preponderous.viron.config.ServiceConfig;
+import preponderous.viron.exceptions.ServiceException;
 import preponderous.viron.models.Environment;
 
 @Service
@@ -33,7 +34,7 @@ public class EnvironmentService {
         RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<Environment[]> response = restTemplate.exchange(baseUrl, HttpMethod.GET, null, Environment[].class);
         if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting environments");
+            throw new ServiceException("Error getting environments");
         }
         return Arrays.asList(response.getBody());
     }
@@ -42,7 +43,7 @@ public class EnvironmentService {
         RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<Environment> response = restTemplate.exchange(baseUrl + "/{id}", HttpMethod.GET, null, Environment.class, id);
         if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting environment by id");
+            throw new ServiceException("Error getting environment by id");
         }
         return response.getBody();
     }
@@ -51,7 +52,7 @@ public class EnvironmentService {
         RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<Environment> response = restTemplate.exchange(baseUrl + "/name/{name}", HttpMethod.GET, null, Environment.class, name);
         if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting environment by name");
+            throw new ServiceException("Error getting environment by name");
         }
         return response.getBody();
     }
@@ -60,7 +61,7 @@ public class EnvironmentService {
         RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<Environment> response = restTemplate.exchange(baseUrl + "/entity/{entityId}", HttpMethod.GET, null, Environment.class, entityId);
         if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error getting environment of entity");
+            throw new ServiceException("Error getting environment of entity");
         }
         return response.getBody();
     }
@@ -77,7 +78,7 @@ public class EnvironmentService {
                 gridSize
         );
         if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error creating environment");
+            throw new ServiceException("Error creating environment");
         }
         return response.getBody();
     }
@@ -86,7 +87,7 @@ public class EnvironmentService {
         RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<Void> response = restTemplate.exchange(baseUrl + "/{id}", HttpMethod.DELETE, null, Void.class, id);
         if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error deleting environment");
+            throw new ServiceException("Error deleting environment");
         }
         return response.getStatusCode().is2xxSuccessful();
     }
@@ -102,7 +103,7 @@ public class EnvironmentService {
                 name
         );
         if (response.getStatusCode().isError()) {
-            throw new RuntimeException("Error updating environment name");
+            throw new ServiceException("Error updating environment name");
         }
         return response.getStatusCode().is2xxSuccessful();
     }

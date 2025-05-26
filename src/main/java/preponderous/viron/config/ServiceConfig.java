@@ -7,7 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Setter
 @Getter
-@ConfigurationProperties("config")
+@ConfigurationProperties("service")
 @PropertySource("classpath:application.properties")
 public class ServiceConfig {
     private String vironHost;

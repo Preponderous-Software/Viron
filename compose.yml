@@ -8,9 +8,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DATABASE_DB_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_DB_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db-scripts/setup:/docker-entrypoint-initdb.d
@@ -21,9 +21,9 @@ services:
     ports:
       - "9999:9999"
     environment:
-      DATABASE_DB_URL: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      DATABASE_DB_USERNAME: ${DB_USERNAME}
-      DATABASE_DB_PASSWORD: ${DB_PASSWORD}
+      DATABASE_DB_URL: jdbc:postgresql://${DATABASE_DB_HOST}:${DATABASE_DB_PORT}/${DATABASE_DB_NAME}
+      DATABASE_DB_USERNAME: ${DATABASE_DB_USERNAME}
+      DATABASE_DB_PASSWORD: ${DATABASE_DB_PASSWORD}
       SERVICE_VIRON_HOST: ${SERVICE_VIRON_HOST}
       SERVICE_VIRON_PORT: ${SERVICE_VIRON_PORT}
     depends_on:

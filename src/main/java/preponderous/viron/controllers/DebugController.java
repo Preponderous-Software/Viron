@@ -37,11 +37,6 @@ public class DebugController {
         this.locationService = locationService;
     }
 
-    @GetMapping("/health-check")
-    public String healthCheck() {
-        return "OK";
-    }
-
     /**
      * Creates a sample environment with a single 10x10 grid and places ten entities in random, valid locations within the grid.
      * It ensures the entities are properly created and assigned to valid locations in the grid.

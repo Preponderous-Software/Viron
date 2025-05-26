@@ -1,9 +1,9 @@
 import pytest
-from src.main.python.preponderous.viron.models.location import Location
+from Viron.src.main.python.preponderous.viron.models.location import Location
 
 @pytest.fixture
 def location():
-    return Location(location_id=1, x=10, y=20)
+    return Location(locationId=1, x=10, y=20)
 
 def test_get_location_id(location):
     assert location.get_location_id() == 1

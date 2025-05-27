@@ -39,9 +39,5 @@ public class DebugControllerTest {
         debugController = new DebugController(entityService, environmentService, gridService, locationService);
     }
 
-    @Test
-    public void testHealthCheck() {
-        String response = debugController.healthCheck();
-        assertEquals("OK", response);
-    }
+    // TODO: implement tests for DebugController methods
 }

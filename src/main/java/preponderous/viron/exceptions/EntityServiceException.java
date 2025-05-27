@@ -1,6 +1,6 @@
 package preponderous.viron.exceptions;
 
-public class EntityServiceException extends RuntimeException {
+public class EntityServiceException extends ServiceException {
     public EntityServiceException(String message) {
         super(message);
     }

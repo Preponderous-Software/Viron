@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import preponderous.viron.services.LocationService;
 
 @RestController
 @RequestMapping("/api/v1/debug")
+@Slf4j
 public class DebugController {
     private final EntityService entityService;
     private final EnvironmentService environmentService;
@@ -37,19 +39,12 @@ public class DebugController {
         this.locationService = locationService;
     }
 
-    @GetMapping("/health-check")
-    public String healthCheck() {
-        return "OK";
-    }
-
     /**
      * Creates a sample environment with a single 10x10 grid and places ten entities in random, valid locations within the grid.
      * It ensures the entities are properly created and assigned to valid locations in the grid.
-     *
-     * @return a ResponseEntity containing a Boolean value, true if the sample data was created successfully, false otherwise.
      */
     @PostMapping("/create-sample-data")
-    public ResponseEntity<Boolean> createSampleData() {
+    public ResponseEntity<Environment> createSampleData() {
         // create an environment with one 10x10 grid
         Environment environment = environmentService.createEnvironment("Sample Environment", 1, 10);
         List<Grid> grids = gridService.getGridsInEnvironment(environment.getEnvironmentId());
@@ -64,19 +59,19 @@ public class DebugController {
             int x = (int) (Math.random() * grid.getRows());
             int y = (int) (Math.random() * grid.getColumns());
             Location location = null;
-            for (int j = 0; j < locations.size(); j++) {
-                if (locations.get(j).getX() == x && locations.get(j).getY() == y) {
-                    location = locations.get(j);
+            for (Location value : locations) {
+                if (value.getX() == x && value.getY() == y) {
+                    location = value;
                     break;
                 }
             }
             if (location == null) {
-                return ResponseEntity.ok(false);
+                return ResponseEntity.badRequest().body(null); // exit if no valid location found
             }
             locationService.addEntityToLocation(entity.getEntityId(), location.getLocationId());
         }
 
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(environment);
     }
 
     /**
@@ -84,26 +79,24 @@ public class DebugController {
      * and places the entity at a random valid location within the grid.
      *
      * @param environmentName the name of the environment to be created
-     * @return a ResponseEntity containing a Boolean value, true if the entity was successfully created
-     *         and placed in a location, false if the operation failed
      */
     @PostMapping("/create-world-and-place-entity/{environmentName}")
-    public ResponseEntity<Boolean> createWorldAndPlaceEntity(@PathVariable String environmentName) {
+    public ResponseEntity<Entity> createWorldAndPlaceEntity(@PathVariable String environmentName) {
         // create an environment
         int numGrids = 1;
         int gridSize = 5;
         Environment environment = environmentService.createEnvironment(environmentName, numGrids, gridSize);
-        System.out.println("Environment created: " + environment.getName());
+        log.info("Environment created: {} with ID {}", environment.getName(), environment.getEnvironmentId());
 
         // get grid info
         List<Grid> grids = gridService.getGridsInEnvironment(environment.getEnvironmentId());
         Grid grid = grids.get(0);
-        System.out.println("Grid in environment has " + grid.getRows() + " rows and " + grid.getColumns() + " columns");
+        log.info("Grid created: {} with size {}x{}", grid.getGridId(), grid.getRows(), grid.getColumns());
 
         // create an entity
         String entityName = entityNamePool.get((int) (Math.random() * entityNamePool.size()));
         Entity entity = entityService.createEntity(entityName);
-        System.out.println("Entity created: " + entity.getName());
+        log.info("Entity created: {}", entity.getName());
 
         // place entity in grid
         int entityRow = (int) (Math.random() * grid.getRows());
@@ -117,11 +110,11 @@ public class DebugController {
             }
         }
         if (location == null) {
-            // exit
-            System.out.println("Location not found. Exiting...");
+            log.error("No valid location found for entity at row {} and column {}", entityRow, entityColumn);
+            return ResponseEntity.badRequest().body(null);
         }
         locationService.addEntityToLocation(entity.getEntityId(), location.getLocationId());
-        System.out.println("Entity placed in grid at row " + entityRow + " and column " + entityColumn);
-        return ResponseEntity.ok(true);
+        log.info("Entity {} placed at location ({}, {})", entity.getName(), entityRow, entityColumn);
+        return ResponseEntity.ok(entity);
     }
 }

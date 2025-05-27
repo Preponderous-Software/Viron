@@ -1,77 +1,128 @@
 # Viron
-This is a tool for creating and managing virtual environments and entities within those environments. This intended to be used for game development, but can be used for other purposes as well.
 
-![class-usage-diagram](./docs/diagrams/class-usage-diagram.drawio.png)
+**Viron** is a flexible simulation framework for building and managing 2D virtual environments. It provides tools to create, traverse, and manipulate grid-based spaces where entities can exist, move, and interact. Viron is designed to be used as a **core simulation engine** for games, AI training environments, educational apps, and more.
 
-## Table of Contents
-- [Definitions](#definitions)
-    - [What is a virtual environment?](#what-is-a-virtual-environment)
-- [Testing](#testing)
-    - [Running the unit tests](#running-the-unit-tests)
-    - [Postman](#postman)
-- [Contributing](#contributing)
-    - [Using the dev container](#using-the-dev-container)
-- [Deployment](#deployment)
-    - [Starting the application](#starting-the-application)
-    - [Stopping the application](#stopping-the-application)
+---
 
-## Definitions
-### What is a virtual environment?
-A virtual environment is a space where entities can exist and interact with each other. This can be a 2D or 3D space, and can be as simple as a blank space or as complex as a fully realized world.
+## Design Philosophy
 
-In Viron, a virtual environment is a 2D space where entities can exist and interact with each other. The environment is made up of a grid of cells, each of which can contain a number of entities. The behavior of the entities is up to the client application, which can define rules for how entities interact with each other and with the environment.
+Viron is built to be a lightweight, adaptable core for managing 2D environments. Its focus is on:
 
-## Contributing
-### Using the dev container
-This project includes a dev container that you can use to develop and test the code in a consistent environment. To use the dev container, you will need to have Docker and Visual Studio Code installed on your machine. Once you have those installed, follow these steps:
-1. Make sure the Dev Container extension is installed in Visual Studio Code.
-2. Open the project in Visual Studio Code.
-3. Click on the green "Open a Remote Window" button in the bottom left corner of the window.
-4. Select "Reopen in Container" from the menu that appears.
-5. Visual Studio Code will now build the dev container and open the project inside it.
-6. You can now develop and test the code inside the dev container. Any changes you make will be reflected in the project on your local machine.
+- **Simplicity** – Easy to understand and integrate  
+- **Modularity** – Keeps simulation logic separate from game or application logic  
+- **Flexibility** – Supports many types of simulations, from games to research  
+- **Structure** – Uses grid-based environments for predictable spatial modeling  
+- **Reusability** – Designed to be a foundation for many different projects  
+
+---
+
+## Features
+
+- **Modular Architecture** – Easy to plug into Java and Python projects  
+- **2D Spatial Modeling** – Manage environments, grid layouts, and entity positioning  
+- **Entity Movement** – Track movement across grid cells and between environments  
+- **Simulation Agnostic** – Suitable for ecological sims, city builders, idle games, and more  
+- **Multi-language Support** – Java and Python implementations with a shared design  
+
+---
+
+## Example Use Cases
+
+### 1. Ecosystem Simulator
+Simulates food chain dynamics in a virtual world. Entities such as foxes, rabbits, and grass interact in Viron-managed environments.
+
+### 2. Idle Evolution Game
+Evolves creatures over time in changing biomes, using Viron to track grid-based locations and terrain types.
+
+### 3. Educational Tools
+Interactive classroom tools where students can simulate ecological systems or environmental changes.
+
+### 4. AI Training Environments
+Use Viron to define spatial challenges or resource collection problems in reinforcement learning projects.
+
+### 5. Tic Tac Toe
+Use Viron to model a 3×3 environment where each player places an "X" or "O" on the grid. Track turns, detect win conditions, and enforce valid moves.
+
+### 6. Chess
+Represent the 8×8 board as a Viron environment. Each piece is an entity with movement logic handled externally. Viron tracks positions, captures, and board state.
+
+### 7. Checkers
+Use a grid-based environment to model diagonal movement and jumping. Viron can track entity state changes (like promotion) and valid move paths.
+
+### 8. Block Breaker (Breakout)
+Model the paddle, ball, and blocks within a 2D grid. Viron tracks positions, collisions, and block removal as entities are hit.
+
+### 9. Pong
+Represent the playing field, paddles, and ball in a 2D space. Viron manages movement updates, collisions, and scorekeeping.
+
+### 10. Snake
+Use Viron to track the snake's body segments and apple placement. Manage movement direction, growth, and self-collision logic.
+
+### 11. Turn-Based Tactics Game
+Simulate a battlefield grid with units as entities. Viron manages movement, attack range visibility, and terrain occupancy.
+
+### 12. Conway’s Game of Life
+Each cell is alive or dead and changes state based on neighbors. Viron can model the entire board and apply the update rules in steps.
+
+### 13. Pathfinding Visualizations
+Use Viron to define a navigable grid with start and goal positions. Track algorithm progress (A*, Dijkstra, etc.) in real time through environment updates.
+
+### 14. City Simulation
+Simulate a city with roads, zones, and agents (e.g., people, vehicles). Viron provides structure for tracking locations and interactions between entities.
+
+---
+
+## Installation
+
+### Java (Maven)
+
+```xml
+<dependency>
+  <groupId>com.preponderous</groupId>
+  <artifactId>viron</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+### Python
+
+Coming soon as a PyPI package.
+
+---
+
+## Getting Started
+
+Initialize a 10×10 environment and add an entity:
+
+```java
+Environment env = new Environment("Forest", 10, 10);
+Entity fox = new Entity("Fox");
+env.placeEntityAt(fox, new Coordinate(5, 5));
+```
+
+Move the entity:
+
+```java
+env.moveEntity(fox, Direction.NORTH);
+```
+
+---
 
 ## Testing
-### Running the unit tests
-#### Java
-To run the unit tests, reopen the project in the dev container and run the following command:
+
+**Java:**
 
 ```bash
 mvn test
 ```
 
-To generate a code coverage report, run the following command:
+**Python:**
 
 ```bash
-mvn jacoco:report
+pytest
 ```
 
-The code coverage report will be generated in the `target/site/jacoco` directory. Open the `index.html` file in a web browser to view the report.
-
-#### Python
-To install the required dependencies, run the following command:
-
-```bash
-pip install -r requirements.txt
-```
-
-To run the unit tests, run the following command:
-
-```bash
-python3 -m pytest
-```
-
-To generate a code coverage report, run the following commands:
-
-```bash
-coverage run -m pytest
-coverage report
-```
-
-The code coverage report will be generated in the terminal.
-
-### Postman
-To test the API, you can use the Postman collection provided in the `postman` directory. This collection contains a number of requests that you can use to interact with the API. See the [README](postman/README.md) in the `postman` directory for more information.
+---
 
 ## Deployment
 ### Starting the application
@@ -89,3 +140,17 @@ To stop the application, run the following command:
 ```bash
 docker compose down
 ```
+
+## License
+
+MIT License  
+© 2022–2025 Daniel McCoy Stephenson  
+See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contact & Attribution
+
+This project is developed and maintained by **Preponderous**.  
+For questions or contributions, visit:  
+[https://github.com/Preponderous-Software/Viron](https://github.com/Preponderous-Software/Viron)

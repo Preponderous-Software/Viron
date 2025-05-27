@@ -2,8 +2,8 @@ import pytest
 from unittest.mock import patch, Mock
 import requests
 from requests.exceptions import HTTPError
-from src.main.python.preponderous.viron.services.gridService import GridService
-from src.main.python.preponderous.viron.models.grid import Grid
+from Viron.src.main.python.preponderous.viron.services.gridService import GridService
+from Viron.src.main.python.preponderous.viron.models.grid import Grid
 
 BASE_URL = "http://localhost:9999"
 API_PATH = "/api/v1/grids"

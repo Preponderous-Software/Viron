@@ -2,16 +2,16 @@
 # MIT License
 
 class Location:
-    def __init__(self, location_id: int, x: int, y: int):
-        self.location_id = location_id
+    def __init__(self, locationId: int, x: int, y: int):
+        self.locationId = locationId
         self.x = x
         self.y = y
 
     def get_location_id(self) -> int:
-        return self.location_id
+        return self.locationId
 
     def set_location_id(self, location_id: int):
-        self.location_id = location_id
+        self.locationId = location_id
 
     def get_x(self) -> int:
         return self.x
@@ -26,4 +26,4 @@ class Location:
         self.y = y
 
     def __str__(self) -> str:
-        return f"Location{{location_id={self.location_id}, x={self.x}, y={self.y}}}"
+        return f"Location{{location_id={self.locationId}, x={self.x}, y={self.y}}}"

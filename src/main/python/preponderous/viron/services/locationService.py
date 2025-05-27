@@ -2,7 +2,7 @@ from typing import List, Optional
 import logging
 import requests
 from dataclasses import dataclass
-from src.main.python.preponderous.viron.models.location import Location
+from Viron.src.main.python.preponderous.viron.models.location import Location
 
 class LocationService:
     def __init__(self, viron_host: str, viron_port: int):

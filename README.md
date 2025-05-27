@@ -108,15 +108,6 @@ env.moveEntity(fox, Direction.NORTH);
 
 ---
 
-## Project Structure
-
-- `environments/` – Defines environments and grids  
-- `entities/` – Defines basic entity behavior  
-- `coordinates/` – Spatial utilities  
-- `utils/` – Support classes  
-
----
-
 ## Testing
 
 **Java:**
@@ -132,6 +123,23 @@ pytest
 ```
 
 ---
+
+## Deployment
+### Starting the application
+To start the application, run the following command:
+
+```bash
+docker compose up --build -d
+```
+
+The application will be available at `http://localhost:8080`.
+
+### Stopping the application
+To stop the application, run the following command:
+
+```bash
+docker compose down
+```
 
 ## License
 

@@ -1,5 +1,5 @@
 import pytest
-from preponderous.viron.models.location import Location
+from src.main.python.preponderous.viron.models.location import Location
 
 @pytest.fixture
 def location():

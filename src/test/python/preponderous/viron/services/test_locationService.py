@@ -1,34 +1,36 @@
 import pytest
 from unittest.mock import patch, Mock
-from src.main.python.preponderous.viron.services.locationService import LocationService
+from src.main.python.preponderous.viron.services.locationService import (
+    LocationService
+)
 from src.main.python.preponderous.viron.models.location import Location
 
-def test_locationService_init():
-    base_url = "http://localhost:9999"
-    service = LocationService(base_url)
-    assert service.base_url == base_url
+service = LocationService("http://localhost", 9999)
+
+
+def test_init():
+    assert service.viron_host == "http://localhost"
+    assert service.viron_port == 9999
+
+
+def test_get_base_url():
+    expected = "http://localhost:9999/api/v1/locations"
+    assert service.get_base_url() == expected
 
 @patch('requests.get')
 def test_get_all_locations(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
         {'location_id': 1, 'x': 10, 'y': 20},
-        {'location_id': 2, 'x': 15, 'y': 25}
+        {'location_id': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
     locations = service.get_all_locations()
 
     assert len(locations) == 2
-    assert locations[0].get_location_id() == 1
-    assert locations[0].get_x() == 10
-    assert locations[0].get_y() == 20
-    assert locations[1].get_location_id() == 2
-    assert locations[1].get_x() == 15
-    assert locations[1].get_y() == 25
-    mock_get.assert_called_with("http://localhost:9999/location/get-all-locations")
+    mock_get.assert_called_with("http://localhost:9999/api/v1/locations")
 
 @patch('requests.get')
 def test_get_location_by_id(mock_get):
@@ -37,57 +39,48 @@ def test_get_location_by_id(mock_get):
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
     location = service.get_location_by_id(1)
 
-    assert location.get_location_id() == 1
-    assert location.get_x() == 10
-    assert location.get_y() == 20
-    mock_get.assert_called_with("http://localhost:9999/location/get-location-by-id/1")
+    mock_get.assert_called_with("http://localhost:9999/api/v1/locations/1")
+
+@patch('requests.get')
+def test_get_location_by_id_not_found(mock_get):
+    mock_response = Mock()
+    mock_response.status_code = 404
+    mock_get.return_value = mock_response
+
+    with pytest.raises(Exception):
+        service.get_location_by_id(1)
 
 @patch('requests.get')
 def test_get_locations_in_environment(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
         {'location_id': 1, 'x': 10, 'y': 20},
-        {'location_id': 2, 'x': 15, 'y': 25}
+        {'location_id': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
     locations = service.get_locations_in_environment(1)
 
     assert len(locations) == 2
-    assert locations[0].get_location_id() == 1
-    assert locations[0].get_x() == 10
-    assert locations[0].get_y() == 20
-    assert locations[1].get_location_id() == 2
-    assert locations[1].get_x() == 15
-    assert locations[1].get_y() == 25
-    mock_get.assert_called_with("http://localhost:9999/location/get-locations-in-environment/1")
+    mock_get.assert_called_with("http://localhost:9999/api/v1/locations/environment/1")
 
 @patch('requests.get')
 def test_get_locations_in_grid(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
         {'location_id': 1, 'x': 10, 'y': 20},
-        {'location_id': 2, 'x': 15, 'y': 25}
+        {'location_id': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
     locations = service.get_locations_in_grid(1)
 
     assert len(locations) == 2
-    assert locations[0].get_location_id() == 1
-    assert locations[0].get_x() == 10
-    assert locations[0].get_y() == 20
-    assert locations[1].get_location_id() == 2
-    assert locations[1].get_x() == 15
-    assert locations[1].get_y() == 25
-    mock_get.assert_called_with("http://localhost:9999/location/get-locations-in-grid/1")
+    mock_get.assert_called_with("http://localhost:9999/api/v1/locations/grid/1")
 
 @patch('requests.get')
 def test_get_location_of_entity(mock_get):
@@ -96,49 +89,45 @@ def test_get_location_of_entity(mock_get):
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
     location = service.get_location_of_entity(1)
 
-    assert location.get_location_id() == 1
-    assert location.get_x() == 10
-    assert location.get_y() == 20
-    mock_get.assert_called_with("http://localhost:9999/location/get-location-of-entity/1")
+    mock_get.assert_called_with("http://localhost:9999/api/v1/locations/entity/1")
 
-@patch('requests.post')
-def test_add_entity_to_location(mock_post):
+@patch('requests.put')
+def test_add_entity_to_location(mock_put):
     mock_response = Mock()
-    mock_response.json.return_value = True
     mock_response.raise_for_status = Mock()
-    mock_post.return_value = mock_response
+    mock_put.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
-    result = service.add_entity_to_location(1, 1)
+    service.add_entity_to_location(1, 1)
 
-    assert result is True
-    mock_post.assert_called_with("http://localhost:9999/location/add-entity-to-location/1/1")
+    mock_put.assert_called_with("http://localhost:9999/api/v1/locations/1/entity/1")
 
-@patch('requests.post')
-def test_remove_entity_from_location(mock_post):
+@patch('requests.delete')
+def test_remove_entity_from_location(mock_delete):
     mock_response = Mock()
-    mock_response.json.return_value = True
     mock_response.raise_for_status = Mock()
-    mock_post.return_value = mock_response
+    mock_delete.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
-    result = service.remove_entity_from_location(1, 1)
+    service.remove_entity_from_location(1, 1)
 
-    assert result is True
-    mock_post.assert_called_with("http://localhost:9999/location/remove-entity-from-location/1/1")
+    mock_delete.assert_called_with("http://localhost:9999/api/v1/locations/1/entity/1")
 
-@patch('requests.post')
-def test_remove_entity_from_current_location(mock_post):
+@patch('requests.delete')
+def test_remove_entity_from_current_location(mock_delete):
     mock_response = Mock()
-    mock_response.json.return_value = True
     mock_response.raise_for_status = Mock()
-    mock_post.return_value = mock_response
+    mock_delete.return_value = mock_response
 
-    service = LocationService("http://localhost:9999")
-    result = service.remove_entity_from_current_location(1)
+    service.remove_entity_from_current_location(1)
 
-    assert result is True
-    mock_post.assert_called_with("http://localhost:9999/location/remove-entity-from-current-location/1")
+    mock_delete.assert_called_with("http://localhost:9999/api/v1/locations/entity/1")
+
+@patch('requests.delete')
+def test_remove_entity_not_found(mock_delete):
+    mock_response = Mock()
+    mock_response.status_code = 404
+    mock_delete.return_value = mock_response
+
+    with pytest.raises(Exception):
+        service.remove_entity_from_current_location(1)

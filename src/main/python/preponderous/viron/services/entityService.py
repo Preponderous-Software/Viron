@@ -1,56 +1,77 @@
-# Copyright (c) 2024 Preponderous Software
-# MIT License
-
+import logging
+from typing import List, Optional
 import requests
 
 from src.main.python.preponderous.viron.models.entity import Entity
 
+logger = logging.getLogger(__name__)
 
 class EntityService:
-    def __init__(self, base_url):
-        self.base_url = base_url
+    def __init__(self, viron_host: str, viron_port: int):
+        self.viron_host = viron_host
+        self.viron_port = viron_port
 
-    def getAllEntities(self) -> list[Entity]:
-        response = requests.get(f"{self.base_url}/entity/get-all-entities")
-        response.raise_for_status()
-        return [Entity(**entity) for entity in response.json()]
+    def get_base_url(self) -> str:
+        return f"{self.viron_host}:{self.viron_port}/api/v1/entities"
 
-    def getEntityById(self, entity_id) -> Entity:
-        response = requests.get(f"{self.base_url}/entity/get-entity-by-id/{entity_id}")
+    def get_all_entities(self) -> List[Entity]:
+        response = requests.get(self.get_base_url())
         response.raise_for_status()
-        return Entity(**response.json())
+        data = response.json()
+        return [Entity(**entity) for entity in data] if data else []
 
-    def getEntitiesInEnvironment(self, environment_id) -> list[Entity]:
-        response = requests.get(f"{self.base_url}/entity/get-entities-in-environment/{environment_id}")
+    def get_entity_by_id(self, entity_id: int) -> Optional[Entity]:
+        response = requests.get(f"{self.get_base_url()}/{entity_id}")
         response.raise_for_status()
-        return [Entity(**entity) for entity in response.json()]
+        data = response.json()
+        return Entity(**data) if data else None
 
-    def getEntitiesInGrid(self, grid_id) -> list[Entity]:
-        response = requests.get(f"{self.base_url}/entity/get-entities-in-grid/{grid_id}")
+    def get_entities_in_environment(self, environment_id: int) -> List[Entity]:
+        response = requests.get(f"{self.get_base_url()}/environment/{environment_id}")
         response.raise_for_status()
-        return [Entity(**entity) for entity in response.json()]
+        data = response.json()
+        return [Entity(**entity) for entity in data] if data else []
 
-    def getEntitiesInLocation(self, location_id) -> list[Entity]:
-        response = requests.get(f"{self.base_url}/entity/get-entities-in-location/{location_id}")
+    def get_entities_in_grid(self, grid_id: int) -> List[Entity]:
+        response = requests.get(f"{self.get_base_url()}/grid/{grid_id}")
         response.raise_for_status()
-        return [Entity(**entity) for entity in response.json()]
+        data = response.json()
+        return [Entity(**entity) for entity in data] if data else []
 
-    def getEntitiesNotInAnyLocation(self) -> list[Entity]:
-        response = requests.get(f"{self.base_url}/entity/get-entities-not-in-any-location")
+    def get_entities_in_location(self, location_id: int) -> List[Entity]:
+        response = requests.get(f"{self.get_base_url()}/location/{location_id}")
         response.raise_for_status()
-        return [Entity(**entity) for entity in response.json()]
+        data = response.json()
+        return [Entity(**entity) for entity in data] if data else []
 
-    def createEntity(self, name) -> Entity:
-        response = requests.post(f"{self.base_url}/entity/create-entity/{name}")
+    def get_entities_not_in_any_location(self) -> List[Entity]:
+        response = requests.get(f"{self.get_base_url()}/unassigned")
         response.raise_for_status()
-        return Entity(**response.json())
+        data = response.json()
+        return [Entity(**entity) for entity in data] if data else []
 
-    def deleteEntity(self, entity_id) -> dict:
-        response = requests.delete(f"{self.base_url}/entity/delete-entity/{entity_id}")
+    def create_entity(self, name: str) -> Entity:
+        response = requests.post(f"{self.get_base_url()}/{name}")
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        if not data:
+            raise Exception("Created entity response was null")
+        return Entity(**data)
 
-    def setEntityName(self, entity_id, name) -> dict:
-        response = requests.put(f"{self.base_url}/entity/set-entity-name/{entity_id}/{name}")
-        response.raise_for_status()
-        return response.json()
+    def delete_entity(self, entity_id: int) -> bool:
+        try:
+            response = requests.delete(f"{self.get_base_url()}/{entity_id}")
+            response.raise_for_status()
+            return True
+        except Exception as e:
+            logger.error(f"Failed to delete entity {entity_id}: {str(e)}")
+            raise Exception("Error deleting entity", e)
+
+    def update_entity_name(self, entity_id: int, name: str) -> bool:
+        try:
+            response = requests.patch(f"{self.get_base_url()}/{entity_id}/name/{name}")
+            response.raise_for_status()
+            return True
+        except Exception as e:
+            logger.error(f"Failed to update name for entity {entity_id}: {str(e)}")
+            raise Exception("Error updating entity name", e)

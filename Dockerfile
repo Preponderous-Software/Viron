@@ -28,7 +28,7 @@ RUN apt-get install -y openjdk-21-jre
 WORKDIR /app
 
 # Copy the jar file from the build stage
-COPY --from=build /app/target/viron-0.4.0-SNAPSHOT.jar /app/viron-0.4.0-SNAPSHOT.jar
+COPY --from=build /app/target/viron-0.5.0-SNAPSHOT.jar /app/viron-0.5.0-SNAPSHOT.jar
 
 # Run the jar file
-CMD ["java", "-jar", "viron-0.4.0-SNAPSHOT.jar"]
+CMD ["java", "-jar", "viron-0.5.0-SNAPSHOT.jar"]

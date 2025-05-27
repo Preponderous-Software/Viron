@@ -40,6 +40,36 @@ Interactive classroom tools where students can simulate ecological systems or en
 ### 4. AI Training Environments
 Use Viron to define spatial challenges or resource collection problems in reinforcement learning projects.
 
+### 5. Tic Tac Toe
+Use Viron to model a 3×3 environment where each player places an "X" or "O" on the grid. Track turns, detect win conditions, and enforce valid moves.
+
+### 6. Chess
+Represent the 8×8 board as a Viron environment. Each piece is an entity with movement logic handled externally. Viron tracks positions, captures, and board state.
+
+### 7. Checkers
+Use a grid-based environment to model diagonal movement and jumping. Viron can track entity state changes (like promotion) and valid move paths.
+
+### 8. Block Breaker (Breakout)
+Model the paddle, ball, and blocks within a 2D grid. Viron tracks positions, collisions, and block removal as entities are hit.
+
+### 9. Pong
+Represent the playing field, paddles, and ball in a 2D space. Viron manages movement updates, collisions, and scorekeeping.
+
+### 10. Snake
+Use Viron to track the snake's body segments and apple placement. Manage movement direction, growth, and self-collision logic.
+
+### 11. Turn-Based Tactics Game
+Simulate a battlefield grid with units as entities. Viron manages movement, attack range visibility, and terrain occupancy.
+
+### 12. Conway’s Game of Life
+Each cell is alive or dead and changes state based on neighbors. Viron can model the entire board and apply the update rules in steps.
+
+### 13. Pathfinding Visualizations
+Use Viron to define a navigable grid with start and goal positions. Track algorithm progress (A*, Dijkstra, etc.) in real time through environment updates.
+
+### 14. City Simulation
+Simulate a city with roads, zones, and agents (e.g., people, vehicles). Viron provides structure for tracking locations and interactions between entities.
+
 ---
 
 ## Installation

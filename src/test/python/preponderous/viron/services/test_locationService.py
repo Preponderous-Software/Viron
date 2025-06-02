@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import patch, Mock
-from Viron.src.main.python.preponderous.viron.services.locationService import (
+from src.main.python.preponderous.viron.services.locationService import (
     LocationService
 )
-from Viron.src.main.python.preponderous.viron.models.location import Location
+from src.main.python.preponderous.viron.models.location import Location
 
 service = LocationService("http://localhost", 9999)
 

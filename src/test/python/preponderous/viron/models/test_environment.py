@@ -1,6 +1,6 @@
 import pytest
 
-from Viron.src.main.python.preponderous.viron.models.environment import Environment
+from src.main.python.preponderous.viron.models.environment import Environment
 
 @pytest.fixture
 def environment():

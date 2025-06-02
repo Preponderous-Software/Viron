@@ -3,7 +3,7 @@
 
 import pytest
 
-from Viron.src.main.python.preponderous.viron.models.entity import Entity
+from src.main.python.preponderous.viron.models.entity import Entity
 
 
 @pytest.fixture

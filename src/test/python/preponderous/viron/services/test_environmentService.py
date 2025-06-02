@@ -1,8 +1,8 @@
 import pytest
 import requests
 from unittest.mock import patch, Mock
-from Viron.src.main.python.preponderous.viron.services.environmentService import EnvironmentService
-from Viron.src.main.python.preponderous.viron.models.environment import Environment
+from src.main.python.preponderous.viron.services.environmentService import EnvironmentService
+from src.main.python.preponderous.viron.models.environment import Environment
 
 service = EnvironmentService("http://localhost", 9999)
 

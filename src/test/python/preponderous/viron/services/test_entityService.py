@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, Mock
-from Viron.src.main.python.preponderous.viron.services.entityService import EntityService
-from Viron.src.main.python.preponderous.viron.models.entity import Entity
+from src.main.python.preponderous.viron.services.entityService import EntityService
+from src.main.python.preponderous.viron.models.entity import Entity
 
 # Test data
 MOCK_ENTITY_DATA = {

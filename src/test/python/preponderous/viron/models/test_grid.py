@@ -1,4 +1,4 @@
-from Viron.src.main.python.preponderous.viron.models.grid import Grid
+from src.main.python.preponderous.viron.models.grid import Grid
 import pytest
 
 @pytest.fixture

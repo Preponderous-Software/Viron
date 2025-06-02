@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional
 import requests
 
-from Viron.src.main.python.preponderous.viron.models.entity import Entity
+from src.main.python.preponderous.viron.models.entity import Entity
 
 logger = logging.getLogger(__name__)
 

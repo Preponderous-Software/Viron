@@ -143,14 +143,32 @@ docker compose down
 
 ## 📄 License
 
-This project is licensed under the **Preponderous Non-Commercial License (Preponderous-NC)**.  
-It is free to use, modify, and self-host for **non-commercial** purposes, but **commercial use requires a separate license**.
+Viron is licensed under the [MIT License](LICENSE).
 
-> **Disclaimer:** *Preponderous Software is not a legal entity.*  
-> All rights to works published under this license are reserved by the copyright holder, **Daniel McCoy Stephenson**.
+Copyright © 2022–2025 Daniel McCoy Stephenson. All rights reserved.
 
-Full license text:  
-[https://github.com/Preponderous-Software/preponderous-nc-license/blob/main/LICENSE.md](https://github.com/Preponderous-Software/preponderous-nc-license/blob/main/LICENSE.md)
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the “Software”), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies 
+or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+### Why MIT?
+Viron is a foundational library intended for broad adoption across the simulation and game development community. The **MIT License** was chosen for its simplicity and permissiveness, making it easy for individuals, research institutions, and commercial entities alike to integrate Viron without licensing friction. This aligns with the goal of establishing Viron as a widely used standard in 2D environment management.
+
+### Open Source Commitment
+There are **no plans to move away from open source** for Viron. The project will remain freely available under an OSI-approved license, with community contributions encouraged and welcomed.
 
 ---
 

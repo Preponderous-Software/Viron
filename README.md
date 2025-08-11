@@ -1,112 +1,119 @@
 # Viron
 
-**Viron** is the **spatial simulation core** of a modular service ecosystem — a reusable backend module for building and managing **2D grid-based environments**.  
-It provides a structured way to represent space, manage grids, track locations, place entities, and handle movement — while remaining agnostic to the rules, logic, and gameplay systems that run on top.
+Viron is a **2D spatial simulation management service** that provides APIs for creating and managing **environments**, **grids**, **locations**, and **entities**.  
+It serves as a reusable backend component for simulation-based games, AI experiments, and virtual world applications.
 
 ---
 
-## 🌍 Purpose
+## 🎯 Purpose
 
-Viron serves as the **spatial foundation** in a larger system.  
-It answers questions like:
-- *What* environments exist?
-- *What* is the size and structure of an environment’s grid?
-- *Where* is a given entity located?
-- *What* is occupying a given location?
-- *How* can entities move between locations and environments?
+Viron abstracts away low-level spatial data management so client applications can focus on simulation logic, rendering, and game mechanics.
 
-Viron does **not** decide *why* an entity moves, what it does there, or how time progresses — those are handled externally.
+Core responsibilities:
+- Managing hierarchical spatial structures (environments → grids → locations).
+- Tracking entity placement and movement.
+- Providing clean, testable REST APIs.
+- Offering debug tools for rapid development and testing.
 
 ---
 
-## 🧠 Design Principles
+## 📦 Features (MVP Scope)
 
-- **Spatial First** – Optimized for representing and manipulating grid-based space  
-- **Decoupled** – Works independently of game rules, AI logic, or rendering systems  
-- **Modular** – Easily integrates with other services or applications  
-- **Reusable** – Applicable across genres and simulation types  
-- **Predictable** – Deterministic spatial modeling for consistent behavior  
+The MVP implements the endpoints defined in `openapi/viron-api.json` and documented in `docs/MVP.md`.
 
----
+**Environment Management**
+- Create, retrieve, update, and delete environments.
+- Query environments by ID, name, or contained entity.
 
-## ✨ Features
+**Grid Management**
+- Retrieve grids by ID or environment.
+- Find the grid containing a specific entity.
 
-- **Environment Management** – Create and organize named environments  
-- **Grid Retrieval** – Query the structure and dimensions of an environment’s grid  
-- **Location Queries** – Retrieve occupants of specific coordinates or all locations in an environment  
-- **Entity Placement & Movement** – Place, move, and remove entities  
-- **Multi-Environment Support** – Entities can move between separate environments  
-- **Simulation Agnostic** – Works for games, AI research, visualization tools, and more  
+**Location Management**
+- Retrieve locations by ID, grid, or environment.
+- Manage entity placement in locations.
 
----
+**Entity Management**
+- Create, retrieve, and delete entities.
 
-## 🎮 Example Use Cases
-
-- Ecosystem simulation  
-- Idle creature evolution  
-- Board games like Chess, Checkers, and Tic Tac Toe  
-- Arcade-style games like Snake, Pong, Breakout  
-- Turn-based tactics  
-- Conway’s Game of Life  
-- Pathfinding visualizations  
-- City simulations
+**Debug Utilities**
+- Generate sample environments, grids, locations, and entities.
+- Quickly create a world and place an entity for testing.
 
 ---
 
-## 🚀 Installation
+## 🛠 Tech Stack
 
-Java (Maven):
-
-<dependency>
-  <groupId>com.preponderous</groupId>
-  <artifactId>viron</artifactId>
-  <version>1.0.0</version>
-</dependency>
+- Java 21
+- Spring Boot 3
+- Lombok
+- PostgreSQL (persistence layer)
+- Maven (build tool)
+- Docker + Docker Compose (deployment)
+- Swagger/OpenAPI (API documentation)
 
 ---
 
-## 📖 Getting Started
+## 📂 Project Structure
 
-// Create a 10×10 forest environment  
-Environment env = new Environment("Forest", 10, 10);
+viron/  
+ ├── src/main/java/preponderous/viron/  
+ │    ├── controllers/       # REST controllers (Environment, Grid, Location, Entity, Debug)  
+ │    ├── dto/               # Data Transfer Objects (DTOs) for API input/output  
+ │    ├── models/            # Internal domain models  
+ │    ├── repositories/      # Data access layer  
+ │    ├── services/          # Business logic  
+ │    └── factories/         # Creation logic for environments and entities  
+ ├── src/test/java/...       # Unit and integration tests  
+ ├── docs/  
+ │    └── MVP.md             # Implementation checklist for MVP  
+ ├── openapi/  
+ │    └── viron-api.json     # API specification  
+ ├── pom.xml                 # Maven configuration  
+ └── README.md               # This file  
 
-// Add a fox entity at coordinate (5, 5)  
-Entity fox = new Entity("Fox");  
-env.placeEntityAt(fox, new Coordinate(5, 5));
+---
 
-// Move the fox north  
-env.moveEntity(fox, Direction.NORTH);
+## 🚀 Getting Started
+
+### Prerequisites
+- Java 21
+- Maven 3.9+
+- Docker & Docker Compose
+
+### Installation
+mvn clean install
+
+### Running Locally
+docker-compose up --build  
+API will be available at: http://localhost:8080
+
+---
+
+## 📜 API Documentation
+
+Once running, you can view the interactive API docs:  
+http://localhost:8080/swagger-ui.html  
+or refer to the `openapi/viron-api.json` file.
 
 ---
 
 ## 🧪 Testing
 
+Run all unit and integration tests:  
 mvn test
-
----
-
-## 📦 Deployment
-
-# Start  
-docker compose up --build -d
-
-# Stop  
-docker compose down
-
-Accessible at: http://localhost:8080
 
 ---
 
 ## 📄 License
 
-Viron is licensed under the MIT License.  
-See the [LICENSE](LICENSE) file for full terms.
+This project is licensed under the MIT License.  
 
-Copyright © 2022–2025 Daniel McCoy Stephenson. All rights reserved.
+Copyright © 2022-2025 Daniel McCoy Stephenson. All rights reserved.
 
 ---
 
-## 🤝 Open Source Commitment
+## 📬 Contact
 
-Viron will remain open source under an OSI-approved license.  
-Its role as a **core spatial service** makes it a foundation for current and future projects, and broad adoption is encouraged.
+For inquiries, feature requests, or contributions, please open an issue or reach out via the official GitHub repository:  
+https://github.com/Preponderous-Software/Viron

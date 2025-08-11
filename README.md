@@ -1,179 +1,119 @@
 # Viron
 
-**Viron** is a flexible simulation framework for building and managing 2D virtual environments. It provides tools to create, traverse, and manipulate grid-based spaces where entities can exist, move, and interact. Viron is designed to be used as a **core simulation engine** for games, AI training environments, educational apps, and more.
+Viron is a **2D spatial simulation management service** that provides APIs for creating and managing **environments**, **grids**, **locations**, and **entities**.  
+It serves as a reusable backend component for simulation-based games, AI experiments, and virtual world applications.
 
 ---
 
-## Design Philosophy
+## 🎯 Purpose
 
-Viron is built to be a lightweight, adaptable core for managing 2D environments. Its focus is on:
+Viron abstracts away low-level spatial data management so client applications can focus on simulation logic, rendering, and game mechanics.
 
-- **Simplicity** – Easy to understand and integrate  
-- **Modularity** – Keeps simulation logic separate from game or application logic  
-- **Flexibility** – Supports many types of simulations, from games to research  
-- **Structure** – Uses grid-based environments for predictable spatial modeling  
-- **Reusability** – Designed to be a foundation for many different projects  
-
----
-
-## Features
-
-- **Modular Architecture** – Easy to plug into Java and Python projects  
-- **2D Spatial Modeling** – Manage environments, grid layouts, and entity positioning  
-- **Entity Movement** – Track movement across grid cells and between environments  
-- **Simulation Agnostic** – Suitable for ecological sims, city builders, idle games, and more  
-- **Multi-language Support** – Java and Python implementations with a shared design  
+Core responsibilities:
+- Managing hierarchical spatial structures (environments → grids → locations).
+- Tracking entity placement and movement.
+- Providing clean, testable REST APIs.
+- Offering debug tools for rapid development and testing.
 
 ---
 
-## Example Use Cases
+## 📦 Features (MVP Scope)
 
-### 1. Ecosystem Simulator
-Simulates food chain dynamics in a virtual world. Entities such as foxes, rabbits, and grass interact in Viron-managed environments.
+The MVP implements the endpoints defined in `openapi/viron-api.json` and documented in `docs/MVP.md`.
 
-### 2. Idle Evolution Game
-Evolves creatures over time in changing biomes, using Viron to track grid-based locations and terrain types.
+**Environment Management**
+- Create, retrieve, update, and delete environments.
+- Query environments by ID, name, or contained entity.
 
-### 3. Educational Tools
-Interactive classroom tools where students can simulate ecological systems or environmental changes.
+**Grid Management**
+- Retrieve grids by ID or environment.
+- Find the grid containing a specific entity.
 
-### 4. AI Training Environments
-Use Viron to define spatial challenges or resource collection problems in reinforcement learning projects.
+**Location Management**
+- Retrieve locations by ID, grid, or environment.
+- Manage entity placement in locations.
 
-### 5. Tic Tac Toe
-Use Viron to model a 3×3 environment where each player places an "X" or "O" on the grid. Track turns, detect win conditions, and enforce valid moves.
+**Entity Management**
+- Create, retrieve, and delete entities.
 
-### 6. Chess
-Represent the 8×8 board as a Viron environment. Each piece is an entity with movement logic handled externally. Viron tracks positions, captures, and board state.
-
-### 7. Checkers
-Use a grid-based environment to model diagonal movement and jumping. Viron can track entity state changes (like promotion) and valid move paths.
-
-### 8. Block Breaker (Breakout)
-Model the paddle, ball, and blocks within a 2D grid. Viron tracks positions, collisions, and block removal as entities are hit.
-
-### 9. Pong
-Represent the playing field, paddles, and ball in a 2D space. Viron manages movement updates, collisions, and scorekeeping.
-
-### 10. Snake
-Use Viron to track the snake's body segments and apple placement. Manage movement direction, growth, and self-collision logic.
-
-### 11. Turn-Based Tactics Game
-Simulate a battlefield grid with units as entities. Viron manages movement, attack range visibility, and terrain occupancy.
-
-### 12. Conway’s Game of Life
-Each cell is alive or dead and changes state based on neighbors. Viron can model the entire board and apply the update rules in steps.
-
-### 13. Pathfinding Visualizations
-Use Viron to define a navigable grid with start and goal positions. Track algorithm progress (A*, Dijkstra, etc.) in real time through environment updates.
-
-### 14. City Simulation
-Simulate a city with roads, zones, and agents (e.g., people, vehicles). Viron provides structure for tracking locations and interactions between entities.
+**Debug Utilities**
+- Generate sample environments, grids, locations, and entities.
+- Quickly create a world and place an entity for testing.
 
 ---
 
-## Installation
+## 🛠 Tech Stack
 
-### Java (Maven)
-
-```xml
-<dependency>
-  <groupId>com.preponderous</groupId>
-  <artifactId>viron</artifactId>
-  <version>1.0.0</version>
-</dependency>
-```
-
-### Python
-
-Coming soon as a PyPI package.
+- Java 21
+- Spring Boot 3
+- Lombok
+- PostgreSQL (persistence layer)
+- Maven (build tool)
+- Docker + Docker Compose (deployment)
+- Swagger/OpenAPI (API documentation)
 
 ---
 
-## Getting Started
+## 📂 Project Structure
 
-Initialize a 10×10 environment and add an entity:
-
-```java
-Environment env = new Environment("Forest", 10, 10);
-Entity fox = new Entity("Fox");
-env.placeEntityAt(fox, new Coordinate(5, 5));
-```
-
-Move the entity:
-
-```java
-env.moveEntity(fox, Direction.NORTH);
-```
+viron/  
+ ├── src/main/java/preponderous/viron/  
+ │    ├── controllers/       # REST controllers (Environment, Grid, Location, Entity, Debug)  
+ │    ├── dto/               # Data Transfer Objects (DTOs) for API input/output  
+ │    ├── models/            # Internal domain models  
+ │    ├── repositories/      # Data access layer  
+ │    ├── services/          # Business logic  
+ │    └── factories/         # Creation logic for environments and entities  
+ ├── src/test/java/...       # Unit and integration tests  
+ ├── docs/  
+ │    └── MVP.md             # Implementation checklist for MVP  
+ ├── openapi/  
+ │    └── viron-api.json     # API specification  
+ ├── pom.xml                 # Maven configuration  
+ └── README.md               # This file  
 
 ---
 
-## Testing
+## 🚀 Getting Started
 
-**Java:**
+### Prerequisites
+- Java 21
+- Maven 3.9+
+- Docker & Docker Compose
 
-```bash
+### Installation
+mvn clean install
+
+### Running Locally
+docker-compose up --build  
+API will be available at: http://localhost:8080
+
+---
+
+## 📜 API Documentation
+
+Once running, you can view the interactive API docs:  
+http://localhost:8080/swagger-ui.html  
+or refer to the `openapi/viron-api.json` file.
+
+---
+
+## 🧪 Testing
+
+Run all unit and integration tests:  
 mvn test
-```
-
-**Python:**
-
-```bash
-pytest
-```
 
 ---
-
-## Deployment
-### Starting the application
-To start the application, run the following command:
-
-```bash
-docker compose up --build -d
-```
-
-The application will be available at `http://localhost:8080`.
-
-### Stopping the application
-To stop the application, run the following command:
-
-```bash
-docker compose down
-```
 
 ## 📄 License
 
-Viron is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License.  
 
-Copyright © 2022–2025 Daniel McCoy Stephenson. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-and associated documentation files (the “Software”), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
-NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Copyright © 2022-2025 Daniel McCoy Stephenson. All rights reserved.
 
 ---
 
-### Why MIT?
-Viron is a foundational library intended for broad adoption across the simulation and game development community. The **MIT License** was chosen for its simplicity and permissiveness, making it easy for individuals, research institutions, and commercial entities alike to integrate Viron without licensing friction. This aligns with the goal of establishing Viron as a widely used standard in 2D environment management.
+## 📬 Contact
 
-### Open Source Commitment
-There are **no plans to move away from open source** for Viron. The project will remain freely available under an OSI-approved license, with community contributions encouraged and welcomed.
-
----
-
-## Contact & Attribution
-
-This project is developed and maintained by **Preponderous**.  
-For questions or contributions, visit:  
-[https://github.com/Preponderous-Software/Viron](https://github.com/Preponderous-Software/Viron)
+For inquiries, feature requests, or contributions, please open an issue or reach out via the official GitHub repository:  
+https://github.com/Preponderous-Software/Viron

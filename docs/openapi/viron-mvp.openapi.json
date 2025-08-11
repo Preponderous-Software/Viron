@@ -3,209 +3,273 @@
   "info": {
     "title": "Viron API",
     "version": "1.0.0",
-    "description": "REST API for managing 2D grid-based environments, grids, locations, and entities in Viron."
+    "description": "API specification for the Viron spatial simulation core using DTO-based request/response objects."
   },
-  "servers": [
-    { "url": "http://localhost:8080/api/v1" }
-  ],
   "paths": {
-    "/health": {
+    "/api/v1/environments": {
       "get": {
-        "tags": ["Health"],
-        "summary": "Health check",
-        "responses": {
-          "200": {
-            "description": "Service is healthy",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Health" } } }
-          }
-        }
-      }
-    },
-    "/environments": {
-      "post": {
-        "tags": ["Environments"],
-        "summary": "Create environment",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateEnvironmentRequest" } } }
-        },
-        "responses": {
-          "201": { "description": "Environment created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Environment" } } } },
-          "400": { "$ref": "#/components/responses/BadRequest" }
-        }
-      },
-      "get": {
-        "tags": ["Environments"],
-        "summary": "List environments",
+        "summary": "Get all environments",
         "responses": {
           "200": {
             "description": "List of environments",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentList" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/EnvironmentDTO" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new environment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateEnvironmentRequest" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Environment created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
+            }
           }
         }
       }
     },
-    "/environments/{environmentId}": {
+    "/api/v1/environments/{id}": {
       "get": {
-        "tags": ["Environments"],
-        "summary": "Get environment",
-        "parameters": [{ "$ref": "#/components/parameters/EnvironmentId" }],
+        "summary": "Get environment by ID",
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
         "responses": {
-          "200": { "description": "Environment details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Environment" } } } },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "200": {
+            "description": "Environment details",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
+            }
+          }
         }
       },
       "delete": {
-        "tags": ["Environments"],
         "summary": "Delete environment",
-        "parameters": [{ "$ref": "#/components/parameters/EnvironmentId" }],
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
+        "responses": { "200": { "description": "Environment deleted" } }
+      }
+    },
+    "/api/v1/environments/{id}/name": {
+      "patch": {
+        "summary": "Update environment name",
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateEnvironmentNameRequest" } }
+          }
+        },
+        "responses": { "200": { "description": "Name updated" } }
+      }
+    },
+    "/api/v1/grids": {
+      "get": {
+        "summary": "Get all grids",
         "responses": {
-          "204": { "description": "Deleted" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "200": {
+            "description": "List of grids",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/GridDTO" }
+                }
+              }
+            }
+          }
         }
       }
     },
-    "/environments/{environmentId}/grid": {
+    "/api/v1/grids/{id}": {
       "get": {
-        "tags": ["Grids"],
-        "summary": "Get grid metadata for an environment",
-        "parameters": [{ "$ref": "#/components/parameters/EnvironmentId" }],
+        "summary": "Get grid by ID",
+        "parameters": [{ "$ref": "#/components/parameters/GridIdParam" }],
         "responses": {
-          "200": { "description": "Grid metadata", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Grid" } } } },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "200": {
+            "description": "Grid details",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GridDTO" } }
+            }
+          }
         }
       }
     },
-    "/environments/{environmentId}/locations": {
+    "/api/v1/locations": {
       "get": {
-        "tags": ["Locations"],
-        "summary": "List all locations in an environment with their occupants",
-        "parameters": [{ "$ref": "#/components/parameters/EnvironmentId" }],
+        "summary": "Get all locations",
         "responses": {
           "200": {
             "description": "List of locations",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LocationList" } } }
-          },
-          "404": { "$ref": "#/components/responses/NotFound" }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/LocationDTO" }
+                }
+              }
+            }
+          }
         }
       }
     },
-    "/environments/{environmentId}/locations/{x}/{y}": {
+    "/api/v1/locations/{id}": {
       "get": {
-        "tags": ["Locations"],
-        "summary": "Get occupants of a specific location",
+        "summary": "Get location by ID",
+        "parameters": [{ "$ref": "#/components/parameters/LocationIdParam" }],
+        "responses": {
+          "200": {
+            "description": "Location details",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/LocationDTO" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/locations/{locationId}/entity/{entityId}": {
+      "put": {
+        "summary": "Add entity to location",
         "parameters": [
-          { "$ref": "#/components/parameters/EnvironmentId" },
-          { "$ref": "#/components/parameters/XCoord" },
-          { "$ref": "#/components/parameters/YCoord" }
+          { "$ref": "#/components/parameters/LocationIdParam" },
+          { "$ref": "#/components/parameters/EntityIdParam" }
         ],
-        "responses": {
-          "200": { "description": "Location occupants", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Location" } } } },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-    "/entities": {
-      "post": {
-        "tags": ["Entities"],
-        "summary": "Create entity",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateEntityRequest" } } }
-        },
-        "responses": {
-          "201": { "description": "Entity created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entity" } } } },
-          "400": { "$ref": "#/components/responses/BadRequest" }
-        }
-      },
-      "get": {
-        "tags": ["Entities"],
-        "summary": "List entities",
-        "responses": {
-          "200": { "description": "List of entities", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EntityList" } } } }
-        }
-      }
-    },
-    "/entities/{entityId}": {
-      "get": {
-        "tags": ["Entities"],
-        "summary": "Get entity",
-        "parameters": [{ "$ref": "#/components/parameters/EntityId" }],
-        "responses": {
-          "200": { "description": "Entity details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entity" } } } },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
+        "responses": { "200": { "description": "Entity added" } }
       },
       "delete": {
-        "tags": ["Entities"],
-        "summary": "Delete entity",
-        "parameters": [{ "$ref": "#/components/parameters/EntityId" }],
+        "summary": "Remove entity from location",
+        "parameters": [
+          { "$ref": "#/components/parameters/LocationIdParam" },
+          { "$ref": "#/components/parameters/EntityIdParam" }
+        ],
+        "responses": { "200": { "description": "Entity removed" } }
+      }
+    },
+    "/api/v1/locations/entity/{entityId}": {
+      "delete": {
+        "summary": "Remove entity from current location",
+        "parameters": [{ "$ref": "#/components/parameters/EntityIdParam" }],
+        "responses": { "200": { "description": "Entity removed" } }
+      }
+    },
+    "/api/v1/debug/create-sample-data": {
+      "post": {
+        "summary": "Create sample environment and entities",
         "responses": {
-          "204": { "description": "Deleted" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "200": {
+            "description": "Sample environment created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
+            }
+          }
         }
       }
     },
-    "/environments/{environmentId}/placements": {
+    "/api/v1/debug/create-world-and-place-entity/{environmentName}": {
       "post": {
-        "tags": ["Placement"],
-        "summary": "Place entity in environment",
-        "parameters": [{ "$ref": "#/components/parameters/EnvironmentId" }],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlacementRequest" } } }
-        },
+        "summary": "Create environment and place random entity",
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentNameParam" }],
         "responses": {
-          "201": { "description": "Placement created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Placement" } } } },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-    "/environments/{environmentId}/move": {
-      "post": {
-        "tags": ["Movement"],
-        "summary": "Move entity one step in a direction",
-        "parameters": [{ "$ref": "#/components/parameters/EnvironmentId" }],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoveRequest" } } }
-        },
-        "responses": {
-          "200": { "description": "Movement result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Placement" } } } },
-          "400": { "$ref": "#/components/responses/BadRequest" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "200": {
+            "description": "Entity created and placed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EntityDTO" } }
+            }
+          }
         }
       }
     }
   },
   "components": {
     "schemas": {
-      "Health": { "type": "object", "properties": { "status": { "type": "string" } } },
-      "Environment": { "type": "object", "properties": { "id": { "type": "string", "format": "uuid" }, "name": { "type": "string" }, "width": { "type": "integer" }, "height": { "type": "integer" } } },
-      "EnvironmentList": { "type": "object", "properties": { "items": { "type": "array", "items": { "$ref": "#/components/schemas/Environment" } }, "count": { "type": "integer" } } },
-      "Grid": { "type": "object", "properties": { "environmentId": { "type": "string", "format": "uuid" }, "width": { "type": "integer" }, "height": { "type": "integer" } } },
-      "Location": { "type": "object", "properties": { "x": { "type": "integer" }, "y": { "type": "integer" }, "entities": { "type": "array", "items": { "$ref": "#/components/schemas/Entity" } } } },
-      "LocationList": { "type": "object", "properties": { "items": { "type": "array", "items": { "$ref": "#/components/schemas/Location" } }, "count": { "type": "integer" } } },
-      "Entity": { "type": "object", "properties": { "id": { "type": "string", "format": "uuid" }, "name": { "type": "string" }, "metadata": { "type": "object" } } },
-      "EntityList": { "type": "object", "properties": { "items": { "type": "array", "items": { "$ref": "#/components/schemas/Entity" } }, "count": { "type": "integer" } } },
-      "Placement": { "type": "object", "properties": { "environmentId": { "type": "string", "format": "uuid" }, "entityId": { "type": "string", "format": "uuid" }, "x": { "type": "integer" }, "y": { "type": "integer" } } },
-      "CreateEnvironmentRequest": { "type": "object", "properties": { "name": { "type": "string" }, "width": { "type": "integer" }, "height": { "type": "integer" } }, "required": ["name", "width", "height"] },
-      "CreateEntityRequest": { "type": "object", "properties": { "name": { "type": "string" }, "metadata": { "type": "object" } }, "required": ["name"] },
-      "PlacementRequest": { "type": "object", "properties": { "entityId": { "type": "string", "format": "uuid" }, "x": { "type": "integer" }, "y": { "type": "integer" } }, "required": ["entityId", "x", "y"] },
-      "MoveRequest": { "type": "object", "properties": { "entityId": { "type": "string", "format": "uuid" }, "direction": { "type": "string", "enum": ["NORTH", "SOUTH", "EAST", "WEST"] } }, "required": ["entityId", "direction"] },
-      "Error": { "type": "object", "properties": { "error": { "type": "object", "properties": { "code": { "type": "string" }, "message": { "type": "string" }, "details": { "type": "object" } } } } }
+      "EnvironmentDTO": {
+        "type": "object",
+        "properties": {
+          "environmentId": { "type": "integer" },
+          "name": { "type": "string" },
+          "width": { "type": "integer" },
+          "height": { "type": "integer" }
+        }
+      },
+      "CreateEnvironmentRequest": {
+        "type": "object",
+        "required": ["name", "numGrids", "gridSize"],
+        "properties": {
+          "name": { "type": "string" },
+          "numGrids": { "type": "integer" },
+          "gridSize": { "type": "integer" }
+        }
+      },
+      "UpdateEnvironmentNameRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": { "name": { "type": "string" } }
+      },
+      "GridDTO": {
+        "type": "object",
+        "properties": {
+          "gridId": { "type": "integer" },
+          "rows": { "type": "integer" },
+          "columns": { "type": "integer" }
+        }
+      },
+      "LocationDTO": {
+        "type": "object",
+        "properties": {
+          "locationId": { "type": "integer" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" }
+        }
+      },
+      "EntityDTO": {
+        "type": "object",
+        "properties": {
+          "entityId": { "type": "integer" },
+          "name": { "type": "string" }
+        }
+      }
     },
     "parameters": {
-      "EnvironmentId": { "name": "environmentId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
-      "EntityId": { "name": "entityId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
-      "XCoord": { "name": "x", "in": "path", "required": true, "schema": { "type": "integer" } },
-      "YCoord": { "name": "y", "in": "path", "required": true, "schema": { "type": "integer" } }
-    },
-    "responses": {
-      "BadRequest": { "description": "Invalid input", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-      "NotFound": { "description": "Resource not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+      "EnvironmentIdParam": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "GridIdParam": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "LocationIdParam": {
+        "name": "locationId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "EntityIdParam": {
+        "name": "entityId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "EnvironmentNameParam": {
+        "name": "environmentName",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" }
+      }
     }
   }
-        }
+}

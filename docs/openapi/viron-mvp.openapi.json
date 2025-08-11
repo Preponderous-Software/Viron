@@ -1,0 +1,275 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Viron API",
+    "version": "1.0.0",
+    "description": "API specification for the Viron spatial simulation core using DTO-based request/response objects."
+  },
+  "paths": {
+    "/api/v1/environments": {
+      "get": {
+        "summary": "Get all environments",
+        "responses": {
+          "200": {
+            "description": "List of environments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/EnvironmentDTO" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new environment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateEnvironmentRequest" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Environment created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/environments/{id}": {
+      "get": {
+        "summary": "Get environment by ID",
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
+        "responses": {
+          "200": {
+            "description": "Environment details",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete environment",
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
+        "responses": { "200": { "description": "Environment deleted" } }
+      }
+    },
+    "/api/v1/environments/{id}/name": {
+      "patch": {
+        "summary": "Update environment name",
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateEnvironmentNameRequest" } }
+          }
+        },
+        "responses": { "200": { "description": "Name updated" } }
+      }
+    },
+    "/api/v1/grids": {
+      "get": {
+        "summary": "Get all grids",
+        "responses": {
+          "200": {
+            "description": "List of grids",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/GridDTO" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/grids/{id}": {
+      "get": {
+        "summary": "Get grid by ID",
+        "parameters": [{ "$ref": "#/components/parameters/GridIdParam" }],
+        "responses": {
+          "200": {
+            "description": "Grid details",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GridDTO" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/locations": {
+      "get": {
+        "summary": "Get all locations",
+        "responses": {
+          "200": {
+            "description": "List of locations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/LocationDTO" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/locations/{id}": {
+      "get": {
+        "summary": "Get location by ID",
+        "parameters": [{ "$ref": "#/components/parameters/LocationIdParam" }],
+        "responses": {
+          "200": {
+            "description": "Location details",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/LocationDTO" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/locations/{locationId}/entity/{entityId}": {
+      "put": {
+        "summary": "Add entity to location",
+        "parameters": [
+          { "$ref": "#/components/parameters/LocationIdParam" },
+          { "$ref": "#/components/parameters/EntityIdParam" }
+        ],
+        "responses": { "200": { "description": "Entity added" } }
+      },
+      "delete": {
+        "summary": "Remove entity from location",
+        "parameters": [
+          { "$ref": "#/components/parameters/LocationIdParam" },
+          { "$ref": "#/components/parameters/EntityIdParam" }
+        ],
+        "responses": { "200": { "description": "Entity removed" } }
+      }
+    },
+    "/api/v1/locations/entity/{entityId}": {
+      "delete": {
+        "summary": "Remove entity from current location",
+        "parameters": [{ "$ref": "#/components/parameters/EntityIdParam" }],
+        "responses": { "200": { "description": "Entity removed" } }
+      }
+    },
+    "/api/v1/debug/create-sample-data": {
+      "post": {
+        "summary": "Create sample environment and entities",
+        "responses": {
+          "200": {
+            "description": "Sample environment created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/debug/create-world-and-place-entity/{environmentName}": {
+      "post": {
+        "summary": "Create environment and place random entity",
+        "parameters": [{ "$ref": "#/components/parameters/EnvironmentNameParam" }],
+        "responses": {
+          "200": {
+            "description": "Entity created and placed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EntityDTO" } }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EnvironmentDTO": {
+        "type": "object",
+        "properties": {
+          "environmentId": { "type": "integer" },
+          "name": { "type": "string" },
+          "width": { "type": "integer" },
+          "height": { "type": "integer" }
+        }
+      },
+      "CreateEnvironmentRequest": {
+        "type": "object",
+        "required": ["name", "numGrids", "gridSize"],
+        "properties": {
+          "name": { "type": "string" },
+          "numGrids": { "type": "integer" },
+          "gridSize": { "type": "integer" }
+        }
+      },
+      "UpdateEnvironmentNameRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": { "name": { "type": "string" } }
+      },
+      "GridDTO": {
+        "type": "object",
+        "properties": {
+          "gridId": { "type": "integer" },
+          "rows": { "type": "integer" },
+          "columns": { "type": "integer" }
+        }
+      },
+      "LocationDTO": {
+        "type": "object",
+        "properties": {
+          "locationId": { "type": "integer" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" }
+        }
+      },
+      "EntityDTO": {
+        "type": "object",
+        "properties": {
+          "entityId": { "type": "integer" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "parameters": {
+      "EnvironmentIdParam": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "GridIdParam": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "LocationIdParam": {
+        "name": "locationId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "EntityIdParam": {
+        "name": "entityId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "EnvironmentNameParam": {
+        "name": "environmentName",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" }
+      }
+    }
+  }
+}

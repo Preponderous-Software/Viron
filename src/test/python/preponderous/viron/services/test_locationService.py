@@ -21,8 +21,8 @@ def test_get_base_url():
 def test_get_all_locations(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
-        {'location_id': 1, 'x': 10, 'y': 20},
-        {'location_id': 2, 'x': 30, 'y': 40}
+        {'locationId': 1, 'x': 10, 'y': 20},
+        {'locationId': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
@@ -35,7 +35,7 @@ def test_get_all_locations(mock_get):
 @patch('requests.get')
 def test_get_location_by_id(mock_get):
     mock_response = Mock()
-    mock_response.json.return_value = {'location_id': 1, 'x': 10, 'y': 20}
+    mock_response.json.return_value = {'locationId': 1, 'x': 10, 'y': 20}
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 
@@ -56,8 +56,8 @@ def test_get_location_by_id_not_found(mock_get):
 def test_get_locations_in_environment(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
-        {'location_id': 1, 'x': 10, 'y': 20},
-        {'location_id': 2, 'x': 30, 'y': 40}
+        {'locationId': 1, 'x': 10, 'y': 20},
+        {'locationId': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
@@ -71,8 +71,8 @@ def test_get_locations_in_environment(mock_get):
 def test_get_locations_in_grid(mock_get):
     mock_response = Mock()
     mock_response.json.return_value = [
-        {'location_id': 1, 'x': 10, 'y': 20},
-        {'location_id': 2, 'x': 30, 'y': 40}
+        {'locationId': 1, 'x': 10, 'y': 20},
+        {'locationId': 2, 'x': 30, 'y': 40}
     ]
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
@@ -85,7 +85,7 @@ def test_get_locations_in_grid(mock_get):
 @patch('requests.get')
 def test_get_location_of_entity(mock_get):
     mock_response = Mock()
-    mock_response.json.return_value = {'location_id': 1, 'x': 10, 'y': 20}
+    mock_response.json.return_value = {'locationId': 1, 'x': 10, 'y': 20}
     mock_response.raise_for_status = Mock()
     mock_get.return_value = mock_response
 

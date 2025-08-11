@@ -30,8 +30,8 @@ class TestGetAllGrids:
     @patch('requests.get')
     def test_success(self, mock_get, mock_response):
         mock_response.json.return_value = [
-            {'grid_id': 1, 'rows': 10, 'columns': 20},
-            {'grid_id': 2, 'rows': 15, 'columns': 25}
+            {'gridId': 1, 'rows': 10, 'columns': 20},
+            {'gridId': 2, 'rows': 15, 'columns': 25}
         ]
         mock_get.return_value = mock_response
 
@@ -58,7 +58,7 @@ class TestGetAllGrids:
 class TestGetGridById:
     @patch('requests.get')
     def test_success(self, mock_get, mock_response):
-        mock_response.json.return_value = {'grid_id': 1, 'rows': 10, 'columns': 20}
+        mock_response.json.return_value = {'gridId': 1, 'rows': 10, 'columns': 20}
         mock_get.return_value = mock_response
 
         grid = service.get_grid_by_id(1)
@@ -93,8 +93,8 @@ class TestGetGridsInEnvironment:
     @patch('requests.get')
     def test_success(self, mock_get, mock_response):
         mock_response.json.return_value = [
-            {'grid_id': 1, 'rows': 10, 'columns': 20},
-            {'grid_id': 2, 'rows': 15, 'columns': 25}
+            {'gridId': 1, 'rows': 10, 'columns': 20},
+            {'gridId': 2, 'rows': 15, 'columns': 25}
         ]
         mock_get.return_value = mock_response
 
@@ -127,7 +127,7 @@ class TestGetGridsInEnvironment:
 class TestGetGridOfEntity:
     @patch('requests.get')
     def test_success(self, mock_get, mock_response):
-        mock_response.json.return_value = {'grid_id': 1, 'rows': 10, 'columns': 20}
+        mock_response.json.return_value = {'gridId': 1, 'rows': 10, 'columns': 20}
         mock_get.return_value = mock_response
 
         grid = service.get_grid_of_entity(1)

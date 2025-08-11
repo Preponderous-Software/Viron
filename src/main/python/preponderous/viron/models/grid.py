@@ -2,8 +2,8 @@
 # MIT License
 
 class Grid:
-    def __init__(self, grid_id: int, rows: int, columns: int):
-        self.grid_id = grid_id
+    def __init__(self, gridId: int, rows: int, columns: int):
+        self.grid_id = gridId
         self.rows = rows
         self.columns = columns
 

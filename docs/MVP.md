@@ -1,99 +1,86 @@
-# 🛠 Viron MVP
+# Viron MVP – Implementation Checklist
 
-The **Minimum Viable Product** for Viron establishes the foundation of its role as the **spatial simulation core** in a modular service ecosystem.  
-This MVP focuses on core 2D grid management, location-based entity tracking, and movement — leaving simulation logic and higher-order systems to external modules.
+The **Minimum Viable Product (MVP)** for Viron establishes the core spatial simulation capabilities necessary to manage **environments**, **grids**, **locations**, and **entities** via a REST API.
 
----
-
-## 🎯 Goals
-
-- Provide a lightweight, modular service for managing 2D spatial environments.
-- Keep logic **simulation-agnostic** — no game rules, AI behavior, or time progression.
-- Deliver a **stable API** for creating, traversing, and manipulating environments, grids, locations, and entities.
+This document aligns with the [`../openapi/viron-api.json`](../openapi/viron-api.json) specification and serves as the implementation guide.
 
 ---
 
-## 📌 Scope
+## 🎯 Purpose
 
-The MVP covers:
-
-- Creating named 2D environments of arbitrary size.
-- Retrieving grid metadata for an environment.
-- Listing and retrieving locations within an environment.
-- Placing and removing entities at specific locations.
-- Moving entities within and between environments.
-- Querying entity positions and location occupants.
-- Basic validation (bounds checking, occupancy checks).
+Deliver a working, tested API that supports:
+- Creation and retrieval of simulation environments.
+- Hierarchical spatial structures (environments → grids → locations).
+- Entity management and placement within locations.
+- Debug utilities for rapid testing and demonstration.
 
 ---
 
-## ✅ MVP Checklist
+## 📌 Core Features
 
-### Environment Management
-- [ ] Define `Environment` class with:
-  - [ ] Name
-  - [ ] Width
-  - [ ] Height
-  - [ ] Grid data structure
-- [ ] Method to create an environment
-- [ ] Method to retrieve environment dimensions and name
-- [ ] API endpoint to fetch grid metadata for an environment
-
-### Location Management
-- [ ] API endpoint to list all locations in an environment with their occupants
-- [ ] API endpoint to retrieve a specific location’s occupants
-
-### Entity Management
-- [ ] Define `Entity` class with:
-  - [ ] Unique identifier
-  - [ ] Name
-- [ ] Create entity
-- [ ] Place entity at specific coordinates
-- [ ] Remove entity from environment
-- [ ] Query entity’s current location
-
-### Movement
-- [ ] Define `Direction` enum (NORTH, SOUTH, EAST, WEST)
-- [ ] Move entity in a direction (with bounds checking)
-- [ ] Support moving entities between environments
-- [ ] Prevent invalid moves (e.g., outside grid)
-
-### Query & Utility Methods
-- [ ] Get all entities in a location
-- [ ] Get all entities in an environment
-- [ ] Check if a location is occupied
-- [ ] Validate coordinates before operations
-
-### Testing
-- [ ] Unit tests for environment creation
-- [ ] Unit tests for grid retrieval
-- [ ] Unit tests for location queries
-- [ ] Unit tests for entity placement
-- [ ] Unit tests for entity movement
-- [ ] Unit tests for query methods
-
-### Deployment
-- [ ] Dockerfile for running the service
-- [ ] Docker Compose support for local deployment
-- [ ] Accessible at `http://localhost:8080`
+### 1. **Environment Management**
+- [ ] `GET /api/v1/environments` – Retrieve all environments.
+- [ ] `GET /api/v1/environments/{id}` – Retrieve a specific environment by ID.
+- [ ] `GET /api/v1/environments/name/{name}` – Retrieve a specific environment by name.
+- [ ] `GET /api/v1/environments/entity/{entityId}` – Get the environment containing a specific entity.
+- [ ] `POST /api/v1/environments/{name}/{numGrids}/{gridSize}` – Create an environment.
+- [ ] `DELETE /api/v1/environments/{id}` – Delete an environment and all related entities, locations, and grids.
+- [ ] `PATCH /api/v1/environments/{id}/name/{name}` – Update environment name.
 
 ---
 
-## 🚫 Out of Scope for MVP
-
-- Pathfinding algorithms
-- AI/agent behavior
-- Time progression
-- Rendering or UI
-- Terrain types or biome logic
+### 2. **Grid Management**
+- [ ] `GET /api/v1/grids` – Retrieve all grids.
+- [ ] `GET /api/v1/grids/{id}` – Retrieve a grid by ID.
+- [ ] `GET /api/v1/grids/environment/{environmentId}` – Retrieve all grids in an environment.
+- [ ] `GET /api/v1/grids/entity/{entityId}` – Retrieve the grid containing a specific entity.
 
 ---
 
-## 📍 Definition of Done
+### 3. **Location Management**
+- [ ] `GET /api/v1/locations` – Retrieve all locations.
+- [ ] `GET /api/v1/locations/{id}` – Retrieve a location by ID.
+- [ ] `GET /api/v1/locations/environment/{environmentId}` – Retrieve locations in an environment.
+- [ ] `GET /api/v1/locations/grid/{gridId}` – Retrieve locations in a grid.
+- [ ] `GET /api/v1/locations/entity/{entityId}` – Retrieve the location of a specific entity.
+- [ ] `PUT /api/v1/locations/{locationId}/entity/{entityId}` – Add an entity to a location.
+- [ ] `DELETE /api/v1/locations/{locationId}/entity/{entityId}` – Remove an entity from a location.
+- [ ] `DELETE /api/v1/locations/entity/{entityId}` – Remove an entity from its current location.
 
-- All checklist items implemented and tested.
-- Code compiles and runs without errors.
-- Service can be started locally via Docker.
-- README is updated with usage instructions.
-- API is stable enough for integration with other services.
-- Terminology in code, documentation, and API is consistent (environment, grid, location, entity).
+---
+
+### 4. **Entity Management**
+- [ ] `GET /api/v1/entities` – Retrieve all entities.
+- [ ] `GET /api/v1/entities/{id}` – Retrieve a specific entity by ID.
+- [ ] `POST /api/v1/entities` – Create a new entity.
+- [ ] `DELETE /api/v1/entities/{id}` – Delete an entity.
+
+---
+
+### 5. **Debug Utilities**
+- [ ] `POST /api/v1/debug/create-sample-data` – Create an environment with grids, locations, and sample entities for testing.
+- [ ] `POST /api/v1/debug/create-world-and-place-entity/{environmentName}` – Create a world and place a random entity.
+
+---
+
+## 🧩 DTO Requirements
+
+- [ ] **EnvironmentDTO** – Public representation of an environment.
+- [ ] **CreateEnvironmentRequest** – Request body for creating environments (name, number of grids, grid size).
+- [ ] **UpdateEnvironmentNameRequest** – Request body for updating environment names.
+- [ ] **GridDTO** – Public representation of a grid.
+- [ ] **LocationDTO** – Public representation of a location.
+- [ ] **EntityDTO** – Public representation of an entity.
+
+---
+
+## ✅ Completion Criteria
+
+- All endpoints in [`../openapi/viron-api.json`](../openapi/viron-api.json) implemented and tested.
+- DTOs returned in responses, avoiding direct exposure of internal entity models.
+- Unit and integration tests covering all controllers and repositories.
+- Endpoints verified via Postman or Swagger UI.
+- API returns proper HTTP status codes and error messages.
+- Debug endpoints operational for development testing.
+
+---

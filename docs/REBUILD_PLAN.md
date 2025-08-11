@@ -1,6 +1,6 @@
 # Viron MVP Rebuild Plan
 
-This document formalizes the process for rebuilding Viron from the ground up in alignment with the updated **PLANNING.md** and `openapi/viron-api.json` specification.
+This document formalizes the process for rebuilding Viron from the ground up in alignment with the updated **PLANNING.md**, **MVP.md**, and `openapi/viron-api.json` specification.
 
 ---
 
@@ -87,11 +87,12 @@ Commit in small, clear steps:
     git commit -am "build: wire OpenAPI generator; generate DTOs & interfaces"
 
 ### 7. Implement MVP Features (Follow PLANNING.md Milestones)
-Implement one resource at a time:
-- Controller → Service → Repository
-- Bean validation
-- Error model
-- Happy-path & edge-case tests
+- Follow **MVP.md** and **PLANNING.md** milestone order.
+- Implement one resource at a time:
+  - Controller → Service → Repository
+  - Bean validation
+  - Error model
+  - Happy-path & edge-case tests
 
 Commit in vertical slices:
 

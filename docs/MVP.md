@@ -24,8 +24,8 @@ Deliver a working, tested API that supports:
 - [ ] `GET /api/v1/environments/name/{name}` – Retrieve a specific environment by name.
 - [ ] `GET /api/v1/environments/entity/{entityId}` – Get the environment containing a specific entity.
 - [ ] `POST /api/v1/environments/{name}/{numGrids}/{gridSize}` – Create an environment.
-- [ ] `DELETE /api/v1/environments/{id}` – Delete an environment and all related entities, locations, and grids.
 - [ ] `PATCH /api/v1/environments/{id}/name/{name}` – Update environment name.
+- [ ] `DELETE /api/v1/environments/{id}` – Delete an environment and all related entities, locations, and grids.
 
 ---
 
@@ -44,7 +44,7 @@ Deliver a working, tested API that supports:
 - [ ] `GET /api/v1/locations/grid/{gridId}` – Retrieve locations in a grid.
 - [ ] `GET /api/v1/locations/entity/{entityId}` – Retrieve the location of a specific entity.
 - [ ] `PUT /api/v1/locations/{locationId}/entity/{entityId}` – Add an entity to a location.
-- [ ] `DELETE /api/v1/locations/{locationId}/entity/{entityId}` – Remove an entity from a location.
+- [ ] `DELETE /api/v1/locations/{locationId}/entity/{entityId}` – Remove an entity from a specific location.
 - [ ] `DELETE /api/v1/locations/entity/{entityId}` – Remove an entity from its current location.
 
 ---
@@ -82,5 +82,6 @@ Deliver a working, tested API that supports:
 - Endpoints verified via Postman or Swagger UI.
 - API returns proper HTTP status codes and error messages.
 - Debug endpoints operational for development testing.
+- (Optional for MVP) Pagination and sorting applied to list endpoints.
 
 ---

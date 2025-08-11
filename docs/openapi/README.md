@@ -8,10 +8,10 @@ The specification defines endpoints, request/response formats, and DTO schemas f
 ## 📂 Files
 
 - **viron-api.json** – The complete OpenAPI definition for the Viron API, covering:
-  - **Environments** – Create, read, update, and delete environments.
+  - **Environments** – Create, read, update (including renaming), and delete environments.
   - **Grids** – Retrieve grids and their relationships to environments and entities.
   - **Locations** – Manage locations, including entity placement and removal.
-  - **Entities** – Access and manage entities in the simulation.
+  - **Entities** – Access, create, and delete entities in the simulation.
   - **Debug Utilities** – Endpoints for generating sample data and test scenarios.
 
 ---
@@ -20,9 +20,10 @@ The specification defines endpoints, request/response formats, and DTO schemas f
 
 The API is organized around **domain-specific controllers**:
 
-- **EnvironmentController** – Handles environment-level operations.
+- **EnvironmentController** – Handles environment-level operations, including creation, retrieval, renaming, and deletion.
 - **GridController** – Handles grid-related retrieval and relationships.
-- **LocationController** – Manages spatial locations and entity placement.
+- **LocationController** – Manages spatial locations and entity placement/removal.
+- **EntityController** – Manages entity creation, retrieval, and deletion.
 - **DebugController** – Provides testing and demonstration endpoints.
 
 Each path in the spec reflects a **clear mapping to a domain object**, ensuring maintainability and discoverability.
@@ -63,6 +64,13 @@ Key DTOs include:
 
 ## 📄 Related Documentation
 
-Refer to [`../docs/MVP.md`](../docs/MVP.md) for the **minimum viable product (MVP)** checklist, which aligns with this specification and guides the initial implementation.
+- [`../docs/MVP.md`](../docs/MVP.md) – Minimum Viable Product checklist, aligned with this specification.
+- [`../PLANNING.md`](../PLANNING.md) – Milestone and issue breakdown for implementing the MVP.
+- [`../REBUILD_PLAN.md`](../REBUILD_PLAN.md) – Step-by-step plan for rebuilding the Viron codebase in alignment with this spec.
 
 ---
+
+## ℹ️ Notes
+
+- Pagination & sorting are **optional for MVP** and may not be present in the current `viron-api.json`.
+- This specification is the **source of truth** for all endpoints and data contracts. All other documentation is derived from it.

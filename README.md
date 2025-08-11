@@ -1,7 +1,7 @@
 # Viron
 
 **Viron** is the **spatial simulation core** of a modular service ecosystem — a reusable backend module for building and managing **2D grid-based environments**.  
-It provides a structured way to represent space, track entities, and manage movement while remaining agnostic to the rules, logic, and gameplay systems that run on top.
+It provides a structured way to represent space, manage grids, track locations, place entities, and handle movement — while remaining agnostic to the rules, logic, and gameplay systems that run on top.
 
 ---
 
@@ -9,8 +9,10 @@ It provides a structured way to represent space, track entities, and manage move
 
 Viron serves as the **spatial foundation** in a larger system.  
 It answers questions like:
-- *Where* is this entity located?
-- *What* is occupying a given cell or region?
+- *What* environments exist?
+- *What* is the size and structure of an environment’s grid?
+- *Where* is a given entity located?
+- *What* is occupying a given location?
 - *How* can entities move between locations and environments?
 
 Viron does **not** decide *why* an entity moves, what it does there, or how time progresses — those are handled externally.
@@ -29,9 +31,11 @@ Viron does **not** decide *why* an entity moves, what it does there, or how time
 
 ## ✨ Features
 
-- **2D Environment Management** – Create and organize named environments of any grid size  
-- **Entity Placement & Movement** – Track and update entity positions  
-- **Multi-Environment Support** – Entities can move between separate spaces  
+- **Environment Management** – Create and organize named environments  
+- **Grid Retrieval** – Query the structure and dimensions of an environment’s grid  
+- **Location Queries** – Retrieve occupants of specific coordinates or all locations in an environment  
+- **Entity Placement & Movement** – Place, move, and remove entities  
+- **Multi-Environment Support** – Entities can move between separate environments  
 - **Simulation Agnostic** – Works for games, AI research, visualization tools, and more  
 
 ---

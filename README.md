@@ -1,7 +1,7 @@
 # Viron
 
 **Viron** is your **foundational spatial simulation service** — the bedrock on which worlds are built.  
-It manages environments, grids, locations, and entities through a clean REST API so you can skip the boilerplate and focus on *fun, emergent gameplay*.  
+It manages **environments**, **grids**, **locations**, and **entities** through a clean REST API so you can skip the boilerplate and focus on *fun, emergent gameplay*.  
 
 It serves as a reusable backend component for simulation-based games, AI experiments, and virtual world applications.
 
@@ -50,7 +50,7 @@ Core responsibilities:
 The MVP implements the endpoints defined in `openapi/viron-api.json` and documented in `docs/MVP.md`.
 
 **Environment Management**
-- Create, retrieve, update, and delete environments.
+- Create, retrieve, update (including renaming), and delete environments.
 - Query environments by ID, name, or contained entity.
 
 **Grid Management**
@@ -68,6 +68,8 @@ The MVP implements the endpoints defined in `openapi/viron-api.json` and documen
 - Generate sample environments, grids, locations, and entities.
 - Quickly create a world and place an entity for testing.
 
+> For detailed endpoint definitions and request/response formats, see `docs/MVP.md` and `openapi/viron-api.json`.
+
 ---
 
 ## 🛠 Tech Stack
@@ -79,6 +81,9 @@ The MVP implements the endpoints defined in `openapi/viron-api.json` and documen
 - Maven (build tool)
 - Docker + Docker Compose (deployment)
 - Swagger/OpenAPI (API documentation)
+- JaCoCo (test coverage)
+- Spotless/Checkstyle (code quality)
+- Optional: MapStruct, Flyway (future migrations)
 
 ---
 
@@ -87,7 +92,7 @@ The MVP implements the endpoints defined in `openapi/viron-api.json` and documen
 viron/  
  ├── src/main/java/preponderous/viron/  
  │    ├── controllers/       # REST controllers (Environment, Grid, Location, Entity, Debug)  
- │    ├── dto/               # Data Transfer Objects (DTOs) for API input/output  
+ │    ├── dto/               # Data Transfer Objects for API requests/responses to keep internal models private  
  │    ├── models/            # Internal domain models  
  │    ├── repositories/      # Data access layer  
  │    ├── services/          # Business logic  
@@ -144,4 +149,4 @@ This project is licensed under the MIT License.
 ## 📬 Contact
 
 For inquiries, feature requests, or contributions, please open an issue or reach out via the official GitHub repository:  
-https://github.com/Preponderous-Software/Viron
+https://github.com/Preponderous-Software/Viron 

@@ -92,7 +92,7 @@ Ensure consistent validation and error responses.
 
 40. **Validation rules** — Input constraints with proper status codes.  
 41. **Global exception handler** — Centralized error mapping to JSON.  
-42. **Pagination & sorting** — Apply to list endpoints.  
+42. **Pagination & sorting** — Apply to list endpoints (**optional for MVP**).  
 61. **Error catalog** — Markdown reference for codes and messages.
 
 ---
@@ -134,4 +134,3 @@ Finalize docs and tag MVP release.
 - OpenAPI/Swagger matches actual behavior.
 - Passes CI with coverage thresholds met.
 - Documentation updated.
-

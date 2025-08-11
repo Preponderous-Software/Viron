@@ -1,85 +1,68 @@
-# OpenAPI Specification — Viron MVP
+# Viron OpenAPI Specification
 
-This directory contains the **OpenAPI 3.0.3 specification** for the Viron **Minimum Viable Product (MVP)**.  
-The specification defines the REST API for **2D spatial simulation**, including environments, grids, locations, entities, and movement.
+This directory contains the **OpenAPI 3.0.3** specification for the Viron spatial simulation API.  
+The specification defines endpoints, request/response formats, and DTO schemas for all core domain objects.
 
 ---
 
 ## 📂 Files
 
-- **viron-mvp.openapi.json** — Source of truth for Viron’s MVP API contract.
+- **viron-api.json** – The complete OpenAPI definition for the Viron API, covering:
+  - **Environments** – Create, read, update, and delete environments.
+  - **Grids** – Retrieve grids and their relationships to environments and entities.
+  - **Locations** – Manage locations, including entity placement and removal.
+  - **Entities** – Access and manage entities in the simulation.
+  - **Debug Utilities** – Endpoints for generating sample data and test scenarios.
 
 ---
 
-## 🎯 Purpose
+## 🧩 Structure
 
-The OpenAPI specification exists to:
+The API is organized around **domain-specific controllers**:
 
-- Serve as the **single source of truth** for the Viron API.
-- Enable **client and server code generation**.
-- Provide clear and consistent documentation for developers integrating with Viron.
-- Support **automated testing** and API validation.
-- Model Viron’s spatial hierarchy explicitly: **Environment → Grid → Locations → Entities**.
+- **EnvironmentController** – Handles environment-level operations.
+- **GridController** – Handles grid-related retrieval and relationships.
+- **LocationController** – Manages spatial locations and entity placement.
+- **DebugController** – Provides testing and demonstration endpoints.
 
-The scope is defined in [`MVP.md`](../MVP.md) and must remain aligned with it.
-
----
-
-## 🛠 Usage
-
-### View Documentation
-
-Preview with Swagger UI:
-
-docker run --rm -p 8081:8080 \
-  -e SWAGGER_JSON=/tmp/viron-mvp.openapi.json \
-  -v $(pwd)/viron-mvp.openapi.json:/tmp/viron-mvp.openapi.json \
-  swaggerapi/swagger-ui
-
-Then open: http://localhost:8081
+Each path in the spec reflects a **clear mapping to a domain object**, ensuring maintainability and discoverability.
 
 ---
 
-### Generate Clients or Servers
+## 🗂 DTOs (Data Transfer Objects)
 
-Using OpenAPI Generator:
+The specification uses DTOs for all request and response bodies.  
+This ensures:
+- **Consistency** in API contracts.
+- **Clarity** for consumers of the API.
+- **Separation** of internal models from public API.
 
-docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
-  -i /local/viron-mvp.openapi.json \
-  -g java \
-  -o /local/gen/java-client
-
-Replace `-g java` with your target language or framework.
-
----
-
-### Validate the Specification
-
-Using Redocly CLI:
-
-npm install -g @redocly/cli
-redocly lint openapi/viron-mvp.openapi.json
+Key DTOs include:
+- `EnvironmentDTO`
+- `CreateEnvironmentRequest`
+- `UpdateEnvironmentNameRequest`
+- `GridDTO`
+- `LocationDTO`
+- `EntityDTO`
 
 ---
 
-## 🔄 Maintenance
+## 🚀 Usage
 
-- **Update** `viron-mvp.openapi.json` whenever an endpoint changes.
-- Keep the specification in sync with:
-  - The implementation in code
-  - The MVP scope in [`MVP.md`](../MVP.md)
-- Maintain **DRY** definitions using `$ref` for schemas, parameters, and responses.
-- Include **examples** for all request and response bodies.
-- Ensure the spatial hierarchy remains consistent:
-  - **Environments**: Manage collections of grids.
-  - **Grids**: Define dimensions and structure.
-  - **Locations**: Addressable coordinates within grids.
-  - **Entities**: Objects placed at locations.
-  - **Movement & Placement**: Rules for changing locations.
+1. **View the spec**
+   - Use any OpenAPI-compatible viewer such as [Swagger Editor](https://editor.swagger.io/) or [Insomnia](https://insomnia.rest/).
+
+2. **Test the API**
+   - Start the Viron application locally.
+   - Use the endpoints defined in `viron-api.json` to interact with the service.
+
+3. **Generate clients or servers**
+   - Use OpenAPI code generation tools (e.g., `openapi-generator-cli`) to scaffold API clients or server stubs.
 
 ---
 
-## 📄 License
+## 📄 Related Documentation
 
-The OpenAPI specification is licensed under the same terms as Viron (MIT License).  
-See the [LICENSE](../LICENSE) file for full terms.
+Refer to [`../docs/MVP.md`](../docs/MVP.md) for the **minimum viable product (MVP)** checklist, which aligns with this specification and guides the initial implementation.
+
+---

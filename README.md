@@ -83,7 +83,7 @@ The MVP implements the endpoints defined in `docs/openapi/viron-api.json` and do
 - Lombok
 - MapStruct (model ↔ DTO mapping)
 - Spring Security (OAuth2 resource server / JWT)
-- PostgreSQL (persistence layer)
+- PostgreSQL (persistence layer), pooled with HikariCP
 - Maven (build tool)
 - Docker + Docker Compose (deployment)
 - Swagger/OpenAPI (API documentation)
@@ -129,16 +129,22 @@ viron/
 ### Installation
 mvn clean install
 
+### Configuration
+Copy `sample.env` to `.env` and review the values before starting anything.  
+`JWT_SECRET` is required — it has no default, so the service will not start until it is set.  
+It must match the secret used by the UserAuth service that issues the tokens, and for `HS256`
+it must be at least 32 bytes.
+
 ### Running Locally
 docker-compose up --build  
-API will be available at: http://localhost:8080
+API will be available at: http://localhost:9999
 
 ---
 
 ## 📜 API Documentation
 
 Once running, you can view the interactive API docs:  
-http://localhost:8080/swagger-ui.html  
+http://localhost:9999/swagger-ui.html  
 or refer to the `docs/openapi/viron-api.json` file.
 
 ---

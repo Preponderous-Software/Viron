@@ -27,6 +27,10 @@ services:
       SERVICE_VIRON_HOST: ${SERVICE_VIRON_HOST}
       SERVICE_VIRON_PORT: ${SERVICE_VIRON_PORT}
       VIRON_DEBUG_ENABLED: ${VIRON_DEBUG_ENABLED:-false}
+      # Required — the service does not start without it. Must match UserAuth's secret.
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ISSUER: ${JWT_ISSUER:-userauth}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
     depends_on:
       - postgres
 

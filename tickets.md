@@ -263,7 +263,7 @@ Each ticket is designed to:
 **Scope:**
 - Verify springdoc-openapi-ui dependency is configured
 - Add OpenAPI annotations to controllers if needed
-- Test Swagger UI at `http://localhost:8080/swagger-ui.html`
+- Test Swagger UI at `http://localhost:9999/swagger-ui.html`
 - Compare generated spec with `docs/openapi/viron-api.json`
 - Update OpenAPI spec if implementation differs (but prefer spec-first)
 - Add API documentation section to README.md
@@ -325,7 +325,7 @@ Each ticket is designed to:
 
 **Acceptance Criteria:**
 - `docker compose up --build` starts app and database
-- Application is accessible at `http://localhost:8080`
+- Application is accessible at `http://localhost:9999`
 - Database persists data between restarts
 - README.md has clear setup instructions
 

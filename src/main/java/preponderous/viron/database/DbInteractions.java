@@ -4,7 +4,6 @@
 package preponderous.viron.database;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,25 +11,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
-
-import preponderous.viron.config.DbConfig;
 
 /**
  * Postgres database interactions.
+ *
+ * <p>Every call borrows a connection from the pooled {@link DataSource} supplied by
+ * {@link preponderous.viron.config.DataSourceConfig} and returns it before the call ends, so
+ * concurrent requests never share one {@link Connection} (a {@code Connection} is not required
+ * to be thread-safe, and the single long-lived connection this class used to hold was shared by
+ * every request).
+ *
+ * <p>Connections are borrowed through {@link DataSourceUtils} rather than
+ * {@code DataSource.getConnection()} directly. Outside a transaction that behaves exactly like
+ * borrowing and returning a pooled connection; inside one, the connection already bound to the
+ * transaction is reused and its release is deferred to the transaction manager. That is what
+ * makes it possible to place transaction boundaries around the multi-statement write paths
+ * tracked in #194 without changing this class again.
+ *
+ * <p>A failure to obtain a connection at all (database down, credentials wrong, pool exhausted)
+ * surfaces as an unchecked
+ * {@link org.springframework.jdbc.CannotGetJdbcConnectionException} rather than an empty result,
+ * so an outage is reported as a 500 instead of being mistaken for missing data.
  */
 @Component
 @Slf4j
 public class DbInteractions {
-    private Connection connection;
-    private final DbConfig dbConfig;
+    private final DataSource dataSource;
 
     @Autowired
-    public DbInteractions(DbConfig dbConfig) {
-        this.dbConfig = dbConfig;
-        this.connection = connect();
+    public DbInteractions(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -38,7 +54,7 @@ public class DbInteractions {
      *
      * <p>The query is run through a {@link PreparedStatement} so caller-supplied
      * values are bound as parameters rather than concatenated into SQL. The
-     * statement and result set are owned here and closed before returning, so no
+     * connection, statement and result set are owned here and released before returning, so no
      * JDBC resource ever reaches the caller.
      *
      * @param query  SQL with {@code ?} placeholders for each parameter
@@ -49,6 +65,7 @@ public class DbInteractions {
      */
     public <T> List<T> query(String query, RowMapper<T> mapper, Object... params) {
         List<T> results = new ArrayList<>();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             bindParameters(statement, params);
             try (ResultSet rs = statement.executeQuery()) {
@@ -60,6 +77,8 @@ public class DbInteractions {
             log.error("Error executing query: {}", e.getMessage());
             // Discard any partially mapped rows rather than reporting a truncated result.
             return new ArrayList<>();
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
         return results;
     }
@@ -77,6 +96,7 @@ public class DbInteractions {
      * @return the mapped first row, or an empty {@link Optional} if there were no rows or the query failed
      */
     public <T> Optional<T> queryOne(String query, RowMapper<T> mapper, Object... params) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             bindParameters(statement, params);
             try (ResultSet rs = statement.executeQuery()) {
@@ -86,6 +106,8 @@ public class DbInteractions {
             }
         } catch (SQLException e) {
             log.error("Error executing query: {}", e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
         return Optional.empty();
     }
@@ -94,18 +116,22 @@ public class DbInteractions {
      * Execute a parameterized INSERT/UPDATE/DELETE.
      *
      * <p>Run through a {@link PreparedStatement} (parameters bound, not concatenated)
-     * inside a try-with-resources so the statement is always closed.
+     * inside a try-with-resources so the statement is always closed, and the borrowed
+     * connection is always returned to the pool.
      *
      * @param query  SQL with {@code ?} placeholders for each parameter
      * @param params values to bind to the placeholders, in order
      * @return {@code true} if at least one row was affected, {@code false} otherwise (including on error)
      */
     public boolean update(String query, Object... params) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             bindParameters(statement, params);
             return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             log.error("Error executing update: {}", e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
         return false;
     }
@@ -115,26 +141,4 @@ public class DbInteractions {
             statement.setObject(i + 1, params[i]);
         }
     }
-
-    public void close() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            log.error("Error closing connection: {}", e.getMessage());
-        }
-    }
-
-    /**
-    * Connect to the database.
-    * @return Connection
-    */
-    public Connection connect() {
-        try {
-            connection = DriverManager.getConnection(dbConfig.getDbUrl(), dbConfig.getDbUsername(), dbConfig.getDbPassword());
-        } catch (SQLException e) {
-            log.error("Error connecting to the database: {}", e.getMessage());
-        }
-        return connection;
-    }
-
 }

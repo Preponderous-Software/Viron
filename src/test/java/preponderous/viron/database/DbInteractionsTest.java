@@ -1,21 +1,34 @@
 package preponderous.viron.database;
 
+import com.zaxxer.hikari.HikariDataSource;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import preponderous.viron.config.DataSourceConfig;
 import preponderous.viron.config.DbConfig;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Exercises {@link DbInteractions} against an in-memory H2 database to verify
- * parameter binding (#139), resource handling (#140), and the row-mapping
- * query API (#144). The application's real SQL is Postgres-specific; this test
- * uses its own neutral schema and only validates the generic query/update
- * mechanism.
+ * parameter binding (#139), resource handling (#140), the row-mapping
+ * query API (#144), and connection pooling (#194). The application's real SQL is
+ * Postgres-specific; this test uses its own neutral schema and only validates the
+ * generic query/update mechanism.
+ *
+ * <p>The {@link DataSource} is built by the production {@link DataSourceConfig} so the
+ * wiring under test is the wiring that ships.
  */
 public class DbInteractionsTest {
 
@@ -26,18 +39,21 @@ public class DbInteractionsTest {
     private static final RowMapper<Person> PERSON_MAPPER =
             rs -> new Person(rs.getInt("id"), rs.getString("name"));
 
+    private DataSource dataSource;
     private DbInteractions dbInteractions;
 
     @BeforeEach
     void setUp() {
-        DbConfig config = new DbConfig();
-        config.setDbUrl("jdbc:h2:mem:viron_dbinteractions;DB_CLOSE_DELAY=-1");
-        config.setDbUsername("sa");
-        config.setDbPassword("");
-        dbInteractions = new DbInteractions(config);
+        dataSource = new DataSourceConfig().dataSource(h2Config());
+        dbInteractions = new DbInteractions(dataSource);
 
         dbInteractions.update("DROP TABLE IF EXISTS person");
         dbInteractions.update("CREATE TABLE person (id INT PRIMARY KEY, name VARCHAR(255))");
+    }
+
+    @AfterEach
+    void tearDown() {
+        ((HikariDataSource) dataSource).close();
     }
 
     @Test
@@ -126,5 +142,69 @@ public class DbInteractionsTest {
     @Test
     void update_affectingNoRows_returnsFalse() {
         assertThat(dbInteractions.update("UPDATE person SET name = ? WHERE id = ?", "Nobody", 999)).isFalse();
+    }
+
+    // #194: every path must hand its connection back to the pool. A pool of one with a short
+    // acquisition timeout turns any leak — including one on an error path — into a failure on
+    // the very next call.
+    @Test
+    void everyPath_returnsItsConnectionToThePool() {
+        HikariDataSource singleConnectionPool = (HikariDataSource) new DataSourceConfig().dataSource(h2Config());
+        singleConnectionPool.setMaximumPoolSize(1);
+        singleConnectionPool.setConnectionTimeout(1000);
+
+        DbInteractions pooled = new DbInteractions(singleConnectionPool);
+        try {
+            for (int i = 0; i < 20; i++) {
+                int id = 100 + i;
+                assertThat(pooled.update("INSERT INTO person (id, name) VALUES (?, ?)", id, "Pooled" + id)).isTrue();
+                assertThat(pooled.queryOne("SELECT id, name FROM person WHERE id = ?", PERSON_MAPPER, id)).isPresent();
+                assertThat(pooled.query("SELECT id, name FROM person", PERSON_MAPPER)).isNotEmpty();
+
+                assertThat(pooled.update("UPDATE does_not_exist SET name = ?", "x")).isFalse();
+                assertThat(pooled.query("SELECT * FROM does_not_exist", PERSON_MAPPER)).isEmpty();
+                assertThat(pooled.queryOne("SELECT * FROM does_not_exist", PERSON_MAPPER)).isEmpty();
+            }
+        } finally {
+            singleConnectionPool.close();
+        }
+    }
+
+    // #194: concurrent callers each get their own connection. The previous design held one
+    // shared Connection on an application-scoped component, which JDBC does not require to be
+    // thread-safe.
+    @Test
+    void concurrentCallers_eachSeeTheirOwnWrite() throws Exception {
+        int threads = 8;
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<Optional<Person>>> results = new ArrayList<>();
+
+        for (int i = 0; i < threads; i++) {
+            int id = 200 + i;
+            results.add(executor.submit(() -> {
+                start.await();
+                dbInteractions.update("INSERT INTO person (id, name) VALUES (?, ?)", id, "Concurrent" + id);
+                return dbInteractions.queryOne("SELECT id, name FROM person WHERE id = ?", PERSON_MAPPER, id);
+            }));
+        }
+        start.countDown();
+
+        try {
+            for (int i = 0; i < threads; i++) {
+                assertThat(results.get(i).get(30, TimeUnit.SECONDS))
+                        .contains(new Person(200 + i, "Concurrent" + (200 + i)));
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    private static DbConfig h2Config() {
+        DbConfig config = new DbConfig();
+        config.setDbUrl("jdbc:h2:mem:viron_dbinteractions;DB_CLOSE_DELAY=-1");
+        config.setDbUsername("sa");
+        config.setDbPassword("");
+        return config;
     }
 }

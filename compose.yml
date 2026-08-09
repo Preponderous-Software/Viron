@@ -27,6 +27,11 @@ services:
       SERVICE_VIRON_HOST: ${SERVICE_VIRON_HOST}
       SERVICE_VIRON_PORT: ${SERVICE_VIRON_PORT}
       VIRON_DEBUG_ENABLED: ${VIRON_DEBUG_ENABLED:-false}
+      # Required — the service does not start without it. Must match UserAuth's secret.
+      # The :? form makes compose refuse to start rather than pass an empty secret through.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set; see sample.env}
+      JWT_ISSUER: ${JWT_ISSUER:-userauth}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
     depends_on:
       - postgres
 

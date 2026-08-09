@@ -23,6 +23,13 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- Supplies HikariCP (the connection pool behind DbInteractions) and spring-jdbc's
+             DataSourceUtils, which makes connection acquisition transaction-aware. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

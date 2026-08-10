@@ -3,6 +3,7 @@ package preponderous.viron.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import preponderous.viron.dto.CreateEntityRequest;
@@ -73,8 +74,17 @@ public class EntityController {
         return entityMapper.toDto(newEntity);
     }
 
+    /**
+     * Deletes an entity and its placement.
+     *
+     * <p>{@link EntityRepository#deleteById(int)} clears the placement before deleting the
+     * entity, so the two statements run in one transaction: the {@link ServiceException} raised
+     * when the entity delete does not take effect rolls the placement back, rather than leaving
+     * an entity that has silently lost where it was.
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     public void deleteEntity(@PathVariable @Min(1) int id) {
         if (entityRepository.findById(id).isEmpty()) {
             throw new NotFoundException("Entity not found with id: " + id);

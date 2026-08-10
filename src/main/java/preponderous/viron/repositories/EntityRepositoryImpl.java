@@ -91,6 +91,11 @@ public class EntityRepositoryImpl implements EntityRepository {
      * placement row has to be cleared first or the entity delete is rejected by the constraint.
      * An entity that is not placed has no row to clear, which is why the first statement's result
      * is not part of the outcome — only the entity delete itself is reported.
+     *
+     * <p>The two statements are not atomic on their own: a {@code false} return means the entity
+     * survived while its placement was already cleared. Callers that need the pair to be
+     * all-or-nothing put a transaction boundary around the call and fail on {@code false} — see
+     * {@link preponderous.viron.controllers.EntityController#deleteEntity(int)}.
      */
     @Override
     public boolean deleteById(int id) {

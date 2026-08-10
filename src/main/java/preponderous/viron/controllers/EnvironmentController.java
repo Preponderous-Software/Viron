@@ -7,6 +7,7 @@ package preponderous.viron.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import preponderous.viron.dto.CreateEnvironmentRequest;
@@ -70,8 +71,17 @@ public class EnvironmentController {
         return environmentMapper.toDto(newEnvironment);
     }
 
+    /**
+     * Deletes an environment and everything it contains.
+     *
+     * <p>The cascade is a long sequence of dependent deletes, so it runs in one transaction:
+     * the {@link ServiceException} thrown on the first failure discards the deletes already
+     * performed instead of leaving a partially deleted environment that no request could have
+     * produced deliberately.
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     public void deleteEnvironment(@PathVariable @Min(1) int id) {
         if (environmentRepository.findById(id).isEmpty()) {
             throw new NotFoundException("Environment not found with id: " + id);

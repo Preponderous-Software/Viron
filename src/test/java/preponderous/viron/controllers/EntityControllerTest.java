@@ -9,7 +9,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import preponderous.viron.config.DbConfig;
 import preponderous.viron.database.DbInteractions;
 import preponderous.viron.dto.EntityDto;
 import preponderous.viron.exceptions.EntityCreationException;
@@ -50,8 +49,9 @@ class EntityControllerTest {
     @MockBean
     private DbInteractions dbInteractions;
 
-    @MockBean
-    private DbConfig dbConfig;
+    // DbConfig is left real, unlike the collaborators above: the transaction boundary on
+    // deleteEntity opens a connection from the pool DbConfig configures, and a mock would
+    // supply it a null JDBC URL.
 
     // --- GET /api/v1/entities ---
 

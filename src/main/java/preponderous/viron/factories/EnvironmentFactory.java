@@ -7,6 +7,7 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import preponderous.viron.database.DbInteractions;
 import preponderous.viron.exceptions.EnvironmentCreationException;
@@ -26,11 +27,19 @@ public class EnvironmentFactory {
      * Creates an environment containing {@code numGrids} grids, each {@code numRows} by
      * {@code numColumns} locations. Rows and columns are independent — grids need not be square.
      *
+     * <p>The environment, its grids, its locations and every association between them are
+     * inserted in one transaction, so the {@link EnvironmentCreationException} thrown partway
+     * through discards the rows already written instead of leaving an environment that is
+     * missing some of its grids or a grid that is missing some of its locations. The sequences
+     * the ids come from are not transactional, so a rolled-back attempt still consumes the ids
+     * it drew — the gap is expected and harmless.
+     *
      * @param name        name of the environment
      * @param numGrids    number of grids to create in the environment
      * @param numRows     number of rows in each grid
      * @param numColumns  number of columns in each grid
      */
+    @Transactional
     public Environment createEnvironment(String name, int numGrids, int numRows, int numColumns) throws EnvironmentCreationException {
         log.info("Attempting to create environment: '{}' with {} grids of size {}x{}", name, numGrids, numRows, numColumns);
 

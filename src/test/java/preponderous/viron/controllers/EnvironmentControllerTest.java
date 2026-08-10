@@ -49,9 +49,9 @@ class EnvironmentControllerTest {
     @MockBean
     private DbInteractions dbInteractions;
 
-    // DbConfig is left real, unlike the collaborators above: the transaction boundaries on
-    // deleteEnvironment and environment creation open a connection from the pool DbConfig
-    // configures, and a mock would supply it a null JDBC URL.
+    // DbConfig is left real, unlike the collaborators above: the transaction boundary on
+    // deleteEnvironment opens a connection from the pool DbConfig configures, and a mock would
+    // supply it a null JDBC URL.
 
     @Test
     void getAllEnvironments_Success() throws Exception {

@@ -2,7 +2,7 @@
 # Copyright (c) 2024 Preponderous Software
 # MIT License
 
-from typing import Optional
+from typing import List, Optional
 import requests
 from src.main.python.preponderous.viron.models.environment import Environment
 
@@ -18,7 +18,7 @@ class EnvironmentService:
     def get_auth_headers(self) -> dict:
         return {"Authorization": f"Bearer {self.auth_token}"} if self.auth_token else {}
 
-    def get_all_environments(self) -> list[Environment]:
+    def get_all_environments(self) -> List[Environment]:
         response = requests.get(f"{self.get_base_url()}", headers=self.get_auth_headers())
         response.raise_for_status()
         return [Environment(**env) for env in response.json()]

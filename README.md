@@ -164,6 +164,7 @@ from tests as it is from application code (`src.main.python.preponderous.viron..
 `pythonpath` setting it uses arrived in pytest 7.0, so the pytest 6.2.4 pinned by
 `requirements.txt` ignores it and collection fails; install a newer pytest until that pin is
 raised.
+
 Note that CI runs the Java build and tests only — Python client changes are not covered there
 and must be checked locally.
 

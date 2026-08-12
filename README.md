@@ -109,6 +109,7 @@ viron/
  │    └── services/          # Business logic  
  ├── src/main/python/        # Python client SDK  
  ├── src/test/java/...       # Unit and integration tests  
+ ├── src/test/python/...     # Python client SDK tests (pytest)  
  ├── db-scripts/             # SQL schema setup scripts, and migrations for existing databases  
  ├── docs/  
  │    ├── MVP.md             # Implementation checklist for MVP  
@@ -152,8 +153,16 @@ or refer to the `docs/openapi/viron-api.json` file.
 
 ## 🧪 Testing
 
-Run all unit and integration tests:  
+Run all Java unit and integration tests:  
 mvn test
+
+Run the Python client tests (requires Python 3.8+ and `pip install -r requirements.txt`):  
+pytest
+
+`pytest.ini` puts the repository root on the path, so the client is imported the same way
+from tests as it is from application code (`src.main.python.preponderous.viron...`).
+Note that CI runs the Java build and tests only — Python client changes are not covered there
+and must be checked locally.
 
 ---
 

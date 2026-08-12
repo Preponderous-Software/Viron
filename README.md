@@ -88,7 +88,8 @@ The MVP implements the endpoints defined in `docs/openapi/viron-api.json` and do
 - Docker + Docker Compose (deployment)
 - Swagger/OpenAPI (API documentation)
 - JaCoCo (test coverage)
-- Planned: Flyway (future migrations); schema currently comes from `db-scripts/setup/`
+- Planned: Flyway (future migrations); schema currently comes from `db-scripts/setup/`, with
+  changes to an already-created schema kept as hand-run scripts in `db-scripts/migrations/`
 
 ---
 
@@ -108,7 +109,7 @@ viron/
  │    └── services/          # Business logic  
  ├── src/main/python/        # Python client SDK  
  ├── src/test/java/...       # Unit and integration tests  
- ├── db-scripts/             # SQL schema setup scripts  
+ ├── db-scripts/             # SQL schema setup scripts, and migrations for existing databases  
  ├── docs/  
  │    ├── MVP.md             # Implementation checklist for MVP  
  │    └── openapi/  

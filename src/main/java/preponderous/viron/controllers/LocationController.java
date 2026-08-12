@@ -2,6 +2,7 @@ package preponderous.viron.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -72,6 +73,13 @@ public class LocationController {
      * Places an unplaced entity at {@code locationId}. An entity occupies at most one location,
      * so a request for an entity that is already placed elsewhere is a conflict; a request for an
      * entity already at the target is a no-op, keeping the {@code PUT} idempotent.
+     *
+     * <p>The placement check below cannot decide the outcome on its own: two concurrent requests
+     * for the same unplaced entity both read no placement and both go on to insert. The primary
+     * key on {@code viron.entity_location.entity_id} is what settles which of them wins, so the
+     * loser is recognised by the {@link DuplicateKeyException} its insert raises and answered
+     * from the placement the winner committed — the same answer the check above would have given
+     * had the two requests arrived in sequence (#200).
      */
     @PutMapping("/{locationId}/entity/{entityId}")
     public void addEntityToLocation(@PathVariable("entityId") @Min(1) int entityId, @PathVariable("locationId") @Min(1) int locationId) {
@@ -83,15 +91,36 @@ public class LocationController {
         }
         Optional<Location> currentLocation = locationRepository.findByEntityId(entityId);
         if (currentLocation.isPresent()) {
-            if (currentLocation.get().getLocationId() == locationId) {
-                return;
+            reportPlacement(entityId, locationId, currentLocation.get());
+            return;
+        }
+        try {
+            if (!locationRepository.addEntityToLocation(entityId, locationId)) {
+                throw new ServiceException("Failed to add entity " + entityId + " to location " + locationId);
             }
-            throw new ConflictException("Entity " + entityId + " is already placed at location "
-                    + currentLocation.get().getLocationId());
+        } catch (DuplicateKeyException e) {
+            log.info("Entity {} was placed concurrently while adding it to location {}", entityId, locationId);
+            Optional<Location> winner = locationRepository.findByEntityId(entityId);
+            if (winner.isEmpty()) {
+                // The winning placement was removed again before it could be read back, so there
+                // is no location to name. The request still failed on a conflict, not a fault.
+                throw new ConflictException("Entity " + entityId
+                        + " was placed by a concurrent request and could not be added to location " + locationId);
+            }
+            reportPlacement(entityId, locationId, winner.get());
         }
-        if (!locationRepository.addEntityToLocation(entityId, locationId)) {
-            throw new ServiceException("Failed to add entity " + entityId + " to location " + locationId);
+    }
+
+    /**
+     * Answers a placement request for an entity that is already placed: silence when it is
+     * already where the request wanted it, a conflict naming its actual location otherwise.
+     */
+    private static void reportPlacement(int entityId, int requestedLocationId, Location placement) {
+        if (placement.getLocationId() == requestedLocationId) {
+            return;
         }
+        throw new ConflictException("Entity " + entityId + " is already placed at location "
+                + placement.getLocationId());
     }
 
     @DeleteMapping("/{locationId}/entity/{entityId}")

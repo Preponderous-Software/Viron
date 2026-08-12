@@ -370,7 +370,7 @@
     "/api/v1/locations/{locationId}/entity/{entityId}": {
       "put": {
         "summary": "Add entity to location",
-        "description": "Places an unplaced entity at the location. An entity occupies at most one location, so the request is a no-op when the entity is already at that location and a conflict when it is placed elsewhere.",
+        "description": "Places an unplaced entity at the location. An entity occupies at most one location, so the request is a no-op when the entity is already at that location and a conflict when it is placed elsewhere. The same answers are given when two placements of the same entity are made at once: exactly one of them takes effect, and the others are resolved against the placement it left behind.",
         "parameters": [
           { "$ref": "#/components/parameters/LocationIdParam" },
           { "$ref": "#/components/parameters/EntityIdParam" }
@@ -384,7 +384,7 @@
             }
           },
           "409": {
-            "description": "Entity is already placed at a different location",
+            "description": "Entity is already placed at a different location, including when a concurrent request placed it there first",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             }

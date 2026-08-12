@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DuplicateKeyException;
 import preponderous.viron.database.DbInteractions;
 import preponderous.viron.models.Location;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static preponderous.viron.database.ResultSetAnswers.mapsAllRows;
@@ -249,22 +251,36 @@ public class LocationRepositoryImplTest {
     @Test
     public void testAddEntityToLocation_DelegatesToUpdateAndReturnsResult() {
         String query = "INSERT INTO viron.entity_location (entity_id, location_id) VALUES (?, ?)";
-        Mockito.when(dbInteractions.update(query, 42, 8)).thenReturn(true);
+        Mockito.when(dbInteractions.updateReportingDuplicateKey(query, 42, 8)).thenReturn(true);
 
         LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
 
         assertThat(repository.addEntityToLocation(42, 8)).isTrue();
-        Mockito.verify(dbInteractions).update(query, 42, 8);
+        Mockito.verify(dbInteractions).updateReportingDuplicateKey(query, 42, 8);
     }
 
     @Test
     public void testAddEntityToLocation_ReturnsFalseWhenUpdateFails() {
         String query = "INSERT INTO viron.entity_location (entity_id, location_id) VALUES (?, ?)";
-        Mockito.when(dbInteractions.update(query, 42, 8)).thenReturn(false);
+        Mockito.when(dbInteractions.updateReportingDuplicateKey(query, 42, 8)).thenReturn(false);
 
         LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
 
         assertThat(repository.addEntityToLocation(42, 8)).isFalse();
+    }
+
+    // #200: a placement rejected by the primary key on entity_id is a conflict the caller has to
+    // be able to see, so it must not be flattened into the false above.
+    @Test
+    public void testAddEntityToLocation_PropagatesDuplicateKeyException() {
+        String query = "INSERT INTO viron.entity_location (entity_id, location_id) VALUES (?, ?)";
+        Mockito.when(dbInteractions.updateReportingDuplicateKey(query, 42, 8))
+                .thenThrow(new DuplicateKeyException("entity 42 is already placed"));
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThatThrownBy(() -> repository.addEntityToLocation(42, 8))
+                .isInstanceOf(DuplicateKeyException.class);
     }
 
     @Test

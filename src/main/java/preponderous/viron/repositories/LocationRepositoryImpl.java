@@ -57,10 +57,19 @@ public class LocationRepositoryImpl implements LocationRepository {
         return dbInteractions.queryOne(query, this::mapResultSetToLocation, entityId);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The insert is issued through
+     * {@link DbInteractions#updateReportingDuplicateKey(String, Object...)} so that the primary
+     * key on {@code entity_id} — the only thing that actually serialises two concurrent
+     * placements of the same unplaced entity — reaches the caller as a conflict rather than as
+     * an indistinguishable {@code false}.
+     */
     @Override
     public boolean addEntityToLocation(int entityId, int locationId) {
         String query = "INSERT INTO viron.entity_location (entity_id, location_id) VALUES (?, ?)";
-        return dbInteractions.update(query, entityId, locationId);
+        return dbInteractions.updateReportingDuplicateKey(query, entityId, locationId);
     }
 
     @Override

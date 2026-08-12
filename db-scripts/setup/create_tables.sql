@@ -34,10 +34,14 @@ CREATE TABLE IF NOT EXISTS viron.environment (
 );
 
 -- entity_location table (entity_id, location_id)
+-- An entity occupies at most one location, so entity_id alone is the key: a location may hold
+-- many entities, but a second placement of the same entity is rejected by the database rather
+-- than only by the read-then-write guard in LocationController.addEntityToLocation, which two
+-- concurrent requests can both pass.
 CREATE TABLE IF NOT EXISTS viron.entity_location (
     entity_id INT NOT NULL,
     location_id INT NOT NULL,
-    PRIMARY KEY (entity_id, location_id),
+    PRIMARY KEY (entity_id),
     FOREIGN KEY (entity_id) REFERENCES viron.entity(entity_id),
     FOREIGN KEY (location_id) REFERENCES viron.location(location_id)
 );

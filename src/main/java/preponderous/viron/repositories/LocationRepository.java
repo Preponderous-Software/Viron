@@ -10,6 +10,14 @@ public interface LocationRepository {
     List<Location> findByEnvironmentId(int environmentId);
     List<Location> findByGridId(int gridId);
     Optional<Location> findByEntityId(int entityId);
+    /**
+     * Places an entity at a location.
+     *
+     * @throws org.springframework.dao.DuplicateKeyException if the entity is already placed —
+     *         the database, not the caller's prior read, is what decides this, so a request that
+     *         lost a race against a concurrent placement lands here rather than returning
+     *         {@code false}
+     */
     boolean addEntityToLocation(int entityId, int locationId);
     boolean removeEntityFromLocation(int entityId, int locationId);
     boolean removeEntityFromCurrentLocation(int entityId);

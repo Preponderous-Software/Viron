@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DuplicateKeyException;
 import preponderous.viron.config.DataSourceConfig;
 import preponderous.viron.config.DbConfig;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Exercises {@link DbInteractions} against an in-memory H2 database to verify
@@ -142,6 +144,65 @@ public class DbInteractionsTest {
     @Test
     void update_affectingNoRows_returnsFalse() {
         assertThat(dbInteractions.update("UPDATE person SET name = ? WHERE id = ?", "Nobody", 999)).isFalse();
+    }
+
+    // #200: a duplicate key is a conflict, and updateReportingDuplicateKey is the only way a
+    // caller can tell it apart from any other failed write.
+    @Test
+    void updateReportingDuplicateKey_onDuplicateKey_throws() {
+        assertThat(dbInteractions.update("INSERT INTO person (id, name) VALUES (?, ?)", 8, "Heidi")).isTrue();
+
+        assertThatThrownBy(() ->
+                dbInteractions.updateReportingDuplicateKey("INSERT INTO person (id, name) VALUES (?, ?)", 8, "Ivan"))
+                .isInstanceOf(DuplicateKeyException.class);
+
+        // The row that was already there is untouched.
+        assertThat(dbInteractions.queryOne("SELECT id, name FROM person WHERE id = ?", PERSON_MAPPER, 8))
+                .contains(new Person(8, "Heidi"));
+    }
+
+    @Test
+    void updateReportingDuplicateKey_onAnyOtherFailure_returnsFalseAndDoesNotThrow() {
+        assertThat(dbInteractions.updateReportingDuplicateKey("UPDATE does_not_exist SET name = ?", "x")).isFalse();
+    }
+
+    @Test
+    void updateReportingDuplicateKey_onSuccess_returnsTrue() {
+        assertThat(dbInteractions.updateReportingDuplicateKey("INSERT INTO person (id, name) VALUES (?, ?)", 9, "Judy"))
+                .isTrue();
+        assertThat(dbInteractions.queryOne("SELECT id, name FROM person WHERE id = ?", PERSON_MAPPER, 9)).isPresent();
+    }
+
+    // The contract every pre-existing caller was written against: update() still flattens a
+    // duplicate key to false rather than throwing at code that cannot handle it.
+    @Test
+    void update_onDuplicateKey_stillReturnsFalse() {
+        assertThat(dbInteractions.update("INSERT INTO person (id, name) VALUES (?, ?)", 10, "Karl")).isTrue();
+
+        assertThat(dbInteractions.update("INSERT INTO person (id, name) VALUES (?, ?)", 10, "Liam")).isFalse();
+    }
+
+    // A duplicate key leaves nothing checked out: the throwing path returns its connection too.
+    @Test
+    void updateReportingDuplicateKey_onDuplicateKey_returnsItsConnectionToThePool() {
+        HikariDataSource singleConnectionPool = (HikariDataSource) new DataSourceConfig().dataSource(h2Config());
+        singleConnectionPool.setMaximumPoolSize(1);
+        singleConnectionPool.setConnectionTimeout(1000);
+
+        DbInteractions pooled = new DbInteractions(singleConnectionPool);
+        try {
+            assertThat(pooled.update("INSERT INTO person (id, name) VALUES (?, ?)", 11, "Mona")).isTrue();
+
+            for (int i = 0; i < 5; i++) {
+                assertThatThrownBy(() ->
+                        pooled.updateReportingDuplicateKey("INSERT INTO person (id, name) VALUES (?, ?)", 11, "Nina"))
+                        .isInstanceOf(DuplicateKeyException.class);
+            }
+
+            assertThat(pooled.queryOne("SELECT id, name FROM person WHERE id = ?", PERSON_MAPPER, 11)).isPresent();
+        } finally {
+            singleConnectionPool.close();
+        }
     }
 
     // #194: every path must hand its connection back to the pool. A pool of one with a short

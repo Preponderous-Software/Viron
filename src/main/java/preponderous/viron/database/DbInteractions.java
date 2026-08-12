@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +43,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class DbInteractions {
+
+    /** SQL state for a unique/primary-key violation, as reported by both Postgres and H2. */
+    private static final String SQL_STATE_UNIQUE_VIOLATION = "23505";
+
     private final DataSource dataSource;
 
     @Autowired
@@ -124,14 +129,68 @@ public class DbInteractions {
      * @return {@code true} if at least one row was affected, {@code false} otherwise (including on error)
      */
     public boolean update(String query, Object... params) {
+        try {
+            return updateReportingDuplicateKey(query, params);
+        } catch (DuplicateKeyException e) {
+            // Flattened to false so this method keeps the contract every existing caller was
+            // written against; callers that need to tell a conflict apart from any other write
+            // failure call updateReportingDuplicateKey directly.
+            log.error("Error executing update: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Execute a parameterized INSERT/UPDATE/DELETE, reporting a unique or primary-key violation
+     * to the caller instead of flattening it to {@code false}.
+     *
+     * <p>Identical to {@link #update(String, Object...)} in every other respect. It exists because
+     * a request that loses a race against a concurrent write is a conflict, not a server fault,
+     * and the two are indistinguishable once the {@link SQLException} has been swallowed
+     * (#200): {@link preponderous.viron.repositories.LocationRepositoryImpl#addEntityToLocation}
+     * needs the distinction to answer 409 rather than 500.
+     *
+     * <p>Detection is by SQL state {@code 23505} (unique violation), which Postgres and the H2
+     * database the tests run against both report. Every other failure is logged and reported as
+     * {@code false}, exactly as before.
+     *
+     * @param query  SQL with {@code ?} placeholders for each parameter
+     * @param params values to bind to the placeholders, in order
+     * @return {@code true} if at least one row was affected, {@code false} otherwise (including on
+     *         any error that is not a unique/primary-key violation)
+     * @throws DuplicateKeyException if the statement violated a unique or primary-key constraint
+     */
+    public boolean updateReportingDuplicateKey(String query, Object... params) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             bindParameters(statement, params);
             return statement.executeUpdate() > 0;
         } catch (SQLException e) {
+            if (isUniqueViolation(e)) {
+                throw new DuplicateKeyException("Update violated a unique constraint: " + e.getMessage(), e);
+            }
             log.error("Error executing update: {}", e.getMessage());
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+        return false;
+    }
+
+    /**
+     * True if {@code e}, or any exception chained behind it, reports SQL state {@code 23505}.
+     *
+     * <p>The chain is walked because a driver may wrap the violation it actually hit: the
+     * Postgres driver reports it directly, but batched or nested failures surface through
+     * {@link SQLException#getNextException()}.
+     */
+    private static boolean isUniqueViolation(SQLException e) {
+        for (SQLException current = e; current != null; current = current.getNextException()) {
+            if (SQL_STATE_UNIQUE_VIOLATION.equals(current.getSQLState())) {
+                return true;
+            }
+            if (current == current.getNextException()) {
+                break;
+            }
         }
         return false;
     }

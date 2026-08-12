@@ -7,6 +7,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.web.servlet.MockMvc;
 import preponderous.viron.config.DbConfig;
 import preponderous.viron.database.DbInteractions;
@@ -409,6 +410,57 @@ class LocationControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500))
                 .andExpect(jsonPath("$.message").value("Failed to add entity 1 to location 2"));
+    }
+
+    // #200: the guard read no placement, a concurrent request won the race, and the insert was
+    // rejected by the primary key on entity_id. The loser is told where the entity actually is.
+    @Test
+    void addEntityToLocation_LostRaceWithConcurrentPlacementElsewhere_Conflict() throws Exception {
+        when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(entityRepository.findById(1)).thenReturn(Optional.of(new Entity(1, "Entity1", "2024-01-01")));
+        when(locationRepository.findByEntityId(1))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(new Location(7, 30, 40)));
+        when(locationRepository.addEntityToLocation(1, 2))
+                .thenThrow(new DuplicateKeyException("entity 1 is already placed"));
+
+        mockMvc.perform(put("/api/v1/locations/2/entity/1"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message").value("Entity 1 is already placed at location 7"));
+    }
+
+    // Both requests wanted the same location, so the loser got the outcome it asked for: the
+    // endpoint stays idempotent whether the two arrive concurrently or in sequence.
+    @Test
+    void addEntityToLocation_LostRaceWithConcurrentPlacementAtSameLocation_IsNoOp() throws Exception {
+        when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(entityRepository.findById(1)).thenReturn(Optional.of(new Entity(1, "Entity1", "2024-01-01")));
+        when(locationRepository.findByEntityId(1))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(locationRepository.addEntityToLocation(1, 2))
+                .thenThrow(new DuplicateKeyException("entity 1 is already placed"));
+
+        mockMvc.perform(put("/api/v1/locations/2/entity/1"))
+                .andExpect(status().isOk());
+    }
+
+    // The winning placement was removed again before it could be read back: still a conflict
+    // rather than a fault, but with no location left to name.
+    @Test
+    void addEntityToLocation_LostRaceAndWinningPlacementIsGone_Conflict() throws Exception {
+        when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(entityRepository.findById(1)).thenReturn(Optional.of(new Entity(1, "Entity1", "2024-01-01")));
+        when(locationRepository.findByEntityId(1)).thenReturn(Optional.empty());
+        when(locationRepository.addEntityToLocation(1, 2))
+                .thenThrow(new DuplicateKeyException("entity 1 is already placed"));
+
+        mockMvc.perform(put("/api/v1/locations/2/entity/1"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message").value(
+                        "Entity 1 was placed by a concurrent request and could not be added to location 2"));
     }
 
     @Test

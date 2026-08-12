@@ -156,11 +156,14 @@ or refer to the `docs/openapi/viron-api.json` file.
 Run all Java unit and integration tests:  
 mvn test
 
-Run the Python client tests (requires Python 3.8+ and `pip install -r requirements.txt`):  
+Run the Python client tests (requires Python 3.8+, `requests`, and pytest 7 or newer):  
 pytest
 
 `pytest.ini` puts the repository root on the path, so the client is imported the same way
-from tests as it is from application code (`src.main.python.preponderous.viron...`).
+from tests as it is from application code (`src.main.python.preponderous.viron...`). The
+`pythonpath` setting it uses arrived in pytest 7.0, so the pytest 6.2.4 pinned by
+`requirements.txt` ignores it and collection fails; install a newer pytest until that pin is
+raised.
 Note that CI runs the Java build and tests only — Python client changes are not covered there
 and must be checked locally.
 

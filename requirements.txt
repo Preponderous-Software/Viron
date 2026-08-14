@@ -1,2 +1,10 @@
-pytest==6.2.4
-requests==2.25.1
+# Dependencies of the Python client under src/main/python and its pytest suite.
+# Floors rather than exact pins: this file doubles as the client's declared
+# dependency surface, and exact pins there fight with the applications that
+# consume it.
+#
+# pytest 7.0 is the release that introduced the `pythonpath` ini setting that
+# pytest.ini relies on for imports; anything older ignores it and collection
+# fails.
+pytest>=7.0
+requests>=2.32.0

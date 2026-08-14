@@ -25,3 +25,30 @@ jobs:
 
       - name: Run tests
         run: ./mvnw test -B
+
+  python-client:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest interpreter the client claims to support and a current
+        # one, so syntax or typing that only newer releases accept is caught.
+        python-version: [ '3.8', '3.12' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest

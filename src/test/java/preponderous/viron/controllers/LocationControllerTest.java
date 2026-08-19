@@ -482,6 +482,7 @@ class LocationControllerTest {
     @Test
     void removeEntityFromLocation_Success() throws Exception {
         when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(2, 10, 20)));
         when(locationRepository.removeEntityFromLocation(1, 2)).thenReturn(true);
 
@@ -495,6 +496,7 @@ class LocationControllerTest {
     @Test
     void removeEntityFromLocation_EntityPlacedElsewhereIsNotFound() throws Exception {
         when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(7, 30, 40)));
 
         mockMvc.perform(delete("/api/v1/locations/2/entity/1"))
@@ -505,10 +507,32 @@ class LocationControllerTest {
         verify(locationRepository, never()).removeEntityFromLocation(anyInt(), anyInt());
     }
 
-    /** Neither is an entity that is not placed anywhere, or does not exist at all (#210). */
+    /**
+     * Neither is an entity that is not placed anywhere, or does not exist at all (#210). There is
+     * no placement row to lock, so the request is answered without reading any further.
+     */
     @Test
     void removeEntityFromLocation_UnplacedEntityIsNotFound() throws Exception {
         when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(false);
+
+        mockMvc.perform(delete("/api/v1/locations/2/entity/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Entity 1 is not at location 2"));
+
+        verify(locationRepository, never()).findByEntityId(anyInt());
+        verify(locationRepository, never()).removeEntityFromLocation(anyInt(), anyInt());
+    }
+
+    /**
+     * The placement was locked but names a different location than the one read a moment earlier,
+     * which is the same "not at that location" answer arrived at after the lock rather than before.
+     */
+    @Test
+    void removeEntityFromLocation_PlacementMovedBeforeTheLockIsNotFound() throws Exception {
+        when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/api/v1/locations/2/entity/1"))
@@ -532,6 +556,7 @@ class LocationControllerTest {
     @Test
     void removeEntityFromLocation_RepositoryThrowsException() throws Exception {
         when(locationRepository.findById(2)).thenReturn(Optional.of(new Location(2, 10, 20)));
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(2, 10, 20)));
         when(locationRepository.removeEntityFromLocation(1, 2)).thenThrow(new RuntimeException("Database error"));
 
@@ -686,8 +711,26 @@ class LocationControllerTest {
         verify(locationRepository, never()).moveEntityToLocation(anyInt(), anyInt());
     }
 
+    /** There is no placement row to lock, which is how an unplaced entity is recognised. */
     @Test
     void moveEntityToLocation_EntityNotPlaced() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(false);
+
+        mockMvc.perform(put("/api/v1/locations/9/entity/1/move"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Entity 1 is not placed at any location"));
+
+        verify(locationRepository, never()).findByEntityId(anyInt());
+    }
+
+    /**
+     * The placement was locked but could not be read back. The foreign keys make that unreachable
+     * in practice, so the guard exists only so that an unreadable placement is reported as the
+     * absent placement it looks like rather than as a null dereference.
+     */
+    @Test
+    void moveEntityToLocation_LockedPlacementThatCannotBeReadIsNotFound() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/v1/locations/9/entity/1/move"))

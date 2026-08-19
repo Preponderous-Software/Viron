@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DuplicateKeyException;
 import preponderous.viron.config.DataSourceConfig;
 import preponderous.viron.config.DbConfig;
@@ -259,6 +260,23 @@ public class DbInteractionsTest {
         } finally {
             executor.shutdownNow();
         }
+    }
+
+    // #203: a locking SELECT reports whether it matched a row, and reports a failure rather than
+    // flattening it into "no such row" — a caller that locks a row in order to decide something
+    // on the strength of holding it cannot tell the two apart otherwise.
+    @Test
+    void lock_reportsWhetherARowWasMatched() {
+        dbInteractions.update("INSERT INTO person (id, name) VALUES (?, ?)", 300, "Locked");
+
+        assertThat(dbInteractions.lock("SELECT id FROM person WHERE id = ? FOR UPDATE", 300)).isTrue();
+        assertThat(dbInteractions.lock("SELECT id FROM person WHERE id = ? FOR UPDATE", 301)).isFalse();
+    }
+
+    @Test
+    void lock_reportsAFailedStatementInsteadOfReturningFalse() {
+        assertThatThrownBy(() -> dbInteractions.lock("SELECT id FROM no_such_table WHERE id = ? FOR UPDATE", 1))
+                .isInstanceOf(CannotAcquireLockException.class);
     }
 
     private static DbConfig h2Config() {

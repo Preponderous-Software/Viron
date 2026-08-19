@@ -129,16 +129,25 @@ public class LocationController {
      * it is placed elsewhere or not placed at all — is a request naming something that does not
      * exist, answered as such rather than as a server fault (#210); the sibling
      * {@link #removeEntityFromCurrentLocation(int)} already answers the equivalent case the same way.
+     *
+     * <p>The placement is locked before it is read, and the read and the delete run in one
+     * transaction, so that two removals of the same placement at once are resolved in sequence.
+     * Without the lock the second of them would find the row already gone by the time it wrote,
+     * and be answered with the server fault this endpoint has just stopped reporting.
      */
     @DeleteMapping("/{locationId}/entity/{entityId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     public void removeEntityFromLocation(@PathVariable("entityId") @Min(1) int entityId, @PathVariable("locationId") @Min(1) int locationId) {
         if (locationRepository.findById(locationId).isEmpty()) {
             throw new NotFoundException("Location not found with id: " + locationId);
         }
+        if (!locationRepository.lockPlacementOfEntity(entityId)) {
+            throw entityNotAtLocation(entityId, locationId);
+        }
         Optional<Location> placement = locationRepository.findByEntityId(entityId);
         if (placement.isEmpty() || placement.get().getLocationId() != locationId) {
-            throw new NotFoundException("Entity " + entityId + " is not at location " + locationId);
+            throw entityNotAtLocation(entityId, locationId);
         }
         if (!locationRepository.removeEntityFromLocation(entityId, locationId)) {
             throw new ServiceException("Failed to remove entity " + entityId + " from location " + locationId);
@@ -241,6 +250,10 @@ public class LocationController {
 
     private static NotFoundException entityNotPlaced(int entityId) {
         return new NotFoundException("Entity " + entityId + " is not placed at any location");
+    }
+
+    private static NotFoundException entityNotAtLocation(int entityId, int locationId) {
+        return new NotFoundException("Entity " + entityId + " is not at location " + locationId);
     }
 
     /** True if {@code a} and {@code b} are within one grid cell of each other (Chebyshev distance 1), including diagonals. */

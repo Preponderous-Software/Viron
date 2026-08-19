@@ -66,6 +66,15 @@ class TransactionBoundaryWiringTest {
         assertTransactional(LocationController.class, "moveEntityToLocation", int.class, int.class);
     }
 
+    /**
+     * The removal locks the placement it is about to delete (#210), which is only held past the
+     * locking statement inside a transaction.
+     */
+    @Test
+    void entityRemovalFromALocationRunsInATransaction() {
+        assertTransactional(LocationController.class, "removeEntityFromLocation", int.class, int.class);
+    }
+
     @Test
     void environmentCreationRunsInATransaction() {
         assertTransactional(EnvironmentFactory.class, "createEnvironment",

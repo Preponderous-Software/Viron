@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
@@ -115,6 +116,37 @@ public class DbInteractions {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Execute a parameterized {@code SELECT ... FOR UPDATE}, reporting a failure to take the lock
+     * to the caller instead of flattening it into "no such row".
+     *
+     * <p>The distinction matters here in a way it does not for
+     * {@link #queryOne(String, RowMapper, Object...)}: a caller locks a row in order to decide
+     * something on the strength of holding it, and every reason the statement can fail — a lock
+     * timeout, a deadlock the database broke, a serialization failure — is a reason to retry or to
+     * report a fault, not evidence that the row is absent. Answering "not found" for a row that
+     * exists but could not be locked would tell the client the resource is gone.
+     *
+     * @param query  a locking SELECT with {@code ?} placeholders for each parameter
+     * @param params values to bind to the placeholders, in order
+     * @return {@code true} if the statement matched, and therefore locked, a row
+     * @throws org.springframework.dao.CannotAcquireLockException if the statement failed
+     */
+    public boolean lock(String query, Object... params) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            bindParameters(statement, params);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            log.error("Error taking lock: {}", e.getMessage());
+            throw new CannotAcquireLockException("Could not take lock: " + e.getMessage(), e);
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
     }
 
     /**

@@ -44,6 +44,9 @@ public interface LocationRepository {
      *
      * @return {@code true} if the entity is placed and its placement is now locked, {@code false}
      *         if it is not placed anywhere
+     * @throws org.springframework.dao.CannotAcquireLockException if the lock could not be taken —
+     *         a row that exists but is unavailable is not the same as a row that is absent, so
+     *         this is reported rather than returned as {@code false}
      */
     boolean lockPlacementOfEntity(int entityId);
 
@@ -61,6 +64,8 @@ public interface LocationRepository {
      *
      * @return {@code true} if the location exists and is now locked, {@code false} if there is no
      *         such location
+     * @throws org.springframework.dao.CannotAcquireLockException if the lock could not be taken,
+     *         for the reason given on {@link #lockPlacementOfEntity(int)}
      */
     boolean lockLocation(int locationId);
 

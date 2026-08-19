@@ -68,7 +68,9 @@ class LocationService:
     def remove_entity_from_location(self, entity_id: int, location_id: int) -> None:
         response = requests.delete(f"{self.get_base_url()}/{location_id}/entity/{entity_id}", headers=self.get_auth_headers())
         if response.status_code == 404:
-            raise Exception("Location or entity not found")
+            # The service answers 404 both for a location that does not exist and for an entity
+            # that is not placed at it, so neither can be named on its own here.
+            raise Exception(f"No location {location_id} holding entity {entity_id}")
         response.raise_for_status()
 
     def remove_entity_from_current_location(self, entity_id: int) -> None:

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import preponderous.viron.dto.LocationDto;
@@ -123,11 +124,21 @@ public class LocationController {
                 + placement.getLocationId());
     }
 
+    /**
+     * Removes the entity placed at {@code locationId}. An entity that is not placed there — whether
+     * it is placed elsewhere or not placed at all — is a request naming something that does not
+     * exist, answered as such rather than as a server fault (#210); the sibling
+     * {@link #removeEntityFromCurrentLocation(int)} already answers the equivalent case the same way.
+     */
     @DeleteMapping("/{locationId}/entity/{entityId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeEntityFromLocation(@PathVariable("entityId") @Min(1) int entityId, @PathVariable("locationId") @Min(1) int locationId) {
         if (locationRepository.findById(locationId).isEmpty()) {
             throw new NotFoundException("Location not found with id: " + locationId);
+        }
+        Optional<Location> placement = locationRepository.findByEntityId(entityId);
+        if (placement.isEmpty() || placement.get().getLocationId() != locationId) {
+            throw new NotFoundException("Entity " + entityId + " is not at location " + locationId);
         }
         if (!locationRepository.removeEntityFromLocation(entityId, locationId)) {
             throw new ServiceException("Failed to remove entity " + entityId + " from location " + locationId);
@@ -179,9 +190,20 @@ public class LocationController {
      * the entity is placed, the target exists and is in the same grid, is adjacent to the
      * entity's current location, and is not already occupied (collision). The transition
      * itself is a single atomic update.
+     *
+     * <p>The collision check is not something the read alone can decide: two moves into the same
+     * empty location would both read it empty and both write, leaving the target holding two
+     * entities that the 409 above claims to prevent (#203). Nothing in the schema settles this the
+     * way the primary key settles {@link #addEntityToLocation(int, int)} — a location is permitted
+     * to hold several entities, and {@code addEntityToLocation} places one without consulting
+     * occupancy at all, so "at most one entity per location" is this endpoint's rule rather than
+     * an invariant of the data. The target's row is therefore locked before its occupancy is read,
+     * and the lock is held to the end of the transaction, so a second move into the same location
+     * waits and then reads the placement the first one committed.
      */
     @PutMapping("/{locationId}/entity/{entityId}/move")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     public void moveEntityToLocation(@PathVariable("entityId") @Min(1) int entityId,
                                      @PathVariable("locationId") @Min(1) int locationId) {
         Location current = locationRepository.findByEntityId(entityId)
@@ -197,6 +219,9 @@ public class LocationController {
         if (!isAdjacent(current, target)) {
             throw new InvalidRequestException(
                     "Target location " + locationId + " is not adjacent to entity " + entityId + "'s current location");
+        }
+        if (!locationRepository.lockLocation(locationId)) {
+            throw new NotFoundException("Location not found with id: " + locationId);
         }
         if (!locationRepository.getEntityIdsAtLocation(locationId).isEmpty()) {
             throw new ConflictException("Target location " + locationId + " is already occupied");

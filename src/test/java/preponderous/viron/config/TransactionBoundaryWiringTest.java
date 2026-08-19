@@ -17,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.interceptor.TransactionAttributeSource;
 import preponderous.viron.controllers.EntityController;
 import preponderous.viron.controllers.EnvironmentController;
+import preponderous.viron.controllers.LocationController;
 import preponderous.viron.factories.EnvironmentFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +54,16 @@ class TransactionBoundaryWiringTest {
     @Test
     void entityDeleteRunsInATransaction() {
         assertTransactional(EntityController.class, "deleteEntity", int.class);
+    }
+
+    /**
+     * The move's collision check holds a lock on the target from the moment it is read until the
+     * move is written (#203), and a lock only outlives the statement that took it inside a
+     * transaction.
+     */
+    @Test
+    void entityMoveRunsInATransaction() {
+        assertTransactional(LocationController.class, "moveEntityToLocation", int.class, int.class);
     }
 
     @Test

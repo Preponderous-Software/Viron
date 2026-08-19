@@ -367,4 +367,32 @@ public class LocationRepositoryImplTest {
         assertThat(repository.moveEntityToLocation(4, 9)).isTrue();
         Mockito.verify(dbInteractions).update(query, 9, 4);
     }
+
+    // ---- lockLocation ----
+
+    private static final String LOCK_QUERY = "SELECT location_id FROM viron.location WHERE location_id = ? FOR UPDATE";
+
+    @Test
+    public void testLockLocation_ReturnsTrueWhenTheLocationExists() throws SQLException {
+        ResultSet mockResultSet = Mockito.mock(ResultSet.class);
+        Mockito.when(dbInteractions.<Integer>queryOne(eq(LOCK_QUERY), any(), eq(5)))
+                .thenAnswer(mapsFirstRow(mockResultSet));
+        Mockito.when(mockResultSet.next()).thenReturn(true);
+        Mockito.when(mockResultSet.getInt("location_id")).thenReturn(5);
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockLocation(5)).isTrue();
+        Mockito.verify(dbInteractions).queryOne(eq(LOCK_QUERY), any(), eq(5));
+    }
+
+    @Test
+    public void testLockLocation_ReturnsFalseWhenThereIsNoSuchLocation() {
+        Mockito.when(dbInteractions.<Integer>queryOne(eq(LOCK_QUERY), any(), eq(5)))
+                .thenReturn(Optional.empty());
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockLocation(5)).isFalse();
+    }
 }

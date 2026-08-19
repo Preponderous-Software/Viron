@@ -31,6 +31,23 @@ public interface LocationRepository {
     /** The grid a location belongs to, if any. */
     Optional<Integer> getGridIdOfLocation(int locationId);
 
+    /**
+     * Takes an exclusive row lock on a location, held until the surrounding transaction ends.
+     *
+     * <p>The lock is on the location itself rather than on whatever happens to occupy it, because
+     * a location that is empty has no occupancy rows to lock and emptiness is exactly the state a
+     * collision check depends on (#203). Callers that read occupancy and then write on the
+     * strength of that read take this lock first, so any other caller doing the same against the
+     * same location waits rather than reading the same stale emptiness.
+     *
+     * <p>Only meaningful inside a transaction: without one the lock is released as soon as the
+     * statement ends, which is before the caller can act on what it read.
+     *
+     * @return {@code true} if the location exists and is now locked, {@code false} if there is no
+     *         such location
+     */
+    boolean lockLocation(int locationId);
+
     /** Atomically moves an entity's current placement to the target location. */
     boolean moveEntityToLocation(int entityId, int targetLocationId);
 }

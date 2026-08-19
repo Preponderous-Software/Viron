@@ -368,6 +368,35 @@ public class LocationRepositoryImplTest {
         Mockito.verify(dbInteractions).update(query, 9, 4);
     }
 
+    // ---- lockPlacementOfEntity ----
+
+    private static final String PLACEMENT_LOCK_QUERY =
+            "SELECT entity_id FROM viron.entity_location WHERE entity_id = ? FOR UPDATE";
+
+    @Test
+    public void testLockPlacementOfEntity_ReturnsTrueWhenTheEntityIsPlaced() throws SQLException {
+        ResultSet mockResultSet = Mockito.mock(ResultSet.class);
+        Mockito.when(dbInteractions.<Integer>queryOne(eq(PLACEMENT_LOCK_QUERY), any(), eq(4)))
+                .thenAnswer(mapsFirstRow(mockResultSet));
+        Mockito.when(mockResultSet.next()).thenReturn(true);
+        Mockito.when(mockResultSet.getInt("entity_id")).thenReturn(4);
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockPlacementOfEntity(4)).isTrue();
+        Mockito.verify(dbInteractions).queryOne(eq(PLACEMENT_LOCK_QUERY), any(), eq(4));
+    }
+
+    @Test
+    public void testLockPlacementOfEntity_ReturnsFalseWhenTheEntityIsNotPlaced() {
+        Mockito.when(dbInteractions.<Integer>queryOne(eq(PLACEMENT_LOCK_QUERY), any(), eq(4)))
+                .thenReturn(Optional.empty());
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockPlacementOfEntity(4)).isFalse();
+    }
+
     // ---- lockLocation ----
 
     private static final String LOCK_QUERY = "SELECT location_id FROM viron.location WHERE location_id = ? FOR UPDATE";

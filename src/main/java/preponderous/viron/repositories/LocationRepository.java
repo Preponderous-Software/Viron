@@ -32,6 +32,22 @@ public interface LocationRepository {
     Optional<Integer> getGridIdOfLocation(int locationId);
 
     /**
+     * Takes an exclusive row lock on an entity's placement, held until the surrounding transaction
+     * ends.
+     *
+     * <p>Callers that lock both a placement and a location take this lock first, because that is
+     * the order the environment cascade delete acquires the same two — it clears
+     * {@code entity_location} before deleting the locations — and two paths that take the same
+     * locks in opposite orders can wait on each other in a cycle.
+     *
+     * <p>Only meaningful inside a transaction, for the reason given on {@link #lockLocation(int)}.
+     *
+     * @return {@code true} if the entity is placed and its placement is now locked, {@code false}
+     *         if it is not placed anywhere
+     */
+    boolean lockPlacementOfEntity(int entityId);
+
+    /**
      * Takes an exclusive row lock on a location, held until the surrounding transaction ends.
      *
      * <p>The lock is on the location itself rather than on whatever happens to occupy it, because

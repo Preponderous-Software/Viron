@@ -624,6 +624,7 @@ class LocationControllerTest {
 
     @Test
     void moveEntityToLocation_Success() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 0, 0)));
         when(locationRepository.findById(9)).thenReturn(Optional.of(new Location(9, 1, 0)));
         when(locationRepository.getGridIdOfLocation(5)).thenReturn(Optional.of(3));
@@ -640,10 +641,13 @@ class LocationControllerTest {
 
     /**
      * The target's occupancy is only read once the target is locked, so that a concurrent move
-     * cannot claim it in between (#203).
+     * cannot claim it in between (#203). The entity's placement is locked before the target,
+     * matching the order the environment cascade delete takes the same two locks in — the reverse
+     * order would let a move and a delete wait on each other in a cycle.
      */
     @Test
     void moveEntityToLocation_LocksTheTargetBeforeReadingItsOccupancy() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 0, 0)));
         when(locationRepository.findById(9)).thenReturn(Optional.of(new Location(9, 1, 0)));
         when(locationRepository.getGridIdOfLocation(5)).thenReturn(Optional.of(3));
@@ -656,6 +660,7 @@ class LocationControllerTest {
                 .andExpect(status().isNoContent());
 
         InOrder inOrder = inOrder(locationRepository);
+        inOrder.verify(locationRepository).lockPlacementOfEntity(1);
         inOrder.verify(locationRepository).lockLocation(9);
         inOrder.verify(locationRepository).getEntityIdsAtLocation(9);
         inOrder.verify(locationRepository).moveEntityToLocation(1, 9);
@@ -667,6 +672,7 @@ class LocationControllerTest {
      */
     @Test
     void moveEntityToLocation_TargetDeletedBeforeLockIsNotFound() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 0, 0)));
         when(locationRepository.findById(9)).thenReturn(Optional.of(new Location(9, 1, 0)));
         when(locationRepository.getGridIdOfLocation(5)).thenReturn(Optional.of(3));
@@ -691,6 +697,7 @@ class LocationControllerTest {
 
     @Test
     void moveEntityToLocation_TargetNotFound() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 0, 0)));
         when(locationRepository.findById(9)).thenReturn(Optional.empty());
 
@@ -701,6 +708,7 @@ class LocationControllerTest {
 
     @Test
     void moveEntityToLocation_DifferentGridIsBadRequest() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 0, 0)));
         when(locationRepository.findById(9)).thenReturn(Optional.of(new Location(9, 1, 0)));
         when(locationRepository.getGridIdOfLocation(5)).thenReturn(Optional.of(3));
@@ -712,6 +720,7 @@ class LocationControllerTest {
 
     @Test
     void moveEntityToLocation_NotAdjacentIsBadRequest() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 0, 0)));
         when(locationRepository.findById(9)).thenReturn(Optional.of(new Location(9, 5, 5)));
         when(locationRepository.getGridIdOfLocation(5)).thenReturn(Optional.of(3));
@@ -726,6 +735,7 @@ class LocationControllerTest {
 
     @Test
     void moveEntityToLocation_OccupiedTargetIsConflict() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 0, 0)));
         when(locationRepository.findById(9)).thenReturn(Optional.of(new Location(9, 1, 0)));
         when(locationRepository.getGridIdOfLocation(5)).thenReturn(Optional.of(3));

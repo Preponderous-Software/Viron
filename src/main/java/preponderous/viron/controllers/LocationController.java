@@ -200,14 +200,22 @@ public class LocationController {
      * an invariant of the data. The target's row is therefore locked before its occupancy is read,
      * and the lock is held to the end of the transaction, so a second move into the same location
      * waits and then reads the placement the first one committed.
+     *
+     * <p>The entity's own placement is locked first, before anything is read, for two reasons: it
+     * keeps the position the checks below are made against from moving underneath them, and it is
+     * the order {@code deleteEnvironment} takes the same two locks in, so a move and a cascade
+     * delete cannot end up waiting on each other in a cycle.
      */
     @PutMapping("/{locationId}/entity/{entityId}/move")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
     public void moveEntityToLocation(@PathVariable("entityId") @Min(1) int entityId,
                                      @PathVariable("locationId") @Min(1) int locationId) {
+        if (!locationRepository.lockPlacementOfEntity(entityId)) {
+            throw entityNotPlaced(entityId);
+        }
         Location current = locationRepository.findByEntityId(entityId)
-                .orElseThrow(() -> new NotFoundException("Entity " + entityId + " is not placed at any location"));
+                .orElseThrow(() -> entityNotPlaced(entityId));
         Location target = locationRepository.findById(locationId)
                 .orElseThrow(() -> new NotFoundException("Location not found with id: " + locationId));
         Optional<Integer> currentGrid = locationRepository.getGridIdOfLocation(current.getLocationId());
@@ -229,6 +237,10 @@ public class LocationController {
         if (!locationRepository.moveEntityToLocation(entityId, locationId)) {
             throw new ServiceException("Failed to move entity " + entityId + " to location " + locationId);
         }
+    }
+
+    private static NotFoundException entityNotPlaced(int entityId) {
+        return new NotFoundException("Entity " + entityId + " is not placed at any location");
     }
 
     /** True if {@code a} and {@code b} are within one grid cell of each other (Chebyshev distance 1), including diagonals. */

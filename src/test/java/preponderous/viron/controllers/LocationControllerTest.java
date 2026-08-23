@@ -570,7 +570,7 @@ class LocationControllerTest {
 
     @Test
     void removeEntityFromCurrentLocation_Success() throws Exception {
-        when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 10, 20)));
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.removeEntityFromCurrentLocation(1)).thenReturn(true);
 
         mockMvc.perform(delete("/api/v1/locations/entity/1"))
@@ -579,19 +579,40 @@ class LocationControllerTest {
         verify(locationRepository).removeEntityFromCurrentLocation(1);
     }
 
+    /**
+     * The placement is locked before it is deleted, so that a second removal of the same placement
+     * waits and is then told the entity is not placed, rather than passing an unguarded check and
+     * writing nothing.
+     */
+    @Test
+    void removeEntityFromCurrentLocation_LocksThePlacementBeforeDeletingIt() throws Exception {
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
+        when(locationRepository.removeEntityFromCurrentLocation(1)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/v1/locations/entity/1"))
+                .andExpect(status().isNoContent());
+
+        InOrder inOrder = inOrder(locationRepository);
+        inOrder.verify(locationRepository).lockPlacementOfEntity(1);
+        inOrder.verify(locationRepository).removeEntityFromCurrentLocation(1);
+    }
+
+    /** There is no placement row to lock, which is how an unplaced entity is recognised. */
     @Test
     void removeEntityFromCurrentLocation_NotFound() throws Exception {
-        when(locationRepository.findByEntityId(999)).thenReturn(Optional.empty());
+        when(locationRepository.lockPlacementOfEntity(999)).thenReturn(false);
 
         mockMvc.perform(delete("/api/v1/locations/entity/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Location not found for entity: 999"));
+
+        verify(locationRepository, never()).removeEntityFromCurrentLocation(anyInt());
     }
 
     @Test
     void removeEntityFromCurrentLocation_RepositoryThrowsException() throws Exception {
-        when(locationRepository.findByEntityId(1)).thenReturn(Optional.of(new Location(5, 10, 20)));
+        when(locationRepository.lockPlacementOfEntity(1)).thenReturn(true);
         when(locationRepository.removeEntityFromCurrentLocation(1)).thenThrow(new RuntimeException("Database error"));
 
         mockMvc.perform(delete("/api/v1/locations/entity/1"))

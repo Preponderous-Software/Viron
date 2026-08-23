@@ -154,10 +154,21 @@ public class LocationController {
         }
     }
 
+    /**
+     * Removes an entity from wherever it is placed.
+     *
+     * <p>The placement is locked rather than merely read, for the reason given on
+     * {@link #removeEntityFromLocation(int, int)}: an unguarded read followed by a delete lets two
+     * removals of the same placement both pass the check, and the one that writes second matches
+     * no rows and is answered with a server fault for having lost a race. Taking the lock also
+     * makes the read redundant, since a statement that locks no row is exactly the unplaced entity
+     * the 404 below reports.
+     */
     @DeleteMapping("/entity/{entityId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     public void removeEntityFromCurrentLocation(@PathVariable @Min(1) int entityId) {
-        if (locationRepository.findByEntityId(entityId).isEmpty()) {
+        if (!locationRepository.lockPlacementOfEntity(entityId)) {
             throw new NotFoundException("Location not found for entity: " + entityId);
         }
         if (!locationRepository.removeEntityFromCurrentLocation(entityId)) {

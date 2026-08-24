@@ -169,6 +169,15 @@ def test_remove_entity_from_location(mock_delete):
     mock_delete.assert_called_with("http://localhost:9999/api/v1/locations/1/entity/1", headers={})
 
 @patch('requests.delete')
+def test_remove_entity_from_location_not_there(mock_delete):
+    mock_response = Mock()
+    mock_response.status_code = 404
+    mock_delete.return_value = mock_response
+
+    with pytest.raises(Exception, match="No location 1 holding entity 2"):
+        service.remove_entity_from_location(2, 1)
+
+@patch('requests.delete')
 def test_remove_entity_from_current_location(mock_delete):
     mock_response = Mock()
     mock_response.raise_for_status = Mock()

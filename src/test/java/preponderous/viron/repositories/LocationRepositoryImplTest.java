@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DuplicateKeyException;
 import preponderous.viron.database.DbInteractions;
 import preponderous.viron.models.Location;
@@ -366,5 +367,76 @@ public class LocationRepositoryImplTest {
 
         assertThat(repository.moveEntityToLocation(4, 9)).isTrue();
         Mockito.verify(dbInteractions).update(query, 9, 4);
+    }
+
+    // ---- lockPlacementOfEntity ----
+
+    private static final String PLACEMENT_LOCK_QUERY =
+            "SELECT entity_id FROM viron.entity_location WHERE entity_id = ? FOR UPDATE";
+
+    @Test
+    public void testLockPlacementOfEntity_ReturnsTrueWhenTheEntityIsPlaced() {
+        Mockito.when(dbInteractions.lock(PLACEMENT_LOCK_QUERY, 4)).thenReturn(true);
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockPlacementOfEntity(4)).isTrue();
+        Mockito.verify(dbInteractions).lock(PLACEMENT_LOCK_QUERY, 4);
+    }
+
+    @Test
+    public void testLockPlacementOfEntity_ReturnsFalseWhenTheEntityIsNotPlaced() {
+        Mockito.when(dbInteractions.lock(PLACEMENT_LOCK_QUERY, 4)).thenReturn(false);
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockPlacementOfEntity(4)).isFalse();
+    }
+
+    /** A lock that could not be taken is reported, not mistaken for a placement that is absent. */
+    @Test
+    public void testLockPlacementOfEntity_PropagatesAFailureToTakeTheLock() {
+        Mockito.when(dbInteractions.lock(PLACEMENT_LOCK_QUERY, 4))
+                .thenThrow(new CannotAcquireLockException("lock timeout"));
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThatThrownBy(() -> repository.lockPlacementOfEntity(4))
+                .isInstanceOf(CannotAcquireLockException.class);
+    }
+
+    // ---- lockLocation ----
+
+    private static final String LOCK_QUERY = "SELECT location_id FROM viron.location WHERE location_id = ? FOR UPDATE";
+
+    @Test
+    public void testLockLocation_ReturnsTrueWhenTheLocationExists() {
+        Mockito.when(dbInteractions.lock(LOCK_QUERY, 5)).thenReturn(true);
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockLocation(5)).isTrue();
+        Mockito.verify(dbInteractions).lock(LOCK_QUERY, 5);
+    }
+
+    @Test
+    public void testLockLocation_ReturnsFalseWhenThereIsNoSuchLocation() {
+        Mockito.when(dbInteractions.lock(LOCK_QUERY, 5)).thenReturn(false);
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThat(repository.lockLocation(5)).isFalse();
+    }
+
+    /** A lock that could not be taken is reported, not mistaken for a location that is absent. */
+    @Test
+    public void testLockLocation_PropagatesAFailureToTakeTheLock() {
+        Mockito.when(dbInteractions.lock(LOCK_QUERY, 5))
+                .thenThrow(new CannotAcquireLockException("lock timeout"));
+
+        LocationRepositoryImpl repository = new LocationRepositoryImpl(dbInteractions);
+
+        assertThatThrownBy(() -> repository.lockLocation(5))
+                .isInstanceOf(CannotAcquireLockException.class);
     }
 }

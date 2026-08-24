@@ -393,6 +393,7 @@
       },
       "delete": {
         "summary": "Remove entity from location",
+        "description": "Removes the entity placed at the location. An entity that is not placed there, whether it is placed elsewhere or not placed at all, is reported as not found.",
         "parameters": [
           { "$ref": "#/components/parameters/LocationIdParam" },
           { "$ref": "#/components/parameters/EntityIdParam" }
@@ -400,7 +401,7 @@
         "responses": {
           "204": { "description": "Entity removed" },
           "404": {
-            "description": "Location not found with that id",
+            "description": "No location with that id, or the entity is not placed at that location",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             }
@@ -411,6 +412,7 @@
     "/api/v1/locations/{locationId}/entity/{entityId}/move": {
       "put": {
         "summary": "Move an entity to an adjacent, unoccupied location in the same grid",
+        "description": "Moves a placed entity to an adjacent, unoccupied location in the same grid. The target is held against other moves for the duration of the request, so two moves into the same empty location are resolved in sequence: one takes effect and the other is answered as a conflict.",
         "parameters": [
           { "$ref": "#/components/parameters/LocationIdParam" },
           { "$ref": "#/components/parameters/EntityIdParam" }
@@ -430,7 +432,7 @@
             }
           },
           "409": {
-            "description": "Target location is already occupied",
+            "description": "Target location is already occupied, including when a concurrent move reached it first",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             }

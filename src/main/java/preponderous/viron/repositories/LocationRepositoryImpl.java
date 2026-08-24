@@ -105,6 +105,18 @@ public class LocationRepositoryImpl implements LocationRepository {
     }
 
     @Override
+    public boolean lockPlacementOfEntity(int entityId) {
+        String query = "SELECT entity_id FROM viron.entity_location WHERE entity_id = ? FOR UPDATE";
+        return dbInteractions.lock(query, entityId);
+    }
+
+    @Override
+    public boolean lockLocation(int locationId) {
+        String query = "SELECT location_id FROM viron.location WHERE location_id = ? FOR UPDATE";
+        return dbInteractions.lock(query, locationId);
+    }
+
+    @Override
     public boolean moveEntityToLocation(int entityId, int targetLocationId) {
         // Single atomic statement: re-point the entity's existing placement to the target.
         String query = "UPDATE viron.entity_location SET location_id = ? WHERE entity_id = ?";

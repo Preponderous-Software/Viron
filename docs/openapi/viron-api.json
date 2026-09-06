@@ -37,7 +37,8 @@
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
@@ -52,6 +53,7 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Environment not found with that id",
             "content": {
@@ -65,6 +67,7 @@
         "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
         "responses": {
           "204": { "description": "Environment deleted" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Environment not found with that id",
             "content": {
@@ -112,6 +115,7 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/EnvironmentDTO" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Environment not found for entity",
             "content": {
@@ -133,6 +137,7 @@
         },
         "responses": {
           "200": { "description": "Name updated" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Environment not found with that id",
             "content": {
@@ -171,6 +176,7 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/GridDTO" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Grid not found with that id",
             "content": {
@@ -188,7 +194,7 @@
             "name": "environmentId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" }
+            "schema": { "type": "integer", "minimum": 1 }
           }
         ],
         "responses": {
@@ -202,7 +208,8 @@
                 }
               }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
@@ -217,6 +224,7 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/GridDTO" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Grid not found for entity",
             "content": {
@@ -238,6 +246,7 @@
         },
         "responses": {
           "200": { "description": "Name updated" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Grid not found with that id",
             "content": {
@@ -268,7 +277,7 @@
     "/api/v1/locations/{id}": {
       "get": {
         "summary": "Get location by ID",
-        "parameters": [{ "$ref": "#/components/parameters/LocationIdParam" }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "200": {
             "description": "Location details",
@@ -276,6 +285,7 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/LocationDTO" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Location not found with that id",
             "content": {
@@ -288,7 +298,7 @@
     "/api/v1/locations/environment/{environmentId}": {
       "get": {
         "summary": "Get locations in an environment",
-        "parameters": [{ "$ref": "#/components/parameters/EnvironmentIdParam" }],
+        "parameters": [{ "name": "environmentId", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "200": {
             "description": "List of locations in the environment",
@@ -300,14 +310,15 @@
                 }
               }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
     "/api/v1/locations/grid/{gridId}": {
       "get": {
         "summary": "Get locations in a grid",
-        "parameters": [{ "$ref": "#/components/parameters/GridIdParam" }],
+        "parameters": [{ "name": "gridId", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "200": {
             "description": "List of locations in the grid",
@@ -319,14 +330,15 @@
                 }
               }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
     "/api/v1/locations/grid/{gridId}/unoccupied": {
       "get": {
         "summary": "Get unoccupied locations in a grid",
-        "parameters": [{ "$ref": "#/components/parameters/GridIdParam" }],
+        "parameters": [{ "name": "gridId", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "200": {
             "description": "List of unoccupied locations in the grid",
@@ -338,7 +350,8 @@
                 }
               }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
@@ -358,6 +371,7 @@
               }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Location not found, or not in any grid",
             "content": {
@@ -377,6 +391,7 @@
         ],
         "responses": {
           "200": { "description": "Entity added, or already present at that location" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Location or entity not found with that id",
             "content": {
@@ -400,6 +415,7 @@
         ],
         "responses": {
           "204": { "description": "Entity removed" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "No location with that id, or the entity is not placed at that location",
             "content": {
@@ -420,7 +436,7 @@
         "responses": {
           "204": { "description": "Entity moved" },
           "400": {
-            "description": "Target location is not in the same grid as the entity, or is not adjacent to the entity's current location",
+            "description": "An id failed validation, or the target location is not in the same grid as the entity, or is not adjacent to the entity's current location",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
             }
@@ -456,6 +472,7 @@
               }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Location not found",
             "content": {
@@ -476,6 +493,7 @@
               "application/json": { "schema": { "type": "boolean" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Location not found",
             "content": {
@@ -496,6 +514,7 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/LocationDTO" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Location not found for entity",
             "content": {
@@ -509,6 +528,7 @@
         "parameters": [{ "$ref": "#/components/parameters/EntityIdParam" }],
         "responses": {
           "204": { "description": "Entity removed" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Location not found for entity",
             "content": {
@@ -549,14 +569,15 @@
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/EntityDTO" } }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
     "/api/v1/entities/{id}": {
       "get": {
         "summary": "Get entity by ID",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "200": {
             "description": "Entity details",
@@ -564,6 +585,7 @@
               "application/json": { "schema": { "$ref": "#/components/schemas/EntityDTO" } }
             }
           },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Entity not found with that id",
             "content": {
@@ -574,9 +596,10 @@
       },
       "delete": {
         "summary": "Delete entity",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "204": { "description": "Entity deleted" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Entity not found with that id",
             "content": {
@@ -589,7 +612,7 @@
     "/api/v1/entities/{id}/name": {
       "patch": {
         "summary": "Update entity name",
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "requestBody": {
           "required": true,
           "content": {
@@ -598,6 +621,7 @@
         },
         "responses": {
           "200": { "description": "Name updated" },
+          "400": { "$ref": "#/components/responses/ValidationError" },
           "404": {
             "description": "Entity not found with that id",
             "content": {
@@ -610,7 +634,7 @@
     "/api/v1/entities/environment/{environmentId}": {
       "get": {
         "summary": "Get entities in an environment",
-        "parameters": [{ "name": "environmentId", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [{ "name": "environmentId", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "200": {
             "description": "List of entities in the environment",
@@ -622,14 +646,15 @@
                 }
               }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
     "/api/v1/entities/grid/{gridId}": {
       "get": {
         "summary": "Get entities in a grid",
-        "parameters": [{ "name": "gridId", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [{ "name": "gridId", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }],
         "responses": {
           "200": {
             "description": "List of entities in the grid",
@@ -641,7 +666,8 @@
                 }
               }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
@@ -660,7 +686,8 @@
                 }
               }
             }
-          }
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" }
         }
       }
     },
@@ -805,31 +832,39 @@
         "name": "id",
         "in": "path",
         "required": true,
-        "schema": { "type": "integer" }
+        "schema": { "type": "integer", "minimum": 1 }
       },
       "GridIdParam": {
         "name": "id",
         "in": "path",
         "required": true,
-        "schema": { "type": "integer" }
+        "schema": { "type": "integer", "minimum": 1 }
       },
       "LocationIdParam": {
         "name": "locationId",
         "in": "path",
         "required": true,
-        "schema": { "type": "integer" }
+        "schema": { "type": "integer", "minimum": 1 }
       },
       "EntityIdParam": {
         "name": "entityId",
         "in": "path",
         "required": true,
-        "schema": { "type": "integer" }
+        "schema": { "type": "integer", "minimum": 1 }
       },
       "EnvironmentNameParam": {
         "name": "environmentName",
         "in": "path",
         "required": true,
         "schema": { "type": "string" }
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "A request parameter or body field failed validation. The message names the rejected field; several rejections are joined with '; '.",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+        }
       }
     }
   }

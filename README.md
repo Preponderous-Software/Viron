@@ -63,9 +63,9 @@ The MVP implements the endpoints defined in `docs/openapi/viron-api.json` and do
 - Retrieve locations by ID, grid, or environment.
 - Place an entity at a location, move a placed entity to an adjacent location, and remove it
   from a location or from wherever it currently stands.
-- Ask which entities a location holds, whether it holds any at all, and which locations in a
-  grid hold none.
-- Ask which locations neighbor a location within its grid.
+- Retrieve the entities a location holds, report whether it holds any at all, and find the
+  locations in a grid that hold none.
+- Retrieve the locations adjacent to a location within its grid.
 
 **Entity Management**
 - Create, retrieve, rename, and delete entities.

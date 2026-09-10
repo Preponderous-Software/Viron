@@ -50,20 +50,27 @@ Core responsibilities:
 The MVP implements the endpoints defined in `docs/openapi/viron-api.json` and documented in `docs/MVP.md`.
 
 **Environment Management**
-- Create, retrieve, update (including renaming), and delete environments.
+- Create, retrieve, rename, and delete environments.
 - Create grids as squares (`gridSize`) or with independent dimensions (`numRows`/`numColumns`).
 - Query environments by ID, name, or contained entity.
 
 **Grid Management**
 - Retrieve grids by ID or environment.
 - Find the grid containing a specific entity.
+- Rename a grid.
 
 **Location Management**
 - Retrieve locations by ID, grid, or environment.
-- Manage entity placement in locations.
+- Place an entity at a location, move a placed entity to an adjacent location, and remove it
+  from a location or from wherever it currently stands.
+- Retrieve the entities a location holds, report whether it holds any at all, and find the
+  locations in a grid that hold none.
+- Retrieve the locations adjacent to a location within its grid.
 
 **Entity Management**
-- Create, retrieve, and delete entities.
+- Create, retrieve, rename, and delete entities.
+- Query entities by environment, grid, or location, and list the entities that are not placed
+  anywhere.
 
 **Debug Utilities**
 - Generate sample environments, grids, locations, and entities.
@@ -113,6 +120,9 @@ viron/
  ├── db-scripts/             # SQL schema setup scripts, and migrations for existing databases  
  ├── docs/  
  │    ├── MVP.md             # Implementation checklist for MVP  
+ │    ├── PLANNING.md        # MVP issue plan, grouped into milestones  
+ │    ├── REBUILD_PLAN.md    # Process and conventions for the ground-up rebuild  
+ │    ├── diagrams/          # Class-usage diagram (draw.io source and rendered PNG)  
  │    └── openapi/  
  │         └── viron-api.json  # API specification  
  ├── postman/                # Postman collection generated from the API specification  

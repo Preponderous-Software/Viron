@@ -113,7 +113,8 @@ viron/
  │    ├── mappers/           # MapStruct mappers between models and DTOs  
  │    ├── models/            # Internal domain models  
  │    ├── repositories/      # Data access layer  
- │    └── services/          # Business logic  
+ │    ├── services/          # Business logic  
+ │    └── trace/             # Usage reporting (vendored trace client + the startup event)  
  ├── src/main/python/        # Python client SDK  
  ├── src/test/java/...       # Unit and integration tests  
  ├── src/test/python/...     # Python client SDK tests (pytest)  
@@ -146,6 +147,24 @@ Copy `sample.env` to `.env` and review the values before starting anything.
 `JWT_SECRET` is required — it has no default, so the service will not start until it is set.  
 It must match the secret used by the UserAuth service that issues the tokens, and for `HS256`
 it must be at least 32 bytes.
+
+#### Usage reporting
+On start-up the service sends **one** `startup` event to the trace usage-tracking service at
+`https://trace.danielstephenson.dev`: the program name (`viron`), its version, and the tag
+`service=true`. Nothing is sent per request, and nothing about users, hosts, addresses or data
+is ever included. The event goes out on a background thread and is dropped if the trace server
+is down or slow, so it can never delay start-up or a request.
+
+It is on by default and configured by the `usage-reporting.*` properties in
+`application.properties`, each with an environment override:
+
+| Property | Environment variable | Default |
+|---|---|---|
+| `usage-reporting.enabled` | `USAGE_REPORTING_ENABLED` | `true` |
+| `usage-reporting.endpoint` | `USAGE_REPORTING_ENDPOINT` | `https://trace.danielstephenson.dev` |
+| `usage-reporting.key` | `USAGE_REPORTING_KEY` | the bundled program key |
+
+Set `USAGE_REPORTING_ENABLED=false` to turn it off.
 
 ### Running Locally
 docker-compose up --build  

@@ -32,6 +32,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set; see sample.env}
       JWT_ISSUER: ${JWT_ISSUER:-userauth}
       JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      # One "startup" usage event goes to the trace service on start-up; false turns it off.
+      USAGE_REPORTING_ENABLED: ${USAGE_REPORTING_ENABLED:-true}
     depends_on:
       - postgres
 
